@@ -15,7 +15,6 @@
 #define FOSSIL_SYS_FRAMEWORK_H
 
 #include "cnullptr.h"
-#include "command.h"
 #include "memory.h"
 
 #endif /* FOSSIL_SYS_FRAMEWORK_H */
