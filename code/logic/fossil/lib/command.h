@@ -22,55 +22,30 @@ extern "C" {
 #endif
 
 /**
- * Execute a command and return the result.
- *
- * @param process The command to be executed.
- * @return        The result of the command execution.
+ * Execute a system command.
+ * @param command The command to execute.
+ * @return 0 on success, nonzero on failure.
  */
-int32_t fossil_sys_command(char * process);
+int fossil_sys_command_exec(const char *command);
 
 /**
- * Check if a command execution was successful.
- *
- * @param process The command to be checked.
- * @return        1 if the command was successful, 0 otherwise.
+ * Duplicate a file descriptor.
+ * @param oldfd The original file descriptor.
+ * @return The new file descriptor, or -1 on error.
  */
-int32_t fossil_sys_command_success(char * process);
+int fossil_sys_command_dup(int oldfd);
 
 /**
- * Retrieve the output of a command execution.
- *
- * @param process     The command to retrieve output from.
- * @param output      Buffer to store the output.
- * @param output_size Size of the output buffer.
- * @return            The result of the command execution.
+ * Get system uptime in seconds.
+ * @return The uptime in seconds, or -1 on failure.
  */
-int32_t fossil_sys_command_output(char * process, char * output, size_t output_size);
+int64_t fossil_sys_command_uptime(void);
 
 /**
- * Check if a command exists.
- *
- * @param process The command to be checked.
- * @return        1 if the command exists, 0 otherwise.
+ * Get available memory in bytes.
+ * @return The available memory in bytes, or -1 on failure.
  */
-int32_t fossil_sys_command_exists(char * process);
-
-/**
- * Erase a command and check if it exists.
- *
- * @param path The command to be erased.
- * @return     1 if the command exists, 0 otherwise.
- */
-int32_t fossil_sys_command_erase_exists(char * path);
-
-/**
- * Safely concatenate two strings into a destination buffer.
- *
- * @param dest      The destination buffer for the concatenated strings.
- * @param src       The source string to be concatenated.
- * @param dest_size The size of the destination buffer.
- */
-void fossil_sys_command_strcat_safe(char * dest, const char * src, size_t dest_size);
+int64_t fossil_sys_command_meminfo(void);
 
 #ifdef __cplusplus
 }
@@ -85,136 +60,49 @@ namespace fossil {
          * Command class to wrap C functions for command execution.
          */
         class Command {
+
         public:
-
             /**
-             * Execute a command.
-             *
-             * @param process The command to be executed.
-             * @return        The result of the command execution.
+             * Execute a system command.
+             * @param command The command to execute.
+             * @return 0 on success, nonzero on failure.
              */
-            static int32_t execute(const char * process) {
-                return fossil_sys_command((char *)process);
+            static int exec(const std::string &command) {
+                return fossil_sys_command_exec(command.c_str());
             }
 
             /**
-             * Check if a command execution was successful.
-             *
-             * @param process The command to be checked.
-             * @return        1 if the command was successful, 0 otherwise.
+             * Duplicate a file descriptor.
+             * @param oldfd The original file descriptor.
+             * @return The new file descriptor, or -1 on error.
              */
-            static int32_t is_success(const char * process) {
-                return fossil_sys_command_success((char *)process);
+            static int exec(const char *command) {
+                return fossil_sys_command_exec(command);
             }
 
             /**
-             * Retrieve the output of a command execution.
-             *
-             * @param process     The command to retrieve output from.
-             * @param output      Buffer to store the output.
-             * @param output_size Size of the output buffer.
-             * @return            The result of the command execution.
+             * Duplicate a file descriptor.
+             * @param oldfd The original file descriptor.
+             * @return The new file descriptor, or -1 on error.
              */
-            static int32_t get_output(const char * process, char * output, size_t output_size) {
-                return fossil_sys_command_output((char *)process, output, output_size);
+            static int dup(int oldfd) {
+                return fossil_sys_command_dup(oldfd);
             }
 
             /**
-             * Check if a command exists.
-             *
-             * @param process The command to be checked.
-             * @return        1 if the command exists, 0 otherwise.
+             * Get system uptime in seconds.
+             * @return The uptime in seconds, or -1 on failure.
              */
-            static int32_t exists(const char * process) {
-                return fossil_sys_command_exists((char *)process);
+            static int64_t uptime(void) {
+                return fossil_sys_command_uptime();
             }
 
             /**
-             * Erase a command and check if it exists.
-             *
-             * @param path The command to be erased.
-             * @return     1 if the command exists, 0 otherwise.
+             * Get available memory in bytes.
+             * @return The available memory in bytes, or -1 on failure.
              */
-            static int32_t erase_exists(const char * path) {
-                return fossil_sys_command_erase_exists((char *)path);
-            }
-
-            /**
-             * Safely concatenate two strings into a destination buffer.
-             *
-             * @param dest      The destination buffer for the concatenated strings.
-             * @param src       The source string to be concatenated.
-             * @param dest_size The size of the destination buffer.
-             */
-            static void strcat_safe(char * dest, const char * src, size_t dest_size) {
-                fossil_sys_command_strcat_safe(dest, src, dest_size);
-            }
-
-            /**
-             * Execute a command using std::string.
-             *
-             * @param process The command to be executed.
-             * @return        The result of the command execution.
-             */
-            static int32_t execute(const std::string &process) {
-                return fossil_sys_command(process.c_str());
-            }
-
-            /**
-             * Check if a command execution was successful using std::string.
-             *
-             * @param process The command to be checked.
-             * @return        1 if the command was successful, 0 otherwise.
-             */
-            static int32_t is_success(const std::string &process) {
-                return fossil_sys_command_success(process.c_str());
-            }
-
-            /**
-             * Retrieve the output of a command execution using std::string.
-             *
-             * @param process The command to retrieve output from.
-             * @param output  String to store the output.
-             * @return        The result of the command execution.
-             */
-            static int32_t get_output(const std::string &process, std::string &output) {
-                char buffer[1024];
-                int32_t result = fossil_sys_command_output(process.c_str(), buffer, sizeof(buffer));
-                output = buffer;
-                return result;
-            }
-
-            /**
-             * Check if a command exists using std::string.
-             *
-             * @param process The command to be checked.
-             * @return        1 if the command exists, 0 otherwise.
-             */
-            static int32_t exists(const std::string &process) {
-                return fossil_sys_command_exists(process.c_str());
-            }
-
-            /**
-             * Erase a command and check if it exists using std::string.
-             *
-             * @param path The command to be erased.
-             * @return     1 if the command exists, 0 otherwise.
-             */
-            static int32_t erase_exists(const std::string &path) {
-                return fossil_sys_command_erase_exists(path.c_str());
-            }
-
-            /**
-             * Safely concatenate two strings into a destination buffer using std::string.
-             *
-             * @param dest The destination string for the concatenated strings.
-             * @param src  The source string to be concatenated.
-             */
-            static void strcat_safe(std::string &dest, const std::string &src) {
-                char buffer[1024];
-                strncpy(buffer, dest.c_str(), sizeof(buffer));
-                fossil_sys_command_strcat_safe(buffer, src.c_str(), sizeof(buffer));
-                dest = buffer;
+            static int64_t meminfo(void) {
+                return fossil_sys_command_meminfo();
             }
 
         };
