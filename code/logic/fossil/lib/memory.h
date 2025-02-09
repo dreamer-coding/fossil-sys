@@ -65,15 +65,6 @@ fossil_sys_memory_t fossil_sys_memory_calloc(size_t num, size_t size);
 fossil_sys_memory_t fossil_sys_memory_init(fossil_sys_memory_t ptr, size_t size, int32_t value);
 
 /**
- * Ensure proper alignment for specific data types.
- *
- * @param size The size of the memory to allocate.
- * @param alignment The required alignment.
- * @return A pointer to the aligned memory, or NULL if alignment fails.
- */
-fossil_sys_memory_t fossil_sys_memory_align(size_t size, size_t alignment);
-
-/**
  * Free memory.
  *
  * @param ptr A pointer to the memory to free.
@@ -224,17 +215,6 @@ namespace fossil {
              */
             static fossil_sys_memory_t init(fossil_sys_memory_t ptr, size_t size, int32_t value) {
                 return fossil_sys_memory_init(ptr, size, value);
-            }
-
-            /**
-             * Ensure proper alignment for specific data types.
-             *
-             * @param size The size of the memory to allocate.
-             * @param alignment The required alignment.
-             * @return A pointer to the aligned memory, or NULL if alignment fails.
-             */
-            static fossil_sys_memory_t align(size_t size, size_t alignment) {
-                return fossil_sys_memory_align(size, alignment);
             }
 
             /**

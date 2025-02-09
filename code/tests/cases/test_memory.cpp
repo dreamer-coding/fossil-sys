@@ -168,16 +168,6 @@ FOSSIL_TEST_CASE(cpp_test_memory_init) {
     fossil_sys_memory_free(ptr); // Cleanup
 }
 
-FOSSIL_TEST_CASE(cpp_test_memory_align) {
-    size_t size = 10;
-    size_t alignment = 16;
-    fossil_sys_memory_t ptr = fossil_sys_memory_align(size, alignment);
-    ASSUME_NOT_CNULL(ptr);
-    ASSUME_ITS_TRUE(((uintptr_t)ptr % alignment) == 0); // Ensure pointer is aligned
-
-    fossil_sys_memory_free(ptr); // Cleanup
-}
-
 FOSSIL_TEST_CASE(cpp_test_memory_copy) {
     size_t size = 10;
     fossil_sys_memory_t src = fossil_sys_memory_alloc(size);
@@ -317,16 +307,6 @@ FOSSIL_TEST_CASE(cpp_test_memory_class_init) {
     for (size_t i = 0; i < size; ++i) {
         ASSUME_ITS_TRUE(((unsigned char*)ptr)[i] == (unsigned char)value); // Ensure all bytes are set to value
     }
-
-    fossil::sys::Memory::free(ptr); // Cleanup
-}
-
-FOSSIL_TEST_CASE(cpp_test_memory_class_align) {
-    size_t size = 10;
-    size_t alignment = 16;
-    fossil_sys_memory_t ptr = fossil::sys::Memory::align(size, alignment);
-    ASSUME_NOT_CNULL(ptr);
-    ASSUME_ITS_TRUE(((uintptr_t)ptr % alignment) == 0); // Ensure pointer is aligned
 
     fossil::sys::Memory::free(ptr); // Cleanup
 }
@@ -484,7 +464,6 @@ FOSSIL_TEST_GROUP(cpp_memory_tests) {
     FOSSIL_TEST_ADD(cpp_memory_suite, cpp_test_memory_is_valid);
     FOSSIL_TEST_ADD(cpp_memory_suite, cpp_test_memory_calloc);
     FOSSIL_TEST_ADD(cpp_memory_suite, cpp_test_memory_init);
-    FOSSIL_TEST_ADD(cpp_memory_suite, cpp_test_memory_align);
     FOSSIL_TEST_ADD(cpp_memory_suite, cpp_test_memory_copy);
     FOSSIL_TEST_ADD(cpp_memory_suite, cpp_test_memory_set);
     FOSSIL_TEST_ADD(cpp_memory_suite, cpp_test_memory_resize_smaller);
@@ -499,7 +478,6 @@ FOSSIL_TEST_GROUP(cpp_memory_tests) {
     FOSSIL_TEST_ADD(cpp_memory_suite, cpp_test_memory_class_realloc);
     FOSSIL_TEST_ADD(cpp_memory_suite, cpp_test_memory_class_calloc);
     FOSSIL_TEST_ADD(cpp_memory_suite, cpp_test_memory_class_init);
-    FOSSIL_TEST_ADD(cpp_memory_suite, cpp_test_memory_class_align);
     FOSSIL_TEST_ADD(cpp_memory_suite, cpp_test_memory_class_copy);
     FOSSIL_TEST_ADD(cpp_memory_suite, cpp_test_memory_class_set);
     FOSSIL_TEST_ADD(cpp_memory_suite, cpp_test_memory_class_dup);

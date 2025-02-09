@@ -73,33 +73,6 @@ fossil_sys_memory_t fossil_sys_memory_init(fossil_sys_memory_t ptr, size_t size,
     return memset(ptr, value, size);
 }
 
-fossil_sys_memory_t fossil_sys_memory_align(size_t size, size_t alignment) {
-    if (size == 0) {
-        fprintf(stderr, "Error: fossil_sys_memory_align() - Cannot align zero bytes.\n");
-        return NULL;
-    }
-
-    if (alignment == 0) {
-        fprintf(stderr, "Error: fossil_sys_memory_align() - Cannot align to zero bytes.\n");
-        return NULL;
-    }
-
-    fossil_sys_memory_t ptr = NULL;
-    #if defined(_POSIX_C_SOURCE) && _POSIX_C_SOURCE >= 200112L
-    if (posix_memalign(&ptr, alignment, size) != 0) {
-        fprintf(stderr, "Error: fossil_sys_memory_align() - Memory alignment failed.\n");
-        return NULL;
-    }
-    #else
-    ptr = aligned_alloc(alignment, size);
-    if (!ptr) {
-        fprintf(stderr, "Error: fossil_sys_memory_align() - Memory alignment failed.\n");
-        return NULL;
-    }
-    #endif
-    return ptr;
-}
-
 void fossil_sys_memory_free(fossil_sys_memory_t ptr) {
     if (!ptr) {
         fprintf(stderr, "Error: fossil_sys_memory_free() - Pointer is NULL.\n");

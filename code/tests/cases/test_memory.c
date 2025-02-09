@@ -168,16 +168,6 @@ FOSSIL_TEST_CASE(c_test_memory_init) {
     fossil_sys_memory_free(ptr); // Cleanup
 }
 
-FOSSIL_TEST_CASE(c_test_memory_align) {
-    size_t size = 10;
-    size_t alignment = 16;
-    fossil_sys_memory_t ptr = fossil_sys_memory_align(size, alignment);
-    ASSUME_NOT_CNULL(ptr);
-    ASSUME_ITS_TRUE(((uintptr_t)ptr % alignment) == 0); // Ensure pointer is aligned
-
-    fossil_sys_memory_free(ptr); // Cleanup
-}
-
 FOSSIL_TEST_CASE(c_test_memory_copy) {
     size_t size = 10;
     fossil_sys_memory_t src = fossil_sys_memory_alloc(size);
@@ -291,7 +281,6 @@ FOSSIL_TEST_GROUP(c_memory_tests) {
     FOSSIL_TEST_ADD(c_memory_suite, c_test_memory_is_valid);
     FOSSIL_TEST_ADD(c_memory_suite, c_test_memory_calloc);
     FOSSIL_TEST_ADD(c_memory_suite, c_test_memory_init);
-    FOSSIL_TEST_ADD(c_memory_suite, c_test_memory_align);
     FOSSIL_TEST_ADD(c_memory_suite, c_test_memory_copy);
     FOSSIL_TEST_ADD(c_memory_suite, c_test_memory_set);
     FOSSIL_TEST_ADD(c_memory_suite, c_test_memory_resize_smaller);
