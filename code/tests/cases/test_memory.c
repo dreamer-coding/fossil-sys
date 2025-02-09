@@ -259,8 +259,8 @@ FOSSIL_TEST_CASE(c_test_memory_copy_overlap) {
     ASSUME_NOT_CNULL(ptr);
 
     fossil_sys_memory_set(ptr, 0xAA, size * 2);
-    fossil_sys_memory_copy(ptr + 2, ptr, size); // Overlapping copy
-    ASSUME_ITS_TRUE(memcmp(ptr + 2, ptr, size) == 0); // Ensure memory is copied correctly
+    fossil_sys_memory_copy((char*)ptr + 2, ptr, size); // Overlapping copy
+    ASSUME_ITS_TRUE(memcmp((char*)ptr + 2, ptr, size) == 0); // Ensure memory is copied correctly
 
     fossil_sys_memory_free(ptr); // Cleanup
 }
