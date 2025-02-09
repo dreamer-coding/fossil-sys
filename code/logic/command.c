@@ -15,12 +15,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <fcntl.h>
-#include <sys/types.h>
-#include <sys/sysinfo.h>
 
 #ifdef _WIN32
 #include <windows.h>
+#else
+#include <sys/types.h>
+#include <sys/sysinfo.h>
+#include <fcntl.h>
 #endif
 
 
