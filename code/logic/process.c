@@ -12,211 +12,69 @@
  * -----------------------------------------------------------------------------
  */
 #include "fossil/sys/process.h"
-#include <stddef.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <stdio.h>
-
 #ifdef _WIN32
-#include <windows.h>
+    #include <windows.h>
 #else
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <unistd.h>
-#include <signal.h>
-#include <errno.h>
+    #include <errno.h>
+    #include <signal.h>
 #endif
 
-
-int fossil_sys_process_spawn(const char *path, char *const argv[], char *const envp[]) {
-    if (!path || !argv) {
-        fprintf(stderr, "Error: fossil_sys_process_spawn() - Invalid path or argument list.\n");
-        return -1;
-    }
-
+fossil_sys_process_t fossil_sys_process_create(const char *path, char *const args[]) {
 #ifdef _WIN32
-    STARTUPINFO si;
-    PROCESS_INFORMATION pi;
-    ZeroMemory(&si, sizeof(si));
+    STARTUPINFO si = {0};
+    PROCESS_INFORMATION pi = {0};
     si.cb = sizeof(si);
-    ZeroMemory(&pi, sizeof(pi));
-
-    if (!CreateProcess(path, argv[0], NULL, NULL, FALSE, 0, envp, NULL, &si, &pi)) {
-        fprintf(stderr, "Error: fossil_sys_process_spawn() - Failed to create process.\n");
-        return -1;
+    
+    if (!CreateProcess(path, NULL, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) {
+        return NULL;
     }
-
-    CloseHandle(pi.hProcess);
     CloseHandle(pi.hThread);
-
-    return pi.dwProcessId;
+    return pi.hProcess;
 #else
-    int pid = fork();
-    if (pid == -1) {
-        fprintf(stderr, "Error: fossil_sys_process_spawn() - Failed to fork process.\n");
+    pid_t pid = fork();
+    if (pid == 0) {
+        execvp(path, args);
+        _exit(EXIT_FAILURE);
+    } else if (pid < 0) {
         return -1;
     }
-
-    if (pid == 0) {
-        execve(path, argv, envp);
-        fprintf(stderr, "Error: fossil_sys_process_spawn() - Failed to execute process.\n");
-        exit(EXIT_FAILURE);
-    }
-
     return pid;
 #endif
 }
 
-int fossil_sys_process_wait(int pid, int *status) {
-    if (pid <= 0) {
-        fprintf(stderr, "Error: fossil_sys_process_wait() - Invalid process ID.\n");
-        return -1;
-    }
-
+int fossil_sys_process_wait(fossil_sys_process_t process, int *status) {
 #ifdef _WIN32
-    HANDLE hProcess = OpenProcess(SYNCHRONIZE, FALSE, pid);
-    if (hProcess == NULL) {
-        fprintf(stderr, "Error: fossil_sys_process_wait() - Failed to open process.\n");
+    if (WaitForSingleObject(process, INFINITE) == WAIT_FAILED) {
         return -1;
     }
-
-    WaitForSingleObject(hProcess, INFINITE);
-
-    DWORD exitCode;
-    if (!GetExitCodeProcess(hProcess, &exitCode)) {
-        fprintf(stderr, "Error: fossil_sys_process_wait() - Failed to get exit code.\n");
-        CloseHandle(hProcess);
+    DWORD exit_code;
+    if (!GetExitCodeProcess(process, &exit_code)) {
         return -1;
     }
-
-    if (status) {
-        *status = exitCode;
-    }
-
-    CloseHandle(hProcess);
+    *status = (int)exit_code;
+    CloseHandle(process);
     return 0;
 #else
-    int stat_loc;
-    int ret = waitpid(pid, &stat_loc, 0);
-    if (ret == -1) {
-        fprintf(stderr, "Error: fossil_sys_process_wait() - Failed to wait for process.\n");
-        return -1;
-    }
-
-    if (status) {
-        *status = WEXITSTATUS(stat_loc);
-    }
-
-    return 0;
+    return waitpid(process, status, 0) == -1 ? -1 : 0;
 #endif
 }
 
-int fossil_sys_process_terminate(int pid) {
-    if (pid <= 0) {
-        fprintf(stderr, "Error: fossil_sys_process_terminate() - Invalid process ID.\n");
-        return -1;
-    }
-
+int fossil_sys_process_terminate(fossil_sys_process_t process) {
 #ifdef _WIN32
-    HANDLE hProcess = OpenProcess(PROCESS_TERMINATE, FALSE, pid);
-    if (hProcess == NULL) {
-        fprintf(stderr, "Error: fossil_sys_process_terminate() - Failed to open process.\n");
-        return -1;
-    }
-
-    if (!TerminateProcess(hProcess, 1)) {
-        fprintf(stderr, "Error: fossil_sys_process_terminate() - Failed to terminate process.\n");
-        CloseHandle(hProcess);
-        return -1;
-    }
-
-    CloseHandle(hProcess);
-    return 0;
+    return TerminateProcess(process, 1) ? 0 : -1;
 #else
-    int ret = kill(pid, SIGKILL);
-    if (ret == -1) {
-        fprintf(stderr, "Error: fossil_sys_process_terminate() - Failed to terminate process.\n");
-        return -1;
-    }
-
-    return 0;
+    return kill(process, SIGTERM);
 #endif
 }
 
-int fossil_sys_process_is_running(int pid) {
-    if (pid <= 0) {
-        fprintf(stderr, "Error: fossil_sys_process_is_running() - Invalid process ID.\n");
-        return -1;
-    }
-
+int fossil_sys_process_is_running(fossil_sys_process_t process) {
 #ifdef _WIN32
-    HANDLE hProcess = OpenProcess(SYNCHRONIZE, FALSE, pid);
-    if (hProcess == NULL) {
-        if (GetLastError() == ERROR_INVALID_PARAMETER) {
-            return 0;
-        }
-
-        fprintf(stderr, "Error: fossil_sys_process_is_running() - Failed to open process.\n");
+    DWORD exit_code;
+    if (!GetExitCodeProcess(process, &exit_code)) {
         return -1;
     }
-
-    DWORD ret = WaitForSingleObject(hProcess, 0);
-    CloseHandle(hProcess);
-
-    if (ret == WAIT_TIMEOUT) {
-        return 1;
-    }
-
-    return 0;
+    return exit_code == STILL_ACTIVE ? 1 : 0;
 #else
-    int ret = kill(pid, 0);
-    if (ret == -1) {
-        if (errno == ESRCH) {
-            return 0;
-        }
-
-        fprintf(stderr, "Error: fossil_sys_process_is_running() - Failed to check process.\n");
-        return -1;
-    }
-
-    return 1;
-#endif
-}
-
-int fossil_sys_process_get_exit_code(int pid) {
-    if (pid <= 0) {
-        fprintf(stderr, "Error: fossil_sys_process_get_exit_code() - Invalid process ID.\n");
-        return -1;
-    }
-
-#ifdef _WIN32
-    HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, pid);
-    if (hProcess == NULL) {
-        fprintf(stderr, "Error: fossil_sys_process_get_exit_code() - Failed to open process.\n");
-        return -1;
-    }
-
-    DWORD exitCode;
-    if (!GetExitCodeProcess(hProcess, &exitCode)) {
-        fprintf(stderr, "Error: fossil_sys_process_get_exit_code() - Failed to get exit code.\n");
-        CloseHandle(hProcess);
-        return -1;
-    }
-
-    CloseHandle(hProcess);
-    return exitCode;
-#else
-    int stat_loc;
-    int ret = waitpid(pid, &stat_loc, WNOHANG);
-    if (ret == -1) {
-        fprintf(stderr, "Error: fossil_sys_process_get_exit_code() - Failed to retrieve exit code.\n");
-        return -1;
-    }
-
-    if (ret == 0) {
-        return -1;  // Process is still running
-    }
-
-    return WEXITSTATUS(stat_loc);
+    return kill(process, 0) == 0 ? 1 : (errno == ESRCH ? 0 : -1);
 #endif
 }
