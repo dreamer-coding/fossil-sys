@@ -43,48 +43,48 @@ FOSSIL_TEARDOWN(cpp_process_suite) {
 // as samples for library usage.
 // * * * * * * * * * * * * * * * * * * * * * * * *
 
-FOSSIL_TEST_CASE(cpp_test_process_create) {
-    const char *path = "/bin/echo";
-    char *const args[] = { "echo", "Hello, Fossil!", NULL };
-    fossil_sys_process_t process = fossil_sys_process_create(path, args);
+FOSSIL_TEST_CASE(cpp_test_process_class_spawn) {
+    fossil::sys::Process process;
+    std::vector<std::string> args = { "echo", "Hello, Fossil!" };
+    fossil_sys_process_t proc = process.spawn("/bin/echo", args);
 
     int status;
-    ASSUME_ITS_TRUE(fossil_sys_process_wait(process, &status) == 0);
+    ASSUME_ITS_TRUE(process.wait(proc, &status) == 0);
     ASSUME_ITS_TRUE(WIFEXITED(status) && WEXITSTATUS(status) == 0);
 }
 
-FOSSIL_TEST_CASE(cpp_test_process_wait) {
-    const char *path = "/bin/sleep";
-    char *const args[] = { "sleep", "1", NULL };
-    fossil_sys_process_t process = fossil_sys_process_create(path, args);
+FOSSIL_TEST_CASE(cpp_test_process_class_wait) {
+    fossil::sys::Process process;
+    std::vector<std::string> args = { "sleep", "1" };
+    fossil_sys_process_t proc = process.spawn("/bin/sleep", args);
 
     int status;
-    ASSUME_ITS_TRUE(fossil_sys_process_wait(process, &status) == 0);
+    ASSUME_ITS_TRUE(process.wait(proc, &status) == 0);
     ASSUME_ITS_TRUE(WIFEXITED(status) && WEXITSTATUS(status) == 0);
 }
 
-FOSSIL_TEST_CASE(cpp_test_process_terminate) {
-    const char *path = "/bin/sleep";
-    char *const args[] = { "sleep", "10", NULL };
-    fossil_sys_process_t process = fossil_sys_process_create(path, args);
+FOSSIL_TEST_CASE(cpp_test_process_class_terminate) {
+    fossil::sys::Process process;
+    std::vector<std::string> args = { "sleep", "10" };
+    fossil_sys_process_t proc = process.spawn("/bin/sleep", args);
 
-    ASSUME_ITS_TRUE(fossil_sys_process_terminate(process) == 0);
+    ASSUME_ITS_TRUE(process.terminate(proc) == 0);
 
     int status;
-    ASSUME_ITS_TRUE(fossil_sys_process_wait(process, &status) == 0);
+    ASSUME_ITS_TRUE(process.wait(proc, &status) == 0);
     ASSUME_ITS_TRUE(WIFSIGNALED(status) && WTERMSIG(status) == SIGTERM);
 }
 
-FOSSIL_TEST_CASE(cpp_test_process_is_running) {
-    const char *path = "/bin/sleep";
-    char *const args[] = { "sleep", "2", NULL };
-    fossil_sys_process_t process = fossil_sys_process_create(path, args);
+FOSSIL_TEST_CASE(cpp_test_process_class_is_running) {
+    fossil::sys::Process process;
+    std::vector<std::string> args = { "sleep", "2" };
+    fossil_sys_process_t proc = process.spawn("/bin/sleep", args);
 
-    ASSUME_ITS_TRUE(fossil_sys_process_is_running(process) == 1);
+    ASSUME_ITS_TRUE(process.is_running(proc) == 1);
 
     int status;
-    ASSUME_ITS_TRUE(fossil_sys_process_wait(process, &status) == 0);
-    ASSUME_ITS_TRUE(fossil_sys_process_is_running(process) == 0);
+    ASSUME_ITS_TRUE(process.wait(proc, &status) == 0);
+    ASSUME_ITS_TRUE(process.is_running(proc) == 0);
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * *
@@ -92,10 +92,10 @@ FOSSIL_TEST_CASE(cpp_test_process_is_running) {
 // * * * * * * * * * * * * * * * * * * * * * * * *
 
 FOSSIL_TEST_GROUP(cpp_process_tests) {
-    FOSSIL_TEST_ADD(cpp_process_suite, cpp_test_process_create);
-    FOSSIL_TEST_ADD(cpp_process_suite, cpp_test_process_wait);
-    FOSSIL_TEST_ADD(cpp_process_suite, cpp_test_process_terminate);
-    FOSSIL_TEST_ADD(cpp_process_suite, cpp_test_process_is_running);
+    FOSSIL_TEST_ADD(cpp_process_suite, cpp_test_process_class_spawn);
+    FOSSIL_TEST_ADD(cpp_process_suite, cpp_test_process_class_wait);
+    FOSSIL_TEST_ADD(cpp_process_suite, cpp_test_process_class_terminate);
+    FOSSIL_TEST_ADD(cpp_process_suite, cpp_test_process_class_is_running);
 
     FOSSIL_TEST_REGISTER(cpp_process_suite);
 }
