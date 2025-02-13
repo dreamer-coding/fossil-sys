@@ -13,7 +13,7 @@
  */
 #include <fossil/test/framework.h>
 
-#include "fossil/lib/framework.h"
+#include "fossil/sys/framework.h"
 
 // * * * * * * * * * * * * * * * * * * * * * * * *
 // * Fossil Logic Test Utilities

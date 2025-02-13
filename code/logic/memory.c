@@ -11,7 +11,7 @@
  * Copyright (C) 2024 Fossil Logic. All rights reserved.
  * -----------------------------------------------------------------------------
  */
-#include "fossil/lib/memory.h"
+#include "fossil/sys/memory.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
