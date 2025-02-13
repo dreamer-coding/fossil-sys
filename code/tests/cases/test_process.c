@@ -43,65 +43,52 @@ FOSSIL_TEARDOWN(c_process_suite) {
 // as samples for library usage.
 // * * * * * * * * * * * * * * * * * * * * * * * *
 
-FOSSIL_TEST_CASE(c_test_process_spawn) {
+FOSSIL_TEST_CASE(c_test_process_create) {
     const char *path = "/bin/echo";
-    char *const argv[] = { "echo", "Hello, World!", NULL };
-    char *const envp[] = { NULL };
-
-    int pid = fossil_sys_process_spawn(path, argv, envp);
-    ASSUME_ITS_TRUE(pid > 0); // Ensure process is spawned successfully
+    char *const args[] = { "echo", "Hello, Fossil!", NULL };
+    fossil_sys_process_t process = fossil_sys_process_create(path, args);
+    ASSUME_NOT_CNULL(process);
 
     int status;
-    int wait_result = fossil_sys_process_wait(pid, &status);
-    ASSUME_ITS_TRUE(wait_result == 0); // Ensure process wait is successful
-    ASSUME_ITS_TRUE(status == 0); // Ensure process exited with status 0
+    ASSUME_ITS_TRUE(fossil_sys_process_wait(process, &status) == 0);
+    ASSUME_ITS_TRUE(WIFEXITED(status) && WEXITSTATUS(status) == 0);
 }
 
 FOSSIL_TEST_CASE(c_test_process_wait) {
     const char *path = "/bin/sleep";
-    char *const argv[] = { "sleep", "1", NULL };
-    char *const envp[] = { NULL };
-
-    int pid = fossil_sys_process_spawn(path, argv, envp);
-    ASSUME_ITS_TRUE(pid > 0); // Ensure process is spawned successfully
+    char *const args[] = { "sleep", "1", NULL };
+    fossil_sys_process_t process = fossil_sys_process_create(path, args);
+    ASSUME_NOT_CNULL(process);
 
     int status;
-    int wait_result = fossil_sys_process_wait(pid, &status);
-    ASSUME_ITS_TRUE(wait_result == 0); // Ensure process wait is successful
-    ASSUME_ITS_TRUE(status == 0); // Ensure process exited with status 0
+    ASSUME_ITS_TRUE(fossil_sys_process_wait(process, &status) == 0);
+    ASSUME_ITS_TRUE(WIFEXITED(status) && WEXITSTATUS(status) == 0);
 }
 
 FOSSIL_TEST_CASE(c_test_process_terminate) {
     const char *path = "/bin/sleep";
-    char *const argv[] = { "sleep", "10", NULL };
-    char *const envp[] = { NULL };
+    char *const args[] = { "sleep", "10", NULL };
+    fossil_sys_process_t process = fossil_sys_process_create(path, args);
+    ASSUME_NOT_CNULL(process);
 
-    int pid = fossil_sys_process_spawn(path, argv, envp);
-    ASSUME_ITS_TRUE(pid > 0); // Ensure process is spawned successfully
-
-    int terminate_result = fossil_sys_process_terminate(pid);
-    ASSUME_ITS_TRUE(terminate_result == 0); // Ensure process termination is successful
+    ASSUME_ITS_TRUE(fossil_sys_process_terminate(process) == 0);
 
     int status;
-    int wait_result = fossil_sys_process_wait(pid, &status);
-    ASSUME_ITS_TRUE(wait_result == 0); // Ensure process wait is successful
-    ASSUME_ITS_TRUE(status != 0); // Ensure process did not exit normally
+    ASSUME_ITS_TRUE(fossil_sys_process_wait(process, &status) == 0);
+    ASSUME_ITS_TRUE(WIFSIGNALED(status) && WTERMSIG(status) == SIGTERM);
 }
 
 FOSSIL_TEST_CASE(c_test_process_is_running) {
     const char *path = "/bin/sleep";
-    char *const argv[] = { "sleep", "2", NULL };
-    char *const envp[] = { NULL };
+    char *const args[] = { "sleep", "2", NULL };
+    fossil_sys_process_t process = fossil_sys_process_create(path, args);
+    ASSUME_NOT_CNULL(process);
 
-    int pid = fossil_sys_process_spawn(path, argv, envp);
-    ASSUME_ITS_TRUE(pid > 0); // Ensure process is spawned successfully
-
-    ASSUME_ITS_TRUE(fossil_sys_process_is_running(pid) == 1); // Ensure process is running
+    ASSUME_ITS_TRUE(fossil_sys_process_is_running(process) == 1);
 
     int status;
-    fossil_sys_process_wait(pid, &status); // Wait for process to finish
-
-    ASSUME_ITS_TRUE(fossil_sys_process_is_running(pid) == 0); // Ensure process is no longer running
+    ASSUME_ITS_TRUE(fossil_sys_process_wait(process, &status) == 0);
+    ASSUME_ITS_TRUE(fossil_sys_process_is_running(process) == 0);
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * *
@@ -109,10 +96,10 @@ FOSSIL_TEST_CASE(c_test_process_is_running) {
 // * * * * * * * * * * * * * * * * * * * * * * * *
 
 FOSSIL_TEST_GROUP(c_process_tests) {
-    FOSSIL_TEST_ADD(c_process_suite, c_test_process_spawn);
-    // FOSSIL_TEST_ADD(c_process_suite, c_test_process_wait);
-    // FOSSIL_TEST_ADD(c_process_suite, c_test_process_terminate);
-    // FOSSIL_TEST_ADD(c_process_suite, c_test_process_is_running);
+    FOSSIL_TEST_ADD(c_memory_suite, c_test_process_create);
+    FOSSIL_TEST_ADD(c_memory_suite, c_test_process_wait);
+    FOSSIL_TEST_ADD(c_memory_suite, c_test_process_terminate);
+    FOSSIL_TEST_ADD(c_memory_suite, c_test_process_is_running);
 
     FOSSIL_TEST_REGISTER(c_process_suite);
 }
