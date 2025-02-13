@@ -24,8 +24,16 @@ fossil_sys_process_t fossil_sys_process_create(const char *path, char *const arg
     STARTUPINFO si = {0};
     PROCESS_INFORMATION pi = {0};
     si.cb = sizeof(si);
-    
-    if (!CreateProcess(path, NULL, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) {
+
+    // Construct the command line string
+    char cmdline[1024] = {0};
+    snprintf(cmdline, sizeof(cmdline), "\"%s\"", path);
+    for (char *const *arg = args; *arg != NULL; ++arg) {
+        strncat(cmdline, " ", sizeof(cmdline) - strlen(cmdline) - 1);
+        strncat(cmdline, *arg, sizeof(cmdline) - strlen(cmdline) - 1);
+    }
+
+    if (!CreateProcess(NULL, cmdline, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) {
         return NULL;
     }
     CloseHandle(pi.hThread);
