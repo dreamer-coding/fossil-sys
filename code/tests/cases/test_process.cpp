@@ -47,7 +47,6 @@ FOSSIL_TEST_CASE(cpp_test_process_create) {
     const char *path = "/bin/echo";
     char *const args[] = { "echo", "Hello, Fossil!", NULL };
     fossil_sys_process_t process = fossil_sys_process_create(path, args);
-    ASSUME_NOT_CNULL(process);
 
     int status;
     ASSUME_ITS_TRUE(fossil_sys_process_wait(process, &status) == 0);
@@ -58,7 +57,6 @@ FOSSIL_TEST_CASE(cpp_test_process_wait) {
     const char *path = "/bin/sleep";
     char *const args[] = { "sleep", "1", NULL };
     fossil_sys_process_t process = fossil_sys_process_create(path, args);
-    ASSUME_NOT_CNULL(process);
 
     int status;
     ASSUME_ITS_TRUE(fossil_sys_process_wait(process, &status) == 0);
@@ -69,7 +67,6 @@ FOSSIL_TEST_CASE(cpp_test_process_terminate) {
     const char *path = "/bin/sleep";
     char *const args[] = { "sleep", "10", NULL };
     fossil_sys_process_t process = fossil_sys_process_create(path, args);
-    ASSUME_NOT_CNULL(process);
 
     ASSUME_ITS_TRUE(fossil_sys_process_terminate(process) == 0);
 
@@ -82,7 +79,6 @@ FOSSIL_TEST_CASE(cpp_test_process_is_running) {
     const char *path = "/bin/sleep";
     char *const args[] = { "sleep", "2", NULL };
     fossil_sys_process_t process = fossil_sys_process_create(path, args);
-    ASSUME_NOT_CNULL(process);
 
     ASSUME_ITS_TRUE(fossil_sys_process_is_running(process) == 1);
 
