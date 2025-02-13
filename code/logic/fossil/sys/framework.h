@@ -16,6 +16,6 @@
 
 #include "cnullptr.h"
 #include "memory.h"
-#include "user.h"
+#include "types.h"
 
 #endif /* FOSSIL_SYS_FRAMEWORK_H */
