@@ -43,82 +43,6 @@ FOSSIL_TEARDOWN(cpp_process_suite) {
 // as samples for library usage.
 // * * * * * * * * * * * * * * * * * * * * * * * *
 
-FOSSIL_TEST_CASE(cpp_test_process_spawn) {
-    const char *path = "/bin/echo";
-    const char *const argv[] = { "echo", "Hello, World!", NULL };
-    const char *const envp[] = { NULL };
-
-    int pid = fossil_sys_process_spawn(path, argv, envp);
-    ASSUME_ITS_TRUE(pid > 0); // Ensure process is spawned successfully
-
-    int status;
-    int wait_result = fossil_sys_process_wait(pid, &status);
-    ASSUME_ITS_TRUE(wait_result == 0); // Ensure process wait is successful
-    ASSUME_ITS_TRUE(status == 0); // Ensure process exited with status 0
-}
-
-FOSSIL_TEST_CASE(cpp_test_process_wait) {
-    const char *path = "/bin/sleep";
-    const char *const argv[] = { "sleep", "1", NULL };
-    const char *const envp[] = { NULL };
-
-    int pid = fossil_sys_process_spawn(path, argv, envp);
-    ASSUME_ITS_TRUE(pid > 0); // Ensure process is spawned successfully
-
-    int status;
-    int wait_result = fossil_sys_process_wait(pid, &status);
-    ASSUME_ITS_TRUE(wait_result == 0); // Ensure process wait is successful
-    ASSUME_ITS_TRUE(status == 0); // Ensure process exited with status 0
-}
-
-FOSSIL_TEST_CASE(cpp_test_process_terminate) {
-    const char *path = "/bin/sleep";
-    const char *const argv[] = { "sleep", "10", NULL };
-    const char *const envp[] = { NULL };
-
-    int pid = fossil_sys_process_spawn(path, argv, envp);
-    ASSUME_ITS_TRUE(pid > 0); // Ensure process is spawned successfully
-
-    int terminate_result = fossil_sys_process_terminate(pid);
-    ASSUME_ITS_TRUE(terminate_result == 0); // Ensure process termination is successful
-
-    int status;
-    int wait_result = fossil_sys_process_wait(pid, &status);
-    ASSUME_ITS_TRUE(wait_result == 0); // Ensure process wait is successful
-    ASSUME_ITS_TRUE(status != 0); // Ensure process did not exit normally
-}
-
-FOSSIL_TEST_CASE(cpp_test_process_is_running) {
-    const char *path = "/bin/sleep";
-    const char *const argv[] = { "sleep", "2", NULL };
-    const char *const envp[] = { NULL };
-
-    int pid = fossil_sys_process_spawn(path, argv, envp);
-    ASSUME_ITS_TRUE(pid > 0); // Ensure process is spawned successfully
-
-    ASSUME_ITS_TRUE(fossil_sys_process_is_running(pid) == 1); // Ensure process is running
-
-    int status;
-    fossil_sys_process_wait(pid, &status); // Wait for process to finish
-
-    ASSUME_ITS_TRUE(fossil_sys_process_is_running(pid) == 0); // Ensure process is no longer running
-}
-
-FOSSIL_TEST_CASE(cpp_test_process_get_exit_code) {
-    const char *path = "/bin/echo";
-    char *const argv[] = { "echo", "Hello, World!", NULL };
-    char *const envp[] = { NULL };
-
-    int pid = fossil_sys_process_spawn(path, argv, envp);
-    ASSUME_ITS_TRUE(pid > 0); // Ensure process is spawned successfully
-
-    int status;
-    fossil_sys_process_wait(pid, &status); // Wait for process to finish
-
-    int exit_code = fossil_sys_process_get_exit_code(pid);
-    ASSUME_ITS_TRUE(exit_code == 0); // Ensure process exited with status 0
-}
-
 FOSSIL_TEST_CASE(cpp_test_process_class_spawn) {
     fossil::sys::Process process;
     const char *path = "/bin/echo";
@@ -205,12 +129,6 @@ FOSSIL_TEST_CASE(cpp_test_process_class_get_exit_code) {
 // * * * * * * * * * * * * * * * * * * * * * * * *
 
 FOSSIL_TEST_GROUP(cpp_process_tests) {
-    FOSSIL_TEST_ADD(cpp_process_suite, cpp_test_process_spawn);
-    FOSSIL_TEST_ADD(cpp_process_suite, cpp_test_process_wait);
-    FOSSIL_TEST_ADD(cpp_process_suite, cpp_test_process_terminate);
-    FOSSIL_TEST_ADD(cpp_process_suite, cpp_test_process_is_running);
-    FOSSIL_TEST_ADD(cpp_process_suite, cpp_test_process_get_exit_code);
-
     FOSSIL_TEST_ADD(cpp_process_suite, cpp_test_process_class_spawn);
     FOSSIL_TEST_ADD(cpp_process_suite, cpp_test_process_class_wait);
     FOSSIL_TEST_ADD(cpp_process_suite, cpp_test_process_class_terminate);
