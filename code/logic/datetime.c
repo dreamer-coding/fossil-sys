@@ -15,12 +15,11 @@
 #include <stdio.h>
 #include <time.h>
 
-#ifdef __WIN32
+#if defined(_WIN32) || defined(_WIN64)
 #include <windows.h>
 #else
 #include <sys/time.h>
 #endif
-
 
 void fossil_sys_time_now(fossil_sys_time_datetime_t *dt) {
     if (!dt) return;
@@ -29,7 +28,7 @@ void fossil_sys_time_now(fossil_sys_time_datetime_t *dt) {
     struct tm t;
     #if defined(_WIN32) || defined(_WIN64)
         timespec_get(&ts, TIME_UTC);
-        _strtime_s(&t, &ts.tv_sec);
+        localtime_s(&t, &ts.tv_sec);
     #else
         struct timeval tv;
         gettimeofday(&tv, NULL);
@@ -113,7 +112,7 @@ void fossil_sys_time_from_unix(fossil_sys_time_datetime_t *dt, int64_t timestamp
     struct tm t;
     time_t ts = (time_t) timestamp;
     #if defined(_WIN32) || defined(_WIN64)
-        _strtime_s(&t, &ts);
+        localtime_s(&t, &ts);
     #else
         localtime_r(&ts, &t);
     #endif
