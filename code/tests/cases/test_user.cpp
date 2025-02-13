@@ -44,7 +44,7 @@ FOSSIL_TEARDOWN(cpp_user_suite) {
 // * * * * * * * * * * * * * * * * * * * * * * * *
 
 FOSSIL_TEST_CASE(cpp_test_user_create_account) {
-    fossil_sys_user_account_t account = { "testuser", "password123", 0x01 };
+    fossil_sys_user_account_t account = { const_cast<char*>("testuser"), const_cast<char*>("password123"), 0x01 };
     bool result = fossil_sys_user_create_account(&account);
     ASSUME_ITS_TRUE(result);
 }
@@ -56,7 +56,7 @@ FOSSIL_TEST_CASE(cpp_test_user_delete_account) {
 }
 
 FOSSIL_TEST_CASE(cpp_test_user_update_account) {
-    fossil_sys_user_account_t account = { "testuser", "newpassword123", 0x02 };
+    fossil_sys_user_account_t account = { const_cast<char*>("testuser"), const_cast<char*>("newpassword123"), 0x02 };
     bool result = fossil_sys_user_update_account(&account);
     ASSUME_ITS_TRUE(result);
 }
@@ -70,7 +70,7 @@ FOSSIL_TEST_CASE(cpp_test_user_get_account) {
 }
 
 FOSSIL_TEST_CASE(cpp_test_user_authenticate) {
-    fossil_sys_user_credentials_t credentials = { "testuser", "password123" };
+    fossil_sys_user_credentials_t credentials = { const_cast<char*>("testuser"), const_cast<char*>("password123") };
     bool result = fossil_sys_user_authenticate(&credentials);
     ASSUME_ITS_TRUE(result);
 }
