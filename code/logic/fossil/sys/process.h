@@ -17,13 +17,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-
 #ifdef _WIN32
     #include <windows.h>
     typedef HANDLE fossil_sys_process_t;
 #else
+    #include <sys/types.h>
+    #include <sys/wait.h>
     #include <unistd.h>
     #include <errno.h>
     #include <signal.h>

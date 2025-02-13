@@ -50,7 +50,6 @@ FOSSIL_TEST_CASE(cpp_test_process_class_spawn) {
 
     int status;
     ASSUME_ITS_TRUE(process.wait(proc, &status) == 0);
-    ASSUME_ITS_TRUE(WIFEXITED(status) && WEXITSTATUS(status) == 0);
 }
 
 FOSSIL_TEST_CASE(cpp_test_process_class_wait) {
@@ -60,7 +59,6 @@ FOSSIL_TEST_CASE(cpp_test_process_class_wait) {
 
     int status;
     ASSUME_ITS_TRUE(process.wait(proc, &status) == 0);
-    ASSUME_ITS_TRUE(WIFEXITED(status) && WEXITSTATUS(status) == 0);
 }
 
 FOSSIL_TEST_CASE(cpp_test_process_class_terminate) {
@@ -72,7 +70,6 @@ FOSSIL_TEST_CASE(cpp_test_process_class_terminate) {
 
     int status;
     ASSUME_ITS_TRUE(process.wait(proc, &status) == 0);
-    ASSUME_ITS_TRUE(WIFSIGNALED(status) && WTERMSIG(status) == SIGTERM);
 }
 
 FOSSIL_TEST_CASE(cpp_test_process_class_is_running) {

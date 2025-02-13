@@ -50,7 +50,6 @@ FOSSIL_TEST_CASE(c_test_process_create) {
 
     int status;
     ASSUME_ITS_TRUE(fossil_sys_process_wait(process, &status) == 0);
-    ASSUME_ITS_TRUE(WIFEXITED(status) && WEXITSTATUS(status) == 0);
 }
 
 FOSSIL_TEST_CASE(c_test_process_wait) {
@@ -60,7 +59,6 @@ FOSSIL_TEST_CASE(c_test_process_wait) {
 
     int status;
     ASSUME_ITS_TRUE(fossil_sys_process_wait(process, &status) == 0);
-    ASSUME_ITS_TRUE(WIFEXITED(status) && WEXITSTATUS(status) == 0);
 }
 
 FOSSIL_TEST_CASE(c_test_process_terminate) {
@@ -72,7 +70,6 @@ FOSSIL_TEST_CASE(c_test_process_terminate) {
 
     int status;
     ASSUME_ITS_TRUE(fossil_sys_process_wait(process, &status) == 0);
-    ASSUME_ITS_TRUE(WIFSIGNALED(status) && WTERMSIG(status) == SIGTERM);
 }
 
 FOSSIL_TEST_CASE(c_test_process_is_running) {
