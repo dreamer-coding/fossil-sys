@@ -28,14 +28,26 @@ void fossil_sys_time_now(fossil_sys_time_datetime_t *dt) {
     struct timespec ts;
     struct tm t;
     #if defined(_WIN32) || defined(_WIN64)
-        timespec_get(&ts, TIME_UTC);
-        localtime_s(&t, &ts.tv_sec);
+        if (timespec_get(&ts, TIME_UTC) == 0) {
+            fprintf(stderr, "Error getting current time\n");
+            return;
+        }
+        if (localtime_s(&t, &ts.tv_sec) != 0) {
+            fprintf(stderr, "Error converting time to local time\n");
+            return;
+        }
     #else
         struct timeval tv;
-        gettimeofday(&tv, NULL);
+        if (gettimeofday(&tv, NULL) != 0) {
+            perror("Error getting current time");
+            return;
+        }
         ts.tv_sec = tv.tv_sec;
         ts.tv_nsec = tv.tv_usec * 1000;
-        localtime_r(&ts.tv_sec, &t);
+        if (localtime_r(&ts.tv_sec, &t) == NULL) {
+            perror("Error converting time to local time");
+            return;
+        }
     #endif
     
     dt->year = t.tm_year + 1900;
@@ -64,9 +76,19 @@ int fossil_sys_time_format(const fossil_sys_time_datetime_t *dt, char *buffer, s
     }
     
     #if defined(_WIN32) || defined(_WIN64)
-        return (int)strftime(buffer, buffer_size, format, &t);
+        size_t result = strftime(buffer, buffer_size, format, &t);
+        if (result == 0) {
+            fprintf(stderr, "Error formatting time\n");
+            return -1;
+        }
+        return (int)result;
     #else
-        return (int)strftime(buffer, buffer_size, format, &t);
+        size_t result = strftime(buffer, buffer_size, format, &t);
+        if (result == 0) {
+            fprintf(stderr, "Error formatting time\n");
+            return -1;
+        }
+        return (int)result;
     #endif
 }
 
@@ -104,7 +126,12 @@ int64_t fossil_sys_time_to_unix(const fossil_sys_time_datetime_t *dt) {
         .tm_sec = dt->second
     };
     
-    return (int64_t) mktime(&t);
+    time_t result = mktime(&t);
+    if (result == -1) {
+        fprintf(stderr, "Error converting to Unix time\n");
+        return -1;
+    }
+    return (int64_t)result;
 }
 
 void fossil_sys_time_from_unix(fossil_sys_time_datetime_t *dt, int64_t timestamp) {
@@ -113,9 +140,15 @@ void fossil_sys_time_from_unix(fossil_sys_time_datetime_t *dt, int64_t timestamp
     struct tm t;
     time_t ts = (time_t) timestamp;
     #if defined(_WIN32) || defined(_WIN64)
-        localtime_s(&t, &ts);
+        if (localtime_s(&t, &ts) != 0) {
+            fprintf(stderr, "Error converting Unix time to local time\n");
+            return;
+        }
     #else
-        localtime_r(&ts, &t);
+        if (localtime_r(&ts, &t) == NULL) {
+            perror("Error converting Unix time to local time");
+            return;
+        }
     #endif
     
     dt->year = t.tm_year + 1900;
