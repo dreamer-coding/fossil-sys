@@ -45,8 +45,8 @@ FOSSIL_TEARDOWN(cpp_process_suite) {
 
 FOSSIL_TEST_CASE(cpp_test_process_spawn) {
     const char *path = "/bin/echo";
-    char *const argv[] = { "echo", "Hello, World!", NULL };
-    char *const envp[] = { NULL };
+    const char *const argv[] = { "echo", "Hello, World!", NULL };
+    const char *const envp[] = { NULL };
 
     int pid = fossil_sys_process_spawn(path, argv, envp);
     ASSUME_ITS_TRUE(pid > 0); // Ensure process is spawned successfully
@@ -59,8 +59,8 @@ FOSSIL_TEST_CASE(cpp_test_process_spawn) {
 
 FOSSIL_TEST_CASE(cpp_test_process_wait) {
     const char *path = "/bin/sleep";
-    char *const argv[] = { "sleep", "1", NULL };
-    char *const envp[] = { NULL };
+    const char *const argv[] = { "sleep", "1", NULL };
+    const char *const envp[] = { NULL };
 
     int pid = fossil_sys_process_spawn(path, argv, envp);
     ASSUME_ITS_TRUE(pid > 0); // Ensure process is spawned successfully
@@ -73,8 +73,8 @@ FOSSIL_TEST_CASE(cpp_test_process_wait) {
 
 FOSSIL_TEST_CASE(cpp_test_process_terminate) {
     const char *path = "/bin/sleep";
-    char *const argv[] = { "sleep", "10", NULL };
-    char *const envp[] = { NULL };
+    const char *const argv[] = { "sleep", "10", NULL };
+    const char *const envp[] = { NULL };
 
     int pid = fossil_sys_process_spawn(path, argv, envp);
     ASSUME_ITS_TRUE(pid > 0); // Ensure process is spawned successfully
@@ -90,8 +90,8 @@ FOSSIL_TEST_CASE(cpp_test_process_terminate) {
 
 FOSSIL_TEST_CASE(cpp_test_process_is_running) {
     const char *path = "/bin/sleep";
-    char *const argv[] = { "sleep", "2", NULL };
-    char *const envp[] = { NULL };
+    const char *const argv[] = { "sleep", "2", NULL };
+    const char *const envp[] = { NULL };
 
     int pid = fossil_sys_process_spawn(path, argv, envp);
     ASSUME_ITS_TRUE(pid > 0); // Ensure process is spawned successfully
