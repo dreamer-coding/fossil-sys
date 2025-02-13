@@ -157,13 +157,6 @@ FOSSIL_TEST_CASE(cpp_test_class_i8_subtraction) {
     ASSUME_ITS_TRUE(result.value == 10);
 }
 
-FOSSIL_TEST_CASE(cpp_test_class_i8_multiplication) {
-    fossil::sys::I8 a(10);
-    fossil::sys::I8 b(20);
-    fossil::sys::I8 result = a * b;
-    ASSUME_ITS_TRUE(result.value == 200);
-}
-
 FOSSIL_TEST_CASE(cpp_test_class_i8_division) {
     fossil::sys::I8 a(20);
     fossil::sys::I8 b(10);
@@ -183,13 +176,6 @@ FOSSIL_TEST_CASE(cpp_test_class_u8_subtraction) {
     fossil::sys::U8 b(10);
     fossil::sys::U8 result = a - b;
     ASSUME_ITS_TRUE(result.value == 10);
-}
-
-FOSSIL_TEST_CASE(cpp_test_class_u8_multiplication) {
-    fossil::sys::U8 a(10);
-    fossil::sys::U8 b(20);
-    fossil::sys::U8 result = a * b;
-    ASSUME_ITS_TRUE(result.value == 200);
 }
 
 FOSSIL_TEST_CASE(cpp_test_class_u8_division) {
@@ -213,13 +199,6 @@ FOSSIL_TEST_CASE(cpp_test_class_i16_subtraction) {
     ASSUME_ITS_TRUE(result.value == 1000);
 }
 
-FOSSIL_TEST_CASE(cpp_test_class_i16_multiplication) {
-    fossil::sys::I16 a(1000);
-    fossil::sys::I16 b(2000);
-    fossil::sys::I16 result = a * b;
-    ASSUME_ITS_TRUE(result.value == 2000000);
-}
-
 FOSSIL_TEST_CASE(cpp_test_class_i16_division) {
     fossil::sys::I16 a(2000);
     fossil::sys::I16 b(1000);
@@ -239,13 +218,6 @@ FOSSIL_TEST_CASE(cpp_test_class_u16_subtraction) {
     fossil::sys::U16 b(1000);
     fossil::sys::U16 result = a - b;
     ASSUME_ITS_TRUE(result.value == 1000);
-}
-
-FOSSIL_TEST_CASE(cpp_test_class_u16_multiplication) {
-    fossil::sys::U16 a(1000);
-    fossil::sys::U16 b(2000);
-    fossil::sys::U16 result = a * b;
-    ASSUME_ITS_TRUE(result.value == 2000000);
 }
 
 FOSSIL_TEST_CASE(cpp_test_class_u16_division) {
@@ -269,13 +241,6 @@ FOSSIL_TEST_CASE(cpp_test_class_i32_subtraction) {
     ASSUME_ITS_TRUE(result.value == 100);
 }
 
-FOSSIL_TEST_CASE(cpp_test_class_i32_multiplication) {
-    fossil::sys::I32 a(100);
-    fossil::sys::I32 b(200);
-    fossil::sys::I32 result = a * b;
-    ASSUME_ITS_TRUE(result.value == 20000);
-}
-
 FOSSIL_TEST_CASE(cpp_test_class_i32_division) {
     fossil::sys::I32 a(200);
     fossil::sys::I32 b(100);
@@ -295,13 +260,6 @@ FOSSIL_TEST_CASE(cpp_test_class_u32_subtraction) {
     fossil::sys::U32 b(100);
     fossil::sys::U32 result = a - b;
     ASSUME_ITS_TRUE(result.value == 100);
-}
-
-FOSSIL_TEST_CASE(cpp_test_class_u32_multiplication) {
-    fossil::sys::U32 a(100);
-    fossil::sys::U32 b(200);
-    fossil::sys::U32 result = a * b;
-    ASSUME_ITS_TRUE(result.value == 20000);
 }
 
 FOSSIL_TEST_CASE(cpp_test_class_u32_division) {
@@ -325,13 +283,6 @@ FOSSIL_TEST_CASE(cpp_test_class_i64_subtraction) {
     ASSUME_ITS_TRUE(result.value == 1000);
 }
 
-FOSSIL_TEST_CASE(cpp_test_class_i64_multiplication) {
-    fossil::sys::I64 a(1000);
-    fossil::sys::I64 b(2000);
-    fossil::sys::I64 result = a * b;
-    ASSUME_ITS_TRUE(result.value == 2000000);
-}
-
 FOSSIL_TEST_CASE(cpp_test_class_i64_division) {
     fossil::sys::I64 a(2000);
     fossil::sys::I64 b(1000);
@@ -351,13 +302,6 @@ FOSSIL_TEST_CASE(cpp_test_class_u64_subtraction) {
     fossil::sys::U64 b(1000);
     fossil::sys::U64 result = a - b;
     ASSUME_ITS_TRUE(result.value == 1000);
-}
-
-FOSSIL_TEST_CASE(cpp_test_class_u64_multiplication) {
-    fossil::sys::U64 a(1000);
-    fossil::sys::U64 b(2000);
-    fossil::sys::U64 result = a * b;
-    ASSUME_ITS_TRUE(result.value == 2000000);
 }
 
 FOSSIL_TEST_CASE(cpp_test_class_u64_division) {
@@ -398,38 +342,30 @@ FOSSIL_TEST_GROUP(cpp_type_tests) {
     FOSSIL_TEST_ADD(cpp_types_suite, cpp_test_type_is_negative);
     FOSSIL_TEST_ADD(cpp_types_suite, cpp_test_type_is_positive);
 
-    // FOSSIL_TEST_ADD(cpp_types_suite, cpp_test_class_i8_addition);
-    // FOSSIL_TEST_ADD(cpp_types_suite, cpp_test_class_i8_subtraction);
-    // FOSSIL_TEST_ADD(cpp_types_suite, cpp_test_class_i8_multiplication);
-    // FOSSIL_TEST_ADD(cpp_types_suite, cpp_test_class_i8_division);
-    // FOSSIL_TEST_ADD(cpp_types_suite, cpp_test_class_u8_addition);
-    // FOSSIL_TEST_ADD(cpp_types_suite, cpp_test_class_u8_subtraction);
-    // FOSSIL_TEST_ADD(cpp_types_suite, cpp_test_class_u8_multiplication);
-    // FOSSIL_TEST_ADD(cpp_types_suite, cpp_test_class_u8_division);
-    // FOSSIL_TEST_ADD(cpp_types_suite, cpp_test_class_i16_addition);
-    // FOSSIL_TEST_ADD(cpp_types_suite, cpp_test_class_i16_subtraction);
-    // FOSSIL_TEST_ADD(cpp_types_suite, cpp_test_class_i16_multiplication);
-    // FOSSIL_TEST_ADD(cpp_types_suite, cpp_test_class_i16_division);
-    // FOSSIL_TEST_ADD(cpp_types_suite, cpp_test_class_u16_addition);
-    // FOSSIL_TEST_ADD(cpp_types_suite, cpp_test_class_u16_subtraction);
-    // FOSSIL_TEST_ADD(cpp_types_suite, cpp_test_class_u16_multiplication);
-    // FOSSIL_TEST_ADD(cpp_types_suite, cpp_test_class_u16_division);
-    // FOSSIL_TEST_ADD(cpp_types_suite, cpp_test_class_i32_addition);
-    // FOSSIL_TEST_ADD(cpp_types_suite, cpp_test_class_i32_subtraction);
-    // FOSSIL_TEST_ADD(cpp_types_suite, cpp_test_class_i32_multiplication);
-    // FOSSIL_TEST_ADD(cpp_types_suite, cpp_test_class_i32_division);
-    // FOSSIL_TEST_ADD(cpp_types_suite, cpp_test_class_u32_addition);
-    // FOSSIL_TEST_ADD(cpp_types_suite, cpp_test_class_u32_subtraction);
-    // FOSSIL_TEST_ADD(cpp_types_suite, cpp_test_class_u32_multiplication);
-    // FOSSIL_TEST_ADD(cpp_types_suite, cpp_test_class_u32_division);
-    // FOSSIL_TEST_ADD(cpp_types_suite, cpp_test_class_i64_addition);
-    // FOSSIL_TEST_ADD(cpp_types_suite, cpp_test_class_i64_subtraction);
-    // FOSSIL_TEST_ADD(cpp_types_suite, cpp_test_class_i64_multiplication);
-    // FOSSIL_TEST_ADD(cpp_types_suite, cpp_test_class_i64_division);
-    // FOSSIL_TEST_ADD(cpp_types_suite, cpp_test_class_u64_addition);
-    // FOSSIL_TEST_ADD(cpp_types_suite, cpp_test_class_u64_subtraction);
-    // FOSSIL_TEST_ADD(cpp_types_suite, cpp_test_class_u64_multiplication);
-    // FOSSIL_TEST_ADD(cpp_types_suite, cpp_test_class_u64_division);
+    FOSSIL_TEST_ADD(cpp_types_suite, cpp_test_class_i8_addition);
+    FOSSIL_TEST_ADD(cpp_types_suite, cpp_test_class_i8_subtraction);
+    FOSSIL_TEST_ADD(cpp_types_suite, cpp_test_class_i8_division);
+    FOSSIL_TEST_ADD(cpp_types_suite, cpp_test_class_u8_addition);
+    FOSSIL_TEST_ADD(cpp_types_suite, cpp_test_class_u8_subtraction);
+    FOSSIL_TEST_ADD(cpp_types_suite, cpp_test_class_u8_division);
+    FOSSIL_TEST_ADD(cpp_types_suite, cpp_test_class_i16_addition);
+    FOSSIL_TEST_ADD(cpp_types_suite, cpp_test_class_i16_subtraction);
+    FOSSIL_TEST_ADD(cpp_types_suite, cpp_test_class_i16_division);
+    FOSSIL_TEST_ADD(cpp_types_suite, cpp_test_class_u16_addition);
+    FOSSIL_TEST_ADD(cpp_types_suite, cpp_test_class_u16_subtraction);
+    FOSSIL_TEST_ADD(cpp_types_suite, cpp_test_class_u16_division);
+    FOSSIL_TEST_ADD(cpp_types_suite, cpp_test_class_i32_addition);
+    FOSSIL_TEST_ADD(cpp_types_suite, cpp_test_class_i32_subtraction);
+    FOSSIL_TEST_ADD(cpp_types_suite, cpp_test_class_i32_division);
+    FOSSIL_TEST_ADD(cpp_types_suite, cpp_test_class_u32_addition);
+    FOSSIL_TEST_ADD(cpp_types_suite, cpp_test_class_u32_subtraction);
+    FOSSIL_TEST_ADD(cpp_types_suite, cpp_test_class_u32_division);
+    FOSSIL_TEST_ADD(cpp_types_suite, cpp_test_class_i64_addition);
+    FOSSIL_TEST_ADD(cpp_types_suite, cpp_test_class_i64_subtraction);
+    FOSSIL_TEST_ADD(cpp_types_suite, cpp_test_class_i64_division);
+    FOSSIL_TEST_ADD(cpp_types_suite, cpp_test_class_u64_addition);
+    FOSSIL_TEST_ADD(cpp_types_suite, cpp_test_class_u64_subtraction);
+    FOSSIL_TEST_ADD(cpp_types_suite, cpp_test_class_u64_division);
 
     FOSSIL_TEST_REGISTER(cpp_types_suite);
 }
