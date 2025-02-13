@@ -44,7 +44,7 @@ FOSSIL_TEARDOWN(cpp_user_suite) {
 // * * * * * * * * * * * * * * * * * * * * * * * *
 
 FOSSIL_TEST_CASE(cpp_test_user_create_account) {
-    fossil_sys_user_account_t account = { "testuser", "password123", "Test User" };
+    fossil_sys_user_account_t account = { "testuser", "password123", 0x01 };
     bool result = fossil_sys_user_create_account(&account);
     ASSUME_ITS_TRUE(result);
 }
@@ -56,7 +56,7 @@ FOSSIL_TEST_CASE(cpp_test_user_delete_account) {
 }
 
 FOSSIL_TEST_CASE(cpp_test_user_update_account) {
-    fossil_sys_user_account_t account = { "testuser", "newpassword123", "Updated User" };
+    fossil_sys_user_account_t account = { "testuser", "newpassword123", 0x02 };
     bool result = fossil_sys_user_update_account(&account);
     ASSUME_ITS_TRUE(result);
 }
@@ -105,7 +105,7 @@ FOSSIL_TEST_CASE(cpp_test_user_revoke_privilege) {
 
 FOSSIL_TEST_CASE(cpp_test_user_class_create_account) {
     fossil::sys::User user;
-    fossil_sys_user_account_t account = { "classuser", "password123", "Class User" };
+    fossil_sys_user_account_t account = { "classuser", "password123", 0x01 };
     bool result = user.create_account(account);
     ASSUME_ITS_TRUE(result);
 }
@@ -119,7 +119,7 @@ FOSSIL_TEST_CASE(cpp_test_user_class_delete_account) {
 
 FOSSIL_TEST_CASE(cpp_test_user_class_update_account) {
     fossil::sys::User user;
-    fossil_sys_user_account_t account = { "classuser", "newpassword123", "Updated Class User" };
+    fossil_sys_user_account_t account = { "classuser", "newpassword123", 0x02 };
     bool result = user.update_account(account);
     ASSUME_ITS_TRUE(result);
 }

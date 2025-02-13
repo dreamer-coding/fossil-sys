@@ -44,7 +44,7 @@ FOSSIL_TEARDOWN(c_user_suite) {
 // * * * * * * * * * * * * * * * * * * * * * * * *
 
 FOSSIL_TEST_CASE(c_test_user_create_account) {
-    fossil_sys_user_account_t account = { "testuser", "password123", "Test User" };
+    fossil_sys_user_account_t account = { "testuser", "password123", 0x01 }; // privileges mask
     bool result = fossil_sys_user_create_account(&account);
     ASSUME_ITS_TRUE(result);
 }
@@ -56,7 +56,7 @@ FOSSIL_TEST_CASE(c_test_user_delete_account) {
 }
 
 FOSSIL_TEST_CASE(c_test_user_update_account) {
-    fossil_sys_user_account_t account = { "testuser", "newpassword123", "Updated User" };
+    fossil_sys_user_account_t account = { "testuser", "newpassword123", 0x02 }; // updated privileges mask
     bool result = fossil_sys_user_update_account(&account);
     ASSUME_ITS_TRUE(result);
 }
@@ -84,21 +84,21 @@ FOSSIL_TEST_CASE(c_test_user_verify_password) {
 
 FOSSIL_TEST_CASE(c_test_user_check_privilege) {
     const char *username = "testuser";
-    unsigned int privilege = 1;
+    unsigned int privilege = 0x01;
     bool result = fossil_sys_user_check_privilege(username, privilege);
     ASSUME_ITS_TRUE(result);
 }
 
 FOSSIL_TEST_CASE(c_test_user_grant_privilege) {
     const char *username = "testuser";
-    unsigned int privilege = 1;
+    unsigned int privilege = 0x02;
     bool result = fossil_sys_user_grant_privilege(username, privilege);
     ASSUME_ITS_TRUE(result);
 }
 
 FOSSIL_TEST_CASE(c_test_user_revoke_privilege) {
     const char *username = "testuser";
-    unsigned int privilege = 1;
+    unsigned int privilege = 0x01;
     bool result = fossil_sys_user_revoke_privilege(username, privilege);
     ASSUME_ITS_TRUE(result);
 }
