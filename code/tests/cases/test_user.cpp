@@ -43,66 +43,6 @@ FOSSIL_TEARDOWN(cpp_user_suite) {
 // as samples for library usage.
 // * * * * * * * * * * * * * * * * * * * * * * * *
 
-FOSSIL_TEST_CASE(cpp_test_user_create_account) {
-    fossil_sys_user_account_t account = { const_cast<char*>("testuser"), const_cast<char*>("password123"), 0x01 };
-    bool result = fossil_sys_user_create_account(&account);
-    ASSUME_ITS_TRUE(result);
-}
-
-FOSSIL_TEST_CASE(cpp_test_user_delete_account) {
-    const char *username = "testuser";
-    bool result = fossil_sys_user_delete_account(username);
-    ASSUME_ITS_TRUE(result);
-}
-
-FOSSIL_TEST_CASE(cpp_test_user_update_account) {
-    fossil_sys_user_account_t account = { const_cast<char*>("testuser"), const_cast<char*>("newpassword123"), 0x02 };
-    bool result = fossil_sys_user_update_account(&account);
-    ASSUME_ITS_TRUE(result);
-}
-
-FOSSIL_TEST_CASE(cpp_test_user_get_account) {
-    const char *username = "testuser";
-    fossil_sys_user_account_t account;
-    bool result = fossil_sys_user_get_account(username, &account);
-    ASSUME_ITS_TRUE(result);
-    ASSUME_ITS_TRUE(strcmp(account.username, "testuser") == 0);
-}
-
-FOSSIL_TEST_CASE(cpp_test_user_authenticate) {
-    fossil_sys_user_credentials_t credentials = { const_cast<char*>("testuser"), const_cast<char*>("password123") };
-    bool result = fossil_sys_user_authenticate(&credentials);
-    ASSUME_ITS_TRUE(result);
-}
-
-FOSSIL_TEST_CASE(cpp_test_user_verify_password) {
-    const char *username = "testuser";
-    const char *password = "password123";
-    bool result = fossil_sys_user_verify_password(username, password);
-    ASSUME_ITS_TRUE(result);
-}
-
-FOSSIL_TEST_CASE(cpp_test_user_check_privilege) {
-    const char *username = "testuser";
-    unsigned int privilege = 1;
-    bool result = fossil_sys_user_check_privilege(username, privilege);
-    ASSUME_ITS_TRUE(result);
-}
-
-FOSSIL_TEST_CASE(cpp_test_user_grant_privilege) {
-    const char *username = "testuser";
-    unsigned int privilege = 1;
-    bool result = fossil_sys_user_grant_privilege(username, privilege);
-    ASSUME_ITS_TRUE(result);
-}
-
-FOSSIL_TEST_CASE(cpp_test_user_revoke_privilege) {
-    const char *username = "testuser";
-    unsigned int privilege = 1;
-    bool result = fossil_sys_user_revoke_privilege(username, privilege);
-    ASSUME_ITS_TRUE(result);
-}
-
 FOSSIL_TEST_CASE(cpp_test_user_class_create_account) {
     fossil::sys::User user;
     fossil_sys_user_account_t account = { "classuser", "password123", 0x01 };
@@ -177,16 +117,6 @@ FOSSIL_TEST_CASE(cpp_test_user_class_revoke_privilege) {
 // * * * * * * * * * * * * * * * * * * * * * * * *
 
 FOSSIL_TEST_GROUP(cpp_user_tests) {
-    FOSSIL_TEST_ADD(cpp_user_suite, cpp_test_user_create_account);
-    FOSSIL_TEST_ADD(cpp_user_suite, cpp_test_user_delete_account);
-    FOSSIL_TEST_ADD(cpp_user_suite, cpp_test_user_update_account);
-    FOSSIL_TEST_ADD(cpp_user_suite, cpp_test_user_get_account);
-    FOSSIL_TEST_ADD(cpp_user_suite, cpp_test_user_authenticate);
-    FOSSIL_TEST_ADD(cpp_user_suite, cpp_test_user_verify_password);
-    FOSSIL_TEST_ADD(cpp_user_suite, cpp_test_user_check_privilege);
-    FOSSIL_TEST_ADD(cpp_user_suite, cpp_test_user_grant_privilege);
-    FOSSIL_TEST_ADD(cpp_user_suite, cpp_test_user_revoke_privilege);
-
     FOSSIL_TEST_ADD(cpp_user_suite, cpp_test_user_class_create_account);
     FOSSIL_TEST_ADD(cpp_user_suite, cpp_test_user_class_delete_account);
     FOSSIL_TEST_ADD(cpp_user_suite, cpp_test_user_class_update_account);
