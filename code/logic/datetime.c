@@ -17,6 +17,7 @@
 
 #if defined(_WIN32) || defined(_WIN64)
 #include <windows.h>
+#include <time.h>
 #else
 #include <sys/time.h>
 #endif
@@ -63,7 +64,7 @@ int fossil_sys_time_format(const fossil_sys_time_datetime_t *dt, char *buffer, s
     }
     
     #if defined(_WIN32) || defined(_WIN64)
-        return (int)strftime_s(buffer, buffer_size, format, &t);
+        return (int)strftime(buffer, buffer_size, format, &t);
     #else
         return (int)strftime(buffer, buffer_size, format, &t);
     #endif
