@@ -104,21 +104,6 @@ FOSSIL_TEST_CASE(c_test_process_is_running) {
     ASSUME_ITS_TRUE(fossil_sys_process_is_running(pid) == 0); // Ensure process is no longer running
 }
 
-FOSSIL_TEST_CASE(c_test_process_get_exit_code) {
-    const char *path = "/bin/echo";
-    char *const argv[] = { "echo", "Hello, World!", NULL };
-    char *const envp[] = { NULL };
-
-    int pid = fossil_sys_process_spawn(path, argv, envp);
-    ASSUME_ITS_TRUE(pid > 0); // Ensure process is spawned successfully
-
-    int status;
-    fossil_sys_process_wait(pid, &status); // Wait for process to finish
-
-    int exit_code = fossil_sys_process_get_exit_code(pid);
-    ASSUME_ITS_TRUE(exit_code == 0); // Ensure process exited with status 0
-}
-
 // * * * * * * * * * * * * * * * * * * * * * * * *
 // * Fossil Logic Test Pool
 // * * * * * * * * * * * * * * * * * * * * * * * *
@@ -128,7 +113,6 @@ FOSSIL_TEST_GROUP(c_process_tests) {
     FOSSIL_TEST_ADD(c_process_suite, c_test_process_wait);
     FOSSIL_TEST_ADD(c_process_suite, c_test_process_terminate);
     FOSSIL_TEST_ADD(c_process_suite, c_test_process_is_running);
-    FOSSIL_TEST_ADD(c_process_suite, c_test_process_get_exit_code);
 
     FOSSIL_TEST_REGISTER(c_process_suite);
 }

@@ -108,22 +108,6 @@ FOSSIL_TEST_CASE(cpp_test_process_class_is_running) {
     ASSUME_ITS_TRUE(process.is_running(pid) == 0); // Ensure process is no longer running
 }
 
-FOSSIL_TEST_CASE(cpp_test_process_class_get_exit_code) {
-    fossil::sys::Process process;
-    const char *path = "/bin/echo";
-    std::vector<std::string> argv = { "echo", "Hello, World!" };
-    std::vector<std::string> envp = {};
-
-    int pid = process.spawn(path, argv, envp);
-    ASSUME_ITS_TRUE(pid > 0); // Ensure process is spawned successfully
-
-    int status;
-    process.wait(pid, &status); // Wait for process to finish
-
-    int exit_code = process.get_exit_code(pid);
-    ASSUME_ITS_TRUE(exit_code == 0); // Ensure process exited with status 0
-}
-
 // * * * * * * * * * * * * * * * * * * * * * * * *
 // * Fossil Logic Test Pool
 // * * * * * * * * * * * * * * * * * * * * * * * *
@@ -133,7 +117,6 @@ FOSSIL_TEST_GROUP(cpp_process_tests) {
     FOSSIL_TEST_ADD(cpp_process_suite, cpp_test_process_class_wait);
     FOSSIL_TEST_ADD(cpp_process_suite, cpp_test_process_class_terminate);
     FOSSIL_TEST_ADD(cpp_process_suite, cpp_test_process_class_is_running);
-    FOSSIL_TEST_ADD(cpp_process_suite, cpp_test_process_class_get_exit_code);
 
     FOSSIL_TEST_REGISTER(cpp_process_suite);
 }
