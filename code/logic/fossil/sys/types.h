@@ -11,8 +11,8 @@
  * Copyright (C) 2024 Fossil Logic. All rights reserved.
  * -----------------------------------------------------------------------------
  */
-#ifndef FOSSIL_SYS_USER_H
-#define FOSSIL_SYS_USER_H
+#ifndef FOSSIL_SYS_TYPE_H
+#define FOSSIL_SYS_TYPE_H
 
 #include <stdint.h>
 #include <stddef.h>

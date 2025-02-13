@@ -15,6 +15,7 @@
 #define FOSSIL_SYS_FRAMEWORK_H
 
 #include "cnullptr.h"
+#include "datetime.h"
 #include "memory.h"
 #include "types.h"
 
