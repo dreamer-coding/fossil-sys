@@ -45,7 +45,7 @@ void fossil_sys_time_now(fossil_sys_time_datetime_t *dt) {
         }
         ts.tv_sec = tv.tv_sec;
         ts.tv_nsec = tv.tv_usec * 1000;
-        if (localtime_r(&ts.tv_sec, &t) == NULL) {
+        if (!localtime_r(&ts.tv_sec, &t)) {
             perror("Error converting time to local time");
             return;
         }
@@ -146,7 +146,7 @@ void fossil_sys_time_from_unix(fossil_sys_time_datetime_t *dt, int64_t timestamp
             return;
         }
     #else
-        if (localtime_r(&ts, &t) == NULL) {
+        if (!localtime_r(&ts, &t)) {
             perror("Error converting Unix time to local time");
             return;
         }
