@@ -16,10 +16,9 @@
 #include <time.h>
 
 #ifdef __WIN32
-    #include <windows.h>
+#include <windows.h>
 #else
 #include <sys/time.h>
-#include <linux/time.h>
 #endif
 
 
@@ -32,7 +31,10 @@ void fossil_sys_time_now(fossil_sys_time_datetime_t *dt) {
         timespec_get(&ts, TIME_UTC);
         localtime_s(&t, &ts.tv_sec);
     #else
-        clock_gettime(CLOCK_REALTIME, &ts);
+        struct timeval tv;
+        gettimeofday(&tv, NULL);
+        ts.tv_sec = tv.tv_sec;
+        ts.tv_nsec = tv.tv_usec * 1000;
         localtime_r(&ts.tv_sec, &t);
     #endif
     
