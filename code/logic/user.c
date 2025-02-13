@@ -11,7 +11,7 @@
  * Copyright (C) 2024 Fossil Logic. All rights reserved.
  * -----------------------------------------------------------------------------
  */
-#include "fossil/sys/process.h"
+#include "fossil/sys/user.h"
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
