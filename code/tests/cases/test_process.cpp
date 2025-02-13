@@ -96,10 +96,10 @@ FOSSIL_TEST_CASE(cpp_test_process_is_running) {
 // * * * * * * * * * * * * * * * * * * * * * * * *
 
 FOSSIL_TEST_GROUP(cpp_process_tests) {
-    FOSSIL_TEST_ADD(cpp_memory_suite, cpp_test_process_create);
-    FOSSIL_TEST_ADD(cpp_memory_suite, cpp_test_process_wait);
-    FOSSIL_TEST_ADD(cpp_memory_suite, cpp_test_process_terminate);
-    FOSSIL_TEST_ADD(cpp_memory_suite, cpp_test_process_is_running);
+    FOSSIL_TEST_ADD(cpp_process_suite, cpp_test_process_create);
+    FOSSIL_TEST_ADD(cpp_process_suite, cpp_test_process_wait);
+    FOSSIL_TEST_ADD(cpp_process_suite, cpp_test_process_terminate);
+    FOSSIL_TEST_ADD(cpp_process_suite, cpp_test_process_is_running);
 
     FOSSIL_TEST_REGISTER(cpp_process_suite);
 }
