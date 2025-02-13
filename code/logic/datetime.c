@@ -20,6 +20,7 @@
 #include <time.h>
 #else
 #include <sys/time.h>
+#include <unistd.h>
 #endif
 
 void fossil_sys_time_now(fossil_sys_time_datetime_t *dt) {
