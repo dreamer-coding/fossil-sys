@@ -29,7 +29,7 @@ void fossil_sys_time_now(fossil_sys_time_datetime_t *dt) {
     struct tm t;
     #if defined(_WIN32) || defined(_WIN64)
         timespec_get(&ts, TIME_UTC);
-        localtime_s(&t, &ts.tv_sec);
+        _strtime_s(&t, &ts.tv_sec);
     #else
         struct timeval tv;
         gettimeofday(&tv, NULL);
@@ -113,7 +113,7 @@ void fossil_sys_time_from_unix(fossil_sys_time_datetime_t *dt, int64_t timestamp
     struct tm t;
     time_t ts = (time_t) timestamp;
     #if defined(_WIN32) || defined(_WIN64)
-        localtime_s(&t, &ts);
+        _strtime_s(&t, &ts);
     #else
         localtime_r(&ts, &t);
     #endif
