@@ -23,15 +23,15 @@
 // * * * * * * * * * * * * * * * * * * * * * * * *
 
 // Define the test suite and add test cases
-FOSSIL_TEST_SUITE(cpp_user_suite);
+FOSSIL_TEST_SUITE(cpp_types_suite);
 
 // Setup function for the test suite
-FOSSIL_SETUP(cpp_user_suite) {
+FOSSIL_SETUP(cpp_types_suite) {
     // Setup code here
 }
 
 // Teardown function for the test suite
-FOSSIL_TEARDOWN(cpp_user_suite) {
+FOSSIL_TEARDOWN(cpp_types_suite) {
     // Teardown code here
 }
 
