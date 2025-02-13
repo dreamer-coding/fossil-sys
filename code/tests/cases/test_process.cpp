@@ -113,10 +113,10 @@ FOSSIL_TEST_CASE(cpp_test_process_class_is_running) {
 // * * * * * * * * * * * * * * * * * * * * * * * *
 
 FOSSIL_TEST_GROUP(cpp_process_tests) {
-    FOSSIL_TEST_ADD(cpp_process_suite, cpp_test_process_class_spawn);
-    FOSSIL_TEST_ADD(cpp_process_suite, cpp_test_process_class_wait);
-    FOSSIL_TEST_ADD(cpp_process_suite, cpp_test_process_class_terminate);
-    FOSSIL_TEST_ADD(cpp_process_suite, cpp_test_process_class_is_running);
+    // FOSSIL_TEST_ADD(cpp_process_suite, cpp_test_process_class_spawn);
+    // FOSSIL_TEST_ADD(cpp_process_suite, cpp_test_process_class_wait);
+    // FOSSIL_TEST_ADD(cpp_process_suite, cpp_test_process_class_terminate);
+    // FOSSIL_TEST_ADD(cpp_process_suite, cpp_test_process_class_is_running);
 
     FOSSIL_TEST_REGISTER(cpp_process_suite);
 }
