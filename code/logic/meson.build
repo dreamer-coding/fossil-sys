@@ -1,7 +1,7 @@
 dir = include_directories('.')
 
 fossil_sys_lib = library('fossil-sys',
-    files('memory.c', 'datetime.c'),
+    files('memory.c', 'datetime.c', 'hostinfo.c'),
     install: true,
     dependencies: [dependency('threads')],
     include_directories: dir)

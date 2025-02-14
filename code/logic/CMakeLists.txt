@@ -10,6 +10,7 @@ file(GLOB HEADER_FILES ${CMAKE_CURRENT_SOURCE_DIR}/fossil/*.h)
 set(TEST_CODE
     memory.c
     datetime.c
+    hostinfo.c
 )
 
 # Create the library target
