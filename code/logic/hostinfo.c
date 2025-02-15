@@ -14,12 +14,14 @@
 #include "fossil/sys/hostinfo.h"
 #include <stdio.h>
 #include <string.h>
+
 #ifdef _WIN32
     #include <windows.h>
 #else
     #include <sys/utsname.h>
-    #include <unistd.h>
     #include <sys/sysinfo.h>
+    #include <sys/types.h>
+    #include <unistd.h>
 #endif
 
 int fossil_sys_hostinfo_get_system(fossil_sys_hostinfo_system_t *info) {
