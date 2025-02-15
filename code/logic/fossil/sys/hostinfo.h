@@ -31,25 +31,11 @@ typedef struct {
     char kernel_version[128];
 } fossil_sys_hostinfo_system_t;
 
-// CPU information structure
-typedef struct {
-    char model[128];
-    uint32_t cores;
-    uint32_t threads;
-    uint64_t frequency; // in Hz
-} fossil_sys_hostinfo_cpu_t;
-
 // Memory information structure
 typedef struct {
     uint64_t total_memory; // in bytes
     uint64_t free_memory;  // in bytes
 } fossil_sys_hostinfo_memory_t;
-
-// GPU information structure
-typedef struct {
-    char model[128];
-    uint64_t memory; // in bytes
-} fossil_sys_hostinfo_gpu_t;
 
 // Endianness information structure
 typedef struct {
@@ -65,28 +51,12 @@ typedef struct {
 int fossil_sys_hostinfo_get_system(fossil_sys_hostinfo_system_t *info);
 
 /**
- * Retrieve CPU information.
- *
- * @param info A pointer to a structure that will be filled with CPU information.
- * @return 0 on success, or a negative error code on failure.
- */
-int fossil_sys_hostinfo_get_cpu(fossil_sys_hostinfo_cpu_t *info);
-
-/**
  * Retrieve memory information.
  *
  * @param info A pointer to a structure that will be filled with memory information.
  * @return 0 on success, or a negative error code on failure.
  */
 int fossil_sys_hostinfo_get_memory(fossil_sys_hostinfo_memory_t *info);
-
-/**
- * Retrieve GPU information.
- *
- * @param info A pointer to a structure that will be filled with GPU information.
- * @return 0 on success, or a negative error code on failure.
- */
-int fossil_sys_hostinfo_get_gpu(fossil_sys_hostinfo_gpu_t *info);
 
 /**
  * Retrieve endianness information.
@@ -127,17 +97,6 @@ namespace fossil {
             }
 
             /**
-             * Get CPU information.
-             *
-             * @return A structure containing CPU information.
-             */
-            static fossil_sys_hostinfo_cpu_t get_cpu() {
-                fossil_sys_hostinfo_cpu_t info;
-                fossil_sys_hostinfo_get_cpu(&info);
-                return info;
-            }
-
-            /**
              * Get memory information.
              *
              * @return A structure containing memory information.
@@ -145,17 +104,6 @@ namespace fossil {
             static fossil_sys_hostinfo_memory_t get_memory() {
                 fossil_sys_hostinfo_memory_t info;
                 fossil_sys_hostinfo_get_memory(&info);
-                return info;
-            }
-
-            /**
-             * Get GPU information.
-             *
-             * @return A structure containing GPU information.
-             */
-            static fossil_sys_hostinfo_gpu_t get_gpu() {
-                fossil_sys_hostinfo_gpu_t info;
-                fossil_sys_hostinfo_get_gpu(&info);
                 return info;
             }
 

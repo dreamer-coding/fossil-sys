@@ -54,29 +54,6 @@ int fossil_sys_hostinfo_get_system(fossil_sys_hostinfo_system_t *info) {
     return 0;
 }
 
-int fossil_sys_hostinfo_get_cpu(fossil_sys_hostinfo_cpu_t *info) {
-    if (!info) return -1;
-#ifdef _WIN32
-    SYSTEM_INFO sysinfo;
-    GetSystemInfo(&sysinfo);
-    info->cores = sysinfo.dwNumberOfProcessors;
-    info->threads = sysinfo.dwNumberOfProcessors;
-    snprintf(info->model, sizeof(info->model), "Unknown");
-    info->frequency = 0;
-#elif defined(__APPLE__)
-    info->cores = sysconf(_SC_NPROCESSORS_ONLN);
-    info->threads = sysconf(_SC_NPROCESSORS_CONF);
-    snprintf(info->model, sizeof(info->model), "Generic CPU");
-    info->frequency = 0;
-#else
-    info->cores = sysconf(_SC_NPROCESSORS_ONLN);
-    info->threads = sysconf(_SC_NPROCESSORS_CONF);
-    snprintf(info->model, sizeof(info->model), "Generic CPU");
-    info->frequency = 0;
-#endif
-    return 0;
-}
-
 int fossil_sys_hostinfo_get_memory(fossil_sys_hostinfo_memory_t *info) {
     if (!info) return -1;
 #ifdef _WIN32
@@ -97,13 +74,6 @@ int fossil_sys_hostinfo_get_memory(fossil_sys_hostinfo_memory_t *info) {
     info->total_memory = sys_info.totalram;
     info->free_memory = sys_info.freeram;
 #endif
-    return 0;
-}
-
-int fossil_sys_hostinfo_get_gpu(fossil_sys_hostinfo_gpu_t *info) {
-    if (!info) return -1;
-    snprintf(info->model, sizeof(info->model), "Unknown GPU");
-    info->memory = 0;
     return 0;
 }
 
