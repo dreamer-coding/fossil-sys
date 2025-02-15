@@ -17,6 +17,10 @@
 
 #ifdef _WIN32
     #include <windows.h>
+#elif defined(__APPLE__)
+    #include <sys/utsname.h>
+    #include <sys/types.h>
+    #include <unistd.h>
 #else
     #include <sys/utsname.h>
     #include <sys/sysinfo.h>
