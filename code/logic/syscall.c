@@ -45,7 +45,7 @@ int fossil_sys_call_execute(const char *command) {
     * This function returns the process ID of the calling process. 
     * The process ID is a unique identifier for the process.
     */
-int fossil_sys_call_getpid() {
+int fossil_sys_call_getpid(void) {
 #ifdef _WIN32
     return GetCurrentProcessId(); // On Windows, use the GetCurrentProcessId function to get the process ID.
 #else
