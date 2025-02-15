@@ -83,40 +83,6 @@ void fossil_sys_time_now(fossil_sys_time_datetime_t *dt);
 int fossil_sys_time_format(const fossil_sys_time_datetime_t *dt, char *buffer, size_t buffer_size, const char *format, int military_time);
 
 /**
- * @brief Add time to a datetime object.
- * 
- * @param dt Pointer to the fossil_sys_time_datetime_t structure to be modified.
- * @param amount Amount of time to add.
- * @param unit Unit of time to add (e.g., seconds, minutes, hours).
- */
-void fossil_sys_time_add(fossil_sys_time_datetime_t *dt, int64_t amount, uint64_t unit);
-
-/**
- * @brief Subtract time from a datetime object.
- * 
- * @param dt Pointer to the fossil_sys_time_datetime_t structure to be modified.
- * @param amount Amount of time to subtract.
- * @param unit Unit of time to subtract (e.g., seconds, minutes, hours).
- */
-void fossil_sys_time_subtract(fossil_sys_time_datetime_t *dt, int64_t amount, uint64_t unit);
-
-/**
- * @brief Convert datetime to UNIX timestamp.
- * 
- * @param dt Pointer to the fossil_sys_time_datetime_t structure to be converted.
- * @return int64_t Returns the UNIX timestamp corresponding to the provided datetime.
- */
-int64_t fossil_sys_time_to_unix(const fossil_sys_time_datetime_t *dt);
-
-/**
- * @brief Convert UNIX timestamp to datetime.
- * 
- * @param dt Pointer to the fossil_sys_time_datetime_t structure to be populated.
- * @param timestamp UNIX timestamp to be converted.
- */
-void fossil_sys_time_from_unix(fossil_sys_time_datetime_t *dt, int64_t timestamp);
-
-/**
  * @brief Determine if a given year is a leap year.
  * 
  * @param year The year to check.
@@ -195,44 +161,6 @@ namespace fossil {
                 char buffer[256];
                 fossil_sys_time_format(&dt, buffer, sizeof(buffer), format.c_str(), military_time);
                 return std::string(buffer);
-            }
-
-            /**
-             * @brief Add time to the DateTime object.
-             *
-             * @param amount The amount of time to add.
-             * @param unit The unit of time to add (e.g., seconds, minutes, hours).
-             */
-            void add(int64_t amount, uint64_t unit) {
-                fossil_sys_time_add(&dt, amount, unit);
-            }
-
-            /**
-             * @brief Subtract time from the DateTime object.
-             *
-             * @param amount The amount of time to subtract.
-             * @param unit The unit of time to subtract (e.g., seconds, minutes, hours).
-             */
-            void subtract(int64_t amount, uint64_t unit) {
-                fossil_sys_time_subtract(&dt, amount, unit);
-            }
-
-            /**
-             * @brief Convert the DateTime object to a UNIX timestamp.
-             *
-             * @return int64_t Returns the UNIX timestamp corresponding to the DateTime object.
-             */
-            int64_t to_unix() const {
-                return fossil_sys_time_to_unix(&dt);
-            }
-
-            /**
-             * @brief Convert a UNIX timestamp to a DateTime object.
-             *
-             * @param timestamp The UNIX timestamp to convert.
-             */
-            void from_unix(int64_t timestamp) {
-                fossil_sys_time_from_unix(&dt, timestamp);
             }
 
             /**

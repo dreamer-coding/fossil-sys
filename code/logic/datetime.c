@@ -86,68 +86,6 @@ int fossil_sys_time_format(const fossil_sys_time_datetime_t *dt, char *buffer, s
     return (int)result;
 }
 
-void fossil_sys_time_add(fossil_sys_time_datetime_t *dt, int64_t amount, uint64_t unit) {
-    if (!dt) return;
-    
-    int64_t total_nanoseconds = amount * unit;
-    dt->nanosecond += total_nanoseconds;
-    while (dt->nanosecond >= 1000000000) {
-        dt->nanosecond -= 1000000000;
-        dt->second++;
-    }
-}
-
-void fossil_sys_time_subtract(fossil_sys_time_datetime_t *dt, int64_t amount, uint64_t unit) {
-    if (!dt) return;
-    
-    int64_t total_nanoseconds = amount * unit;
-    dt->nanosecond -= total_nanoseconds;
-    while (dt->nanosecond < 0) {
-        dt->nanosecond += 1000000000;
-        dt->second--;
-    }
-}
-
-int64_t fossil_sys_time_to_unix(const fossil_sys_time_datetime_t *dt) {
-    if (!dt) return -1;
-    
-    struct tm t = {
-        .tm_year = dt->year - 1900,
-        .tm_mon = dt->month - 1,
-        .tm_mday = dt->day,
-        .tm_hour = dt->hour,
-        .tm_min = dt->minute,
-        .tm_sec = dt->second
-    };
-    
-    time_t result = mktime(&t);
-    if (result == -1) {
-        fprintf(stderr, "Error converting to Unix time\n");
-        return -1;
-    }
-    return (int64_t)result;
-}
-
-void fossil_sys_time_from_unix(fossil_sys_time_datetime_t *dt, int64_t timestamp) {
-    if (!dt) return;
-    
-    struct tm *t;
-    time_t ts = (time_t) timestamp;
-    t = localtime(&ts);
-    if (!t) {
-        perror("Error converting Unix time to local time");
-        return;
-    }
-    
-    dt->year = t->tm_year + 1900;
-    dt->month = t->tm_mon + 1;
-    dt->day = t->tm_mday;
-    dt->hour = t->tm_hour;
-    dt->minute = t->tm_min;
-    dt->second = t->tm_sec;
-    dt->nanosecond = 0;
-}
-
 int fossil_sys_time_is_leap_year(int year) {
     return (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0);
 }

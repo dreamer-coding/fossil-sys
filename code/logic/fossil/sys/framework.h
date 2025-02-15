@@ -16,6 +16,7 @@
 
 #include "cnullptr.h"
 #include "datetime.h"
+#include "hostinfo.h"
 #include "memory.h"
 #include "types.h"
 

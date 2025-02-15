@@ -59,32 +59,6 @@ FOSSIL_TEST_CASE(cpp_test_time_format) {
     ASSUME_ITS_TRUE(strcmp(buffer, "2024-01-01 12:00:00") == 0); // Ensure correct format
 }
 
-FOSSIL_TEST_CASE(cpp_test_time_add) {
-    fossil_sys_time_datetime_t dt = {2024, 1, 1, 12, 0, 0, 0};
-    fossil_sys_time_add(&dt, 60, 1); // Add 60 seconds
-    ASSUME_ITS_TRUE(dt.minute == 1); // Ensure minute is incremented
-}
-
-FOSSIL_TEST_CASE(cpp_test_time_subtract) {
-    fossil_sys_time_datetime_t dt = {2024, 1, 1, 12, 1, 0, 0};
-    fossil_sys_time_subtract(&dt, 60, 1); // Subtract 60 seconds
-    ASSUME_ITS_TRUE(dt.minute == 0); // Ensure minute is decremented
-}
-
-FOSSIL_TEST_CASE(cpp_test_time_to_unix) {
-    fossil_sys_time_datetime_t dt = {1970, 1, 1, 0, 0, 0, 0};
-    int64_t timestamp = fossil_sys_time_to_unix(&dt);
-    ASSUME_ITS_TRUE(timestamp == 0); // Ensure correct UNIX timestamp
-}
-
-FOSSIL_TEST_CASE(cpp_test_time_from_unix) {
-    fossil_sys_time_datetime_t dt;
-    fossil_sys_time_from_unix(&dt, 0);
-    ASSUME_ITS_TRUE(dt.year == 1970); // Ensure correct year
-    ASSUME_ITS_TRUE(dt.month == 1); // Ensure correct month
-    ASSUME_ITS_TRUE(dt.day == 1); // Ensure correct day
-}
-
 FOSSIL_TEST_CASE(cpp_test_time_is_leap_year) {
     ASSUME_ITS_TRUE(fossil_sys_time_is_leap_year(2024) == 1); // 2024 is a leap year
     ASSUME_ITS_TRUE(fossil_sys_time_is_leap_year(2023) == 0); // 2023 is not a leap year
@@ -108,35 +82,6 @@ FOSSIL_TEST_CASE(cpp_test_datetime_format) {
     fossil::sys::DateTime dt({2024, 1, 1, 12, 0, 0, 0});
     std::string formatted = dt.format("%Y-%m-%d %H:%M:%S", true);
     ASSUME_ITS_TRUE(formatted == "2024-01-01 12:00:00"); // Ensure correct format
-}
-
-FOSSIL_TEST_CASE(cpp_test_datetime_add) {
-    fossil::sys::DateTime dt({2024, 1, 1, 12, 0, 0, 0});
-    dt.add(60, 1); // Add 60 seconds
-    auto datetime = dt.get();
-    ASSUME_ITS_TRUE(datetime.minute == 1); // Ensure minute is incremented
-}
-
-FOSSIL_TEST_CASE(cpp_test_datetime_subtract) {
-    fossil::sys::DateTime dt({2024, 1, 1, 12, 1, 0, 0});
-    dt.subtract(60, 1); // Subtract 60 seconds
-    auto datetime = dt.get();
-    ASSUME_ITS_TRUE(datetime.minute == 0); // Ensure minute is decremented
-}
-
-FOSSIL_TEST_CASE(cpp_test_datetime_to_unix) {
-    fossil::sys::DateTime dt({1970, 1, 1, 0, 0, 0, 0});
-    int64_t timestamp = dt.to_unix();
-    ASSUME_ITS_TRUE(timestamp == 0); // Ensure correct UNIX timestamp
-}
-
-FOSSIL_TEST_CASE(cpp_test_datetime_from_unix) {
-    fossil::sys::DateTime dt;
-    dt.from_unix(0);
-    auto datetime = dt.get();
-    ASSUME_ITS_TRUE(datetime.year == 1970); // Ensure correct year
-    ASSUME_ITS_TRUE(datetime.month == 1); // Ensure correct month
-    ASSUME_ITS_TRUE(datetime.day == 1); // Ensure correct day
 }
 
 FOSSIL_TEST_CASE(cpp_test_calendar_constructor) {
@@ -165,18 +110,10 @@ FOSSIL_TEST_CASE(cpp_test_calendar_days_in_month) {
 FOSSIL_TEST_GROUP(cpp_time_tests) {
     FOSSIL_TEST_ADD(cpp_time_suite, cpp_test_time_now);
     FOSSIL_TEST_ADD(cpp_time_suite, cpp_test_time_format);
-    FOSSIL_TEST_ADD(cpp_time_suite, cpp_test_time_add);
-    FOSSIL_TEST_ADD(cpp_time_suite, cpp_test_time_subtract);
-    FOSSIL_TEST_ADD(cpp_time_suite, cpp_test_time_to_unix);
-    FOSSIL_TEST_ADD(cpp_time_suite, cpp_test_time_from_unix);
     FOSSIL_TEST_ADD(cpp_time_suite, cpp_test_time_is_leap_year);
     FOSSIL_TEST_ADD(cpp_time_suite, cpp_test_time_days_in_month);
     FOSSIL_TEST_ADD(cpp_time_suite, cpp_test_datetime_constructor);
     FOSSIL_TEST_ADD(cpp_time_suite, cpp_test_datetime_format);
-    FOSSIL_TEST_ADD(cpp_time_suite, cpp_test_datetime_add);
-    FOSSIL_TEST_ADD(cpp_time_suite, cpp_test_datetime_subtract);
-    FOSSIL_TEST_ADD(cpp_time_suite, cpp_test_datetime_to_unix);
-    FOSSIL_TEST_ADD(cpp_time_suite, cpp_test_datetime_from_unix);
     FOSSIL_TEST_ADD(cpp_time_suite, cpp_test_calendar_constructor);
     FOSSIL_TEST_ADD(cpp_time_suite, cpp_test_calendar_is_leap_year);
     FOSSIL_TEST_ADD(cpp_time_suite, cpp_test_calendar_days_in_month);
