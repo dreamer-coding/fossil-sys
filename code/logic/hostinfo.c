@@ -37,6 +37,12 @@ int fossil_sys_hostinfo_get_system(fossil_sys_hostinfo_system_t *info) {
     snprintf(info->os_name, sizeof(info->os_name), "Windows");
     snprintf(info->os_version, sizeof(info->os_version), "%lu.%lu", osvi.dwMajorVersion, osvi.dwMinorVersion);
     snprintf(info->kernel_version, sizeof(info->kernel_version), "%lu", osvi.dwBuildNumber);
+#elif defined(__APPLE__)
+    struct utsname sysinfo;
+    if (uname(&sysinfo) != 0) return -1;
+    strncpy(info->os_name, sysinfo.sysname, sizeof(info->os_name) - 1);
+    strncpy(info->os_version, sysinfo.version, sizeof(info->os_version) - 1);
+    strncpy(info->kernel_version, sysinfo.release, sizeof(info->kernel_version) - 1);
 #else
     struct utsname sysinfo;
     if (uname(&sysinfo) != 0) return -1;
@@ -56,6 +62,11 @@ int fossil_sys_hostinfo_get_cpu(fossil_sys_hostinfo_cpu_t *info) {
     info->threads = sysinfo.dwNumberOfProcessors;
     snprintf(info->model, sizeof(info->model), "Unknown");
     info->frequency = 0;
+#elif defined(__APPLE__)
+    info->cores = sysconf(_SC_NPROCESSORS_ONLN);
+    info->threads = sysconf(_SC_NPROCESSORS_CONF);
+    snprintf(info->model, sizeof(info->model), "Generic CPU");
+    info->frequency = 0;
 #else
     info->cores = sysconf(_SC_NPROCESSORS_ONLN);
     info->threads = sysconf(_SC_NPROCESSORS_CONF);
@@ -73,6 +84,12 @@ int fossil_sys_hostinfo_get_memory(fossil_sys_hostinfo_memory_t *info) {
     if (!GlobalMemoryStatusEx(&statex)) return -1;
     info->total_memory = statex.ullTotalPhys;
     info->free_memory = statex.ullAvailPhys;
+#elif defined(__APPLE__)
+    int64_t memsize;
+    size_t len = sizeof(memsize);
+    if (sysctlbyname("hw.memsize", &memsize, &len, NULL, 0) != 0) return -1;
+    info->total_memory = memsize;
+    info->free_memory = 0; // macOS does not provide free memory info in the same way
 #else
     struct sysinfo sys_info;
     if (sysinfo(&sys_info) != 0) return -1;
