@@ -54,6 +54,16 @@ extern "C" {
 #endif
 #endif
 
+/**
+ * @brief Macro to nullify a pointer.
+ *
+ * This macro sets a pointer to `cnull` (`nullptr` in C++ or platform-appropriate null in C).
+ * It ensures that the pointer is safely assigned a null value.
+ *
+ * @param ptr The pointer to be nullified.
+ */
+#define cnullify(ptr) ((ptr) = cnull)
+
 // Termination values for regular and wide strings
 
 /**
