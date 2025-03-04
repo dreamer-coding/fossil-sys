@@ -64,6 +64,16 @@ extern "C" {
  */
 #define cnullify(ptr) ((ptr) = cnull)
 
+/**
+ * @brief Checks if a pointer is not null.
+ *
+ * A macro that explicitly verifies if a pointer is not null before using it.
+ *
+ * @param ptr The pointer to check.
+ * @return 1 if not null, 0 otherwise.
+ */
+#define cnotnull(ptr) ((ptr) != cnull)
+
 // Termination values for regular and wide strings
 
 /**
