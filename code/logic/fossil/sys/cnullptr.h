@@ -74,6 +74,17 @@ extern "C" {
  */
 #define cnotnull(ptr) ((ptr) != cnull)
 
+/**
+ * @brief Represents an optional (nullable) value.
+ *
+ * If the value is null, it returns a default value instead.
+ *
+ * @param ptr The pointer to check.
+ * @param default_val The default value to return if `ptr` is null.
+ * @return `ptr` if not null, otherwise `default_val`.
+ */
+#define cmaybe(ptr, default_val) ((ptr) ? (ptr) : (default_val))
+
 // Termination values for regular and wide strings
 
 /**
