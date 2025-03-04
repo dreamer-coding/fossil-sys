@@ -21,7 +21,7 @@
 extern "C" {
 #endif
 
-// null type declaration for compatibility with C11, C23, and C++
+// Ensure null pointer is defined for compatibility with C11, C23, and C++ standards
 #ifndef FOSSIL_CNULL
 
 #if __cplusplus >= 201103L || (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 202311L)
@@ -54,13 +54,86 @@ extern "C" {
 #endif
 #endif
 
+// Termination values for regular and wide strings
+
+/**
+ * @brief Null-terminated character for C strings.
+ *
+ * This is used to mark the end of a C string (regular strings).
+ * It is commonly used to indicate the end of an array of characters in C.
+ * It is equivalent to the null character `'\0'`.
+ */
 #define cterminator '\0'
+
+/**
+ * @brief Null-terminated wide-character for wide strings.
+ *
+ * This is used to mark the end of a wide-character string (`wchar_t` arrays).
+ * It is equivalent to the wide null character `L'\0'`.
+ */
 #define wterminator L'\0'
+
+/**
+ * @brief Null-terminated character for C strings.
+ *
+ * This is used as a constant for the null character in C strings, typically to represent the end of a string.
+ */
 #define cterm '\0'
+
+/**
+ * @brief Null-terminated wide-character for wide strings.
+ *
+ * This is used as a constant for the null character in wide strings (`wchar_t` arrays), typically to represent the end of a wide string.
+ */
 #define wterm L'\0'
+
+// Newline constants for regular and wide strings
+
+/**
+ * @brief Defines the newline character for C.
+ *
+ * This is used in C and C++ environments for regular strings to denote a newline.
+ */
+#define cnewline    '\n'
+
+/**
+ * @brief Defines the newline character for wide strings in C and C++.
+ *
+ * This is used for wide-character strings (`wchar_t`) to denote a newline.
+ */
+#define wnewline    L'\n'
+
+/**
+ * @brief Defines an empty C string.
+ *
+ * This represents an empty string (`""`) for use in C and C++ code.
+ */
+#define cempty      ""
+
+/**
+ * @brief Defines an empty wide-character string.
+ *
+ * This represents an empty wide string (`L""`) for use in C and C++ code.
+ */
+#define wempty      L""
+
+/**
+ * @brief Type-safe compiler attributes for null and nullable types.
+ *
+ * - `cnull` and `cnullptr` handle null pointers across platforms.
+ * - The constants `cterminator`, `wterminator`, `cterm`, `wterm` are used to represent the null terminators
+ *   for regular and wide-character strings.
+ * - `cnewline` and `wnewline` are used to represent newline characters for regular and wide strings.
+ * - `cempty` and `wempty` represent empty strings for regular and wide-character strings.
+ *
+ * These definitions ensure proper handling of string terminations and special characters across platforms.
+ * Compiler-specific attributes:
+ * - **GCC/Clang**: The use of `nullptr` for null pointers in C++ and null terminators for strings.
+ * - **MSVC**: MSVC compilers do not natively support `nullptr` but handle `cnull` as 0.
+ */
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* FOSSIL_SYS_FRAMEWORK_H */
+#endif
