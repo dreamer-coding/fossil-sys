@@ -85,6 +85,22 @@ extern "C" {
  */
 #define cmaybe(ptr, default_val) ((ptr) ? (ptr) : (default_val))
 
+/**
+ * @brief Marks a variable as unused to suppress compiler warnings.
+ *
+ * Some compilers generate warnings when a variable is declared but not used.
+ * This macro safely prevents such warnings without affecting the program.
+ *
+ * @param x The variable that is intentionally unused.
+ */
+#ifndef cunused
+    #if defined(__GNUC__) || defined(__clang__)
+        #define cunused(x) (void)(x)
+    #else
+        #define cunused(x) /* no-op */
+    #endif
+#endif
+
 // Termination values for regular and wide strings
 
 /**
