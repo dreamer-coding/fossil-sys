@@ -12,7 +12,6 @@
  * -----------------------------------------------------------------------------
  */
 #include <fossil/test/framework.h>
-
 #include "fossil/sys/framework.h"
 
 #ifndef cnull
@@ -35,12 +34,12 @@ FOSSIL_TEST_SUITE(cpp_null_suite);
 
 // Setup function for the test suite
 FOSSIL_SETUP(cpp_null_suite) {
-    // Setup code here
+    // Setup code if needed
 }
 
 // Teardown function for the test suite
 FOSSIL_TEARDOWN(cpp_null_suite) {
-    // Teardown code here
+    // Cleanup if needed
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * *
@@ -51,48 +50,75 @@ FOSSIL_TEARDOWN(cpp_null_suite) {
 // as samples for library usage.
 // * * * * * * * * * * * * * * * * * * * * * * * *
 
-// Test cases for cnull
-FOSSIL_TEST_CASE(cpp_test_cnull_definition) {
-    // Test cnull definition
+// ** Test cppnull and cppnullptr Definitions **
+FOSSIL_TEST_CASE(cpp_test_cppnull_definition) {
 #if __cplusplus >= 201103L || (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 202311L)
-    // C++11 or later, C23 or later
     ASSUME_ITS_EQUAL_PTR(cnull, nullptr);
     ASSUME_ITS_EQUAL_PTR(cnullptr, nullptr);
 #else
-    // Pre-C++11 or C23
     #if defined(_WIN64) || defined(_WIN32)
-    // Windows
         ASSUME_ITS_EQUAL_PTR(cnull, 0);
         ASSUME_ITS_EQUAL_PTR(cnullptr, 0);
     #else
-    // POSIX, macOS, and embedded systems
         ASSUME_ITS_EQUAL_PTR(cnull, (void *)(0));
         ASSUME_ITS_EQUAL_PTR(cnullptr, (void *)(0));
     #endif
 #endif
 }
 
-FOSSIL_TEST_CASE(cpp_test_cnull_assignment) {
-    // Test cnull assignment
+// ** Test cppnull Assignment **
+FOSSIL_TEST_CASE(cpp_test_cppnull_assignment) {
     void *ptr = cnull;
     ASSUME_ITS_EQUAL_PTR(ptr, cnull);
 }
 
-FOSSIL_TEST_CASE(cpp_test_cnull_comparison) {
-    // Test cnull comparison
+// ** Test cppnull Comparison **
+FOSSIL_TEST_CASE(cpp_test_cppnull_comparison) {
     void *ptr = cnull;
     ASSUME_ITS_TRUE(ptr == cnull);
     ASSUME_ITS_FALSE(ptr != cnull);
 }
 
+// ** Test cppnullify Macro **
+FOSSIL_TEST_CASE(cpp_test_cppnullify) {
+    void *ptr = (void *)1;
+    cnullify(ptr);
+    ASSUME_ITS_EQUAL_PTR(ptr, cnull);
+}
+
+// ** Test cppnotnull Macro **
+FOSSIL_TEST_CASE(cpp_test_cppnotnull) {
+    void *ptr = (void *)1;
+    ASSUME_ITS_TRUE(cnotnull(ptr));
+    cnullify(ptr);
+    ASSUME_ITS_FALSE(cnotnull(ptr));
+}
+
+// ** Test cppmaybe Macro **
+FOSSIL_TEST_CASE(cpp_test_cppmaybe) {
+    void *ptr = (void *)1;
+    ASSUME_ITS_EQUAL_PTR(cmaybe(ptr, (void *)99), ptr);
+    cnullify(ptr);
+    ASSUME_ITS_EQUAL_PTR(cmaybe(ptr, (void *)99), (void *)99);
+}
+
+// ** Test Empty String Macros **
+FOSSIL_TEST_CASE(cpp_test_cppempty_strings) {
+    ASSUME_ITS_EQUAL_CSTR(cempty, "");
+    ASSUME_ITS_EQUAL_WSTR(wempty, L"");
+}
+
 // * * * * * * * * * * * * * * * * * * * * * * * *
 // * Fossil Logic Test Pool
 // * * * * * * * * * * * * * * * * * * * * * * * *
-
 FOSSIL_TEST_GROUP(cpp_null_tests) {
-    FOSSIL_TEST_ADD(cpp_null_suite, cpp_test_cnull_definition);
-    FOSSIL_TEST_ADD(cpp_null_suite, cpp_test_cnull_assignment);
-    FOSSIL_TEST_ADD(cpp_null_suite, cpp_test_cnull_comparison);
+    FOSSIL_TEST_ADD(cpp_null_suite, cpp_test_cppnull_definition);
+    FOSSIL_TEST_ADD(cpp_null_suite, cpp_test_cppnull_assignment);
+    FOSSIL_TEST_ADD(cpp_null_suite, cpp_test_cppnull_comparison);
+    FOSSIL_TEST_ADD(cpp_null_suite, cpp_test_cppnullify);
+    FOSSIL_TEST_ADD(cpp_null_suite, cpp_test_cppnotnull);
+    FOSSIL_TEST_ADD(cpp_null_suite, cpp_test_cppmaybe);
+    FOSSIL_TEST_ADD(cpp_null_suite, cpp_test_cppempty_strings);
 
     FOSSIL_TEST_REGISTER(cpp_null_suite);
 }
