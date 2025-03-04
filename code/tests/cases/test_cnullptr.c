@@ -72,17 +72,61 @@ FOSSIL_TEST_CASE(c_test_cnull_definition) {
 #endif
 }
 
+
+// ** Test cnull Assignment **
 FOSSIL_TEST_CASE(c_test_cnull_assignment) {
-    // Test cnull assignment
     void *ptr = cnull;
     ASSUME_ITS_EQUAL_PTR(ptr, cnull);
 }
 
+// ** Test cnull Comparison **
 FOSSIL_TEST_CASE(c_test_cnull_comparison) {
-    // Test cnull comparison
     void *ptr = cnull;
     ASSUME_ITS_TRUE(ptr == cnull);
     ASSUME_ITS_FALSE(ptr != cnull);
+}
+
+// ** Test cnullify Macro **
+FOSSIL_TEST_CASE(c_test_cnullify) {
+    void *ptr = (void *)1;
+    cnullify(ptr);
+    ASSUME_ITS_EQUAL_PTR(ptr, cnull);
+}
+
+// ** Test cnotnull Macro **
+FOSSIL_TEST_CASE(c_test_cnotnull) {
+    void *ptr = (void *)1;
+    ASSUME_ITS_TRUE(cnotnull(ptr));
+    cnullify(ptr);
+    ASSUME_ITS_FALSE(cnotnull(ptr));
+}
+
+// ** Test cmaybe Macro **
+FOSSIL_TEST_CASE(c_test_cmaybe) {
+    void *ptr = (void *)1;
+    ASSUME_ITS_EQUAL_PTR(cmaybe(ptr, (void *)99), ptr);
+    cnullify(ptr);
+    ASSUME_ITS_EQUAL_PTR(cmaybe(ptr, (void *)99), (void *)99);
+}
+
+// ** Test String Termination Constants **
+FOSSIL_TEST_CASE(c_test_string_terminators) {
+    ASSUME_ITS_EQUAL_CCHAR(cterm, '\0');
+    ASSUME_ITS_EQUAL_WCHAR(wterm, L'\0');
+    ASSUME_ITS_EQUAL_CCHAR(cterminator, '\0');
+    ASSUME_ITS_EQUAL_WCHAR(wterminator, L'\0');
+}
+
+// ** Test Newline Constants **
+FOSSIL_TEST_CASE(c_test_newlines) {
+    ASSUME_ITS_EQUAL_CCHAR(cnewline, '\n');
+    ASSUME_ITS_EQUAL_WCHAR(wnewline, L'\n');
+}
+
+// ** Test Empty String Macros **
+FOSSIL_TEST_CASE(c_test_empty_strings) {
+    ASSUME_ITS_EQUAL_CSTR(cempty, "");
+    ASSUME_ITS_EQUAL_CSTR(wempty, L"");
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * *
@@ -92,6 +136,12 @@ FOSSIL_TEST_GROUP(c_null_tests) {
     FOSSIL_TEST_ADD(c_null_suite, c_test_cnull_definition);
     FOSSIL_TEST_ADD(c_null_suite, c_test_cnull_assignment);
     FOSSIL_TEST_ADD(c_null_suite, c_test_cnull_comparison);
+    FOSSIL_TEST_ADD(c_null_suite, c_test_cnullify);
+    FOSSIL_TEST_ADD(c_null_suite, c_test_cnotnull);
+    FOSSIL_TEST_ADD(c_null_suite, c_test_cmaybe);
+    FOSSIL_TEST_ADD(c_null_suite, c_test_string_terminators);
+    FOSSIL_TEST_ADD(c_null_suite, c_test_newlines);
+    FOSSIL_TEST_ADD(c_null_suite, c_test_empty_strings);
 
     FOSSIL_TEST_REGISTER(c_null_suite);
 }
