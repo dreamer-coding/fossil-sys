@@ -106,23 +106,6 @@ extern "C" {
 /**
  * @brief Null-terminated character for C strings.
  *
- * This is used to mark the end of a C string (regular strings).
- * It is commonly used to indicate the end of an array of characters in C.
- * It is equivalent to the null character `'\0'`.
- */
-#define cterminator '\0'
-
-/**
- * @brief Null-terminated wide-character for wide strings.
- *
- * This is used to mark the end of a wide-character string (`wchar_t` arrays).
- * It is equivalent to the wide null character `L'\0'`.
- */
-#define wterminator L'\0'
-
-/**
- * @brief Null-terminated character for C strings.
- *
  * This is used as a constant for the null character in C strings, typically to represent the end of a string.
  */
 #define cterm '\0'
