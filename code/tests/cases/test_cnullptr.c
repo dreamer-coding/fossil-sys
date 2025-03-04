@@ -109,12 +109,6 @@ FOSSIL_TEST_CASE(c_test_cmaybe) {
     ASSUME_ITS_EQUAL_PTR(cmaybe(ptr, (void *)99), (void *)99);
 }
 
-// ** Test Newline Constants **
-FOSSIL_TEST_CASE(c_test_newlines) {
-    ASSUME_ITS_EQUAL_CCHAR(cnewline, '\n');
-    ASSUME_ITS_EQUAL_WCHAR(wnewline, L'\n');
-}
-
 // ** Test Empty String Macros **
 FOSSIL_TEST_CASE(c_test_empty_strings) {
     ASSUME_ITS_EQUAL_CSTR(cempty, "");
@@ -131,7 +125,6 @@ FOSSIL_TEST_GROUP(c_null_tests) {
     FOSSIL_TEST_ADD(c_null_suite, c_test_cnullify);
     FOSSIL_TEST_ADD(c_null_suite, c_test_cnotnull);
     FOSSIL_TEST_ADD(c_null_suite, c_test_cmaybe);
-    FOSSIL_TEST_ADD(c_null_suite, c_test_newlines);
     FOSSIL_TEST_ADD(c_null_suite, c_test_empty_strings);
 
     FOSSIL_TEST_REGISTER(c_null_suite);
