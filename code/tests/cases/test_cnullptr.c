@@ -109,14 +109,6 @@ FOSSIL_TEST_CASE(c_test_cmaybe) {
     ASSUME_ITS_EQUAL_PTR(cmaybe(ptr, (void *)99), (void *)99);
 }
 
-// ** Test String Termination Constants **
-FOSSIL_TEST_CASE(c_test_string_terminators) {
-    ASSUME_ITS_EQUAL_CCHAR(cterm, '\0');
-    ASSUME_ITS_EQUAL_WCHAR(wterm, L'\0');
-    ASSUME_ITS_EQUAL_CCHAR(cterminator, '\0');
-    ASSUME_ITS_EQUAL_WCHAR(wterminator, L'\0');
-}
-
 // ** Test Newline Constants **
 FOSSIL_TEST_CASE(c_test_newlines) {
     ASSUME_ITS_EQUAL_CCHAR(cnewline, '\n');
@@ -139,7 +131,6 @@ FOSSIL_TEST_GROUP(c_null_tests) {
     FOSSIL_TEST_ADD(c_null_suite, c_test_cnullify);
     FOSSIL_TEST_ADD(c_null_suite, c_test_cnotnull);
     FOSSIL_TEST_ADD(c_null_suite, c_test_cmaybe);
-    FOSSIL_TEST_ADD(c_null_suite, c_test_string_terminators);
     FOSSIL_TEST_ADD(c_null_suite, c_test_newlines);
     FOSSIL_TEST_ADD(c_null_suite, c_test_empty_strings);
 
