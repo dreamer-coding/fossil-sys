@@ -126,7 +126,7 @@ FOSSIL_TEST_CASE(c_test_newlines) {
 // ** Test Empty String Macros **
 FOSSIL_TEST_CASE(c_test_empty_strings) {
     ASSUME_ITS_EQUAL_CSTR(cempty, "");
-    ASSUME_ITS_EQUAL_CSTR(wempty, L"");
+    ASSUME_ITS_EQUAL_WSTR(wempty, L"");
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * *
