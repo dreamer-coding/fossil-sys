@@ -16,6 +16,7 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <assert.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -84,6 +85,17 @@ extern "C" {
  * @return `ptr` if not null, otherwise `default_val`.
  */
 #define cmaybe(ptr, default_val) ((ptr) ? (ptr) : (default_val))
+
+/**
+ * @brief Unwraps a pointer, asserting that it is not null.
+ *
+ * If the pointer is null, the program will terminate with an assertion failure.
+ * Otherwise, it returns the pointer itself for safe dereferencing.
+ *
+ * @param ptr The pointer to unwrap.
+ * @return The unwrapped pointer if it is not null.
+ */
+#define cunwrap(ptr) (assert((ptr) != cnull), (ptr))
 
 /**
  * @brief Marks a variable as unused to suppress compiler warnings.
