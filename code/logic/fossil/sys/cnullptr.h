@@ -113,6 +113,26 @@ extern "C" {
     #endif
 #endif
 
+/**
+ * @brief Annotations for nullable and nonnull pointers.
+ *
+ * These macros provide compiler hints about pointer validity, improving static analysis and safety.
+ *
+ * - **GCC/Clang:** Uses `__attribute__((nullable))` and `__attribute__((nonnull))`
+ * - **MSVC:** Uses `_Null_terminated_` and `_In_` (though `_In_` is not strictly equivalent to nonnull)
+ * - **Fallback:** If the compiler does not support these attributes, it defines empty macros.
+ */
+#if defined(__clang__) || defined(__GNUC__)
+    #define cnullable __attribute__((nullable))
+    #define cnonnull  __attribute__((nonnull))
+#elif defined(_MSC_VER)
+    #define cnullable _Null_terminated_  // Not a perfect match, but useful for MSVC
+    #define cnonnull  _In_               // MSVC does not have a direct `nonnull` equivalent
+#else
+    #define cnullable
+    #define cnonnull
+#endif
+
 // Termination values for regular and wide strings
 
 /**
