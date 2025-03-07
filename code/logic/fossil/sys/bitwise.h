@@ -233,7 +233,7 @@ int64_t fossil_sys_bitwise_reverse_i64(int64_t value);
  * @note The sign bit is not treated specially. The function performs an unsigned rotation
  *       by casting to `uint8_t`, rotating, and then casting back to `int8_t`.
  */
-int8_t fossil_sys_bitwise_rotate_left_i8(int8_t value, uint8_t shift);
+int8_t fossil_sys_bitwise_rotate_left_i8(int8_t value, int8_t shift);
 
 /**
  * @brief Rotates bits of a 16-bit signed integer to the left.
@@ -243,7 +243,7 @@ int8_t fossil_sys_bitwise_rotate_left_i8(int8_t value, uint8_t shift);
  * @note The sign bit is not treated specially. The function performs an unsigned rotation
  *       by casting to `uint16_t`, rotating, and then casting back to `int16_t`.
  */
-int16_t fossil_sys_bitwise_rotate_left_i16(int16_t value, uint8_t shift);
+int16_t fossil_sys_bitwise_rotate_left_i16(int16_t value, int8_t shift);
 
 /**
  * @brief Rotates bits of a 32-bit signed integer to the left.
@@ -253,7 +253,7 @@ int16_t fossil_sys_bitwise_rotate_left_i16(int16_t value, uint8_t shift);
  * @note The sign bit is not treated specially. The function performs an unsigned rotation
  *       by casting to `uint32_t`, rotating, and then casting back to `int32_t`.
  */
-int32_t fossil_sys_bitwise_rotate_left_i32(int32_t value, uint8_t shift);
+int32_t fossil_sys_bitwise_rotate_left_i32(int32_t value, int8_t shift);
 
 /**
  * @brief Rotates bits of a 64-bit signed integer to the left.
@@ -263,7 +263,7 @@ int32_t fossil_sys_bitwise_rotate_left_i32(int32_t value, uint8_t shift);
  * @note The sign bit is not treated specially. The function performs an unsigned rotation
  *       by casting to `uint64_t`, rotating, and then casting back to `int64_t`.
  */
-int64_t fossil_sys_bitwise_rotate_left_i64(int64_t value, uint8_t shift);
+int64_t fossil_sys_bitwise_rotate_left_i64(int64_t value, int8_t shift);
 
 /**
  * @brief Rotates bits of an 8-bit signed integer to the right.
@@ -273,7 +273,7 @@ int64_t fossil_sys_bitwise_rotate_left_i64(int64_t value, uint8_t shift);
  * @note The sign bit is not treated specially. The function performs an unsigned rotation
  *       by casting to `uint8_t`, rotating, and then casting back to `int8_t`.
  */
-int8_t fossil_sys_bitwise_rotate_right_i8(int8_t value, uint8_t shift);
+int8_t fossil_sys_bitwise_rotate_right_i8(int8_t value, int8_t shift);
 
 /**
  * @brief Rotates bits of a 16-bit signed integer to the right.
@@ -283,7 +283,7 @@ int8_t fossil_sys_bitwise_rotate_right_i8(int8_t value, uint8_t shift);
  * @note The sign bit is not treated specially. The function performs an unsigned rotation
  *       by casting to `uint16_t`, rotating, and then casting back to `int16_t`.
  */
-int16_t fossil_sys_bitwise_rotate_right_i16(int16_t value, uint8_t shift);
+int16_t fossil_sys_bitwise_rotate_right_i16(int16_t value, int8_t shift);
 
 /**
  * @brief Rotates bits of a 32-bit signed integer to the right.
@@ -293,7 +293,7 @@ int16_t fossil_sys_bitwise_rotate_right_i16(int16_t value, uint8_t shift);
  * @note The sign bit is not treated specially. The function performs an unsigned rotation
  *       by casting to `uint32_t`, rotating, and then casting back to `int32_t`.
  */
-int32_t fossil_sys_bitwise_rotate_right_i32(int32_t value, uint8_t shift);
+int32_t fossil_sys_bitwise_rotate_right_i32(int32_t value, int8_t shift);
 
 /**
  * @brief Rotates bits of a 64-bit signed integer to the right.
@@ -303,7 +303,7 @@ int32_t fossil_sys_bitwise_rotate_right_i32(int32_t value, uint8_t shift);
  * @note The sign bit is not treated specially. The function performs an unsigned rotation
  *       by casting to `uint64_t`, rotating, and then casting back to `int64_t`.
  */
-int64_t fossil_sys_bitwise_rotate_right_i64(int64_t value, uint8_t shift);
+int64_t fossil_sys_bitwise_rotate_right_i64(int64_t value, int8_t shift);
 
 #ifdef __cplusplus
 }
@@ -343,7 +343,7 @@ public:
      * @return The resulting value after left rotation.
      * @note Wraps the C function `fossil_sys_bitwise_rotate_left_i8`.
      */
-    static int8_t rotate_left(int8_t value, unsigned int shift) {
+    static int8_t rotate_left(int8_t value, int8_t shift) {
         return fossil_sys_bitwise_rotate_left_i8(value, shift);
     }
 
@@ -354,7 +354,7 @@ public:
      * @return The resulting value after right rotation.
      * @note Wraps the C function `fossil_sys_bitwise_rotate_right_i8`.
      */
-    static int8_t rotate_right(int8_t value, unsigned int shift) {
+    static int8_t rotate_right(int8_t value, int8_t shift) {
         return fossil_sys_bitwise_rotate_right_i8(value, shift);
     }
 };
@@ -389,7 +389,7 @@ public:
      * @return The resulting value after left rotation.
      * @note Wraps the C function `fossil_sys_bitwise_rotate_left_i16`.
      */
-    static int16_t rotate_left(int16_t value, unsigned int shift) {
+    static int16_t rotate_left(int16_t value, int8_t shift) {
         return fossil_sys_bitwise_rotate_left_i16(value, shift);
     }
 
@@ -400,7 +400,7 @@ public:
      * @return The resulting value after right rotation.
      * @note Wraps the C function `fossil_sys_bitwise_rotate_right_i16`.
      */
-    static int16_t rotate_right(int16_t value, unsigned int shift) {
+    static int16_t rotate_right(int16_t value, int8_t shift) {
         return fossil_sys_bitwise_rotate_right_i16(value, shift);
     }
 };
@@ -435,7 +435,7 @@ public:
      * @return The resulting value after left rotation.
      * @note Wraps the C function `fossil_sys_bitwise_rotate_left_i32`.
      */
-    static int32_t rotate_left(int32_t value, unsigned int shift) {
+    static int32_t rotate_left(int32_t value, int8_t shift) {
         return fossil_sys_bitwise_rotate_left_i32(value, shift);
     }
 
@@ -446,7 +446,7 @@ public:
      * @return The resulting value after right rotation.
      * @note Wraps the C function `fossil_sys_bitwise_rotate_right_i32`.
      */
-    static int32_t rotate_right(int32_t value, unsigned int shift) {
+    static int32_t rotate_right(int32_t value, int8_t shift) {
         return fossil_sys_bitwise_rotate_right_i32(value, shift);
     }
 };
@@ -481,7 +481,7 @@ public:
      * @return The resulting value after left rotation.
      * @note Wraps the C function `fossil_sys_bitwise_rotate_left_i64`.
      */
-    static int64_t rotate_left(int64_t value, unsigned int shift) {
+    static int64_t rotate_left(int64_t value, int8_t shift) {
         return fossil_sys_bitwise_rotate_left_i64(value, shift);
     }
 
@@ -492,7 +492,7 @@ public:
      * @return The resulting value after right rotation.
      * @note Wraps the C function `fossil_sys_bitwise_rotate_right_i64`.
      */
-    static int64_t rotate_right(int64_t value, unsigned int shift) {
+    static int64_t rotate_right(int64_t value, int8_t shift) {
         return fossil_sys_bitwise_rotate_right_i64(value, shift);
     }
 };
