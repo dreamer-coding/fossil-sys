@@ -11,6 +11,7 @@ set(TEST_CODE
     memory.c
     datetime.c
     hostinfo.c
+    bitwise.c
 )
 
 # Create the library target
