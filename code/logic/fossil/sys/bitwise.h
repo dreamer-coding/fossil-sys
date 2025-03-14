@@ -15,676 +15,428 @@
 #define FOSSIL_SYS_BITWISE_H
 
 #include <stdint.h>
+#include <stdbool.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/* 
- * Macro definitions for bit-width constants.
- * These values represent the number of bits in each supported integer type.
- */
-#define FOSSIL_SYS_BITWISE_BITS_8   8
-#define FOSSIL_SYS_BITWISE_BITS_16 16
-#define FOSSIL_SYS_BITWISE_BITS_32 32
-#define FOSSIL_SYS_BITWISE_BITS_64 64
-
 /* ============================================================================
- *                             UNSIGNED FUNCTIONS
+ *  Bitwise Operations Library - Fossil Sys Bitwise
+ *  This library provides portable bitwise operations for unsigned integers.
+ *  It supports 8, 16, 32, and 64-bit operations and is compatible with both 
+ *  C11 and C23. It also uses C string parameters where necessary for 
+ *  serialization.
  * ============================================================================ */
 
-/**
- * @brief Counts the number of '1' bits in an 8-bit unsigned integer.
- * @param value The 8-bit unsigned integer.
- * @return The number of bits set to '1' in the given value.
- */
-uint8_t fossil_sys_bitwise_count_ones_u8(uint8_t value);
+/* ------------------------------------------------------------------------
+ *  Basic Bitwise Operations
+ *  These functions perform common bitwise operations: AND, OR, XOR, and NOT.
+ *  Operations are available for 8, 16, 32, and 64-bit unsigned integers.
+ * ------------------------------------------------------------------------ */
 
 /**
- * @brief Counts the number of '1' bits in a 16-bit unsigned integer.
- * @param value The 16-bit unsigned integer.
- * @return The number of bits set to '1' in the given value.
+ * Perform a bitwise AND operation between two 8-bit unsigned integers.
+ * @param a First operand.
+ * @param b Second operand.
+ * @return Result of (a & b).
  */
-uint16_t fossil_sys_bitwise_count_ones_u16(uint16_t value);
+uint8_t fossil_sys_bitwise_and_u8(uint8_t a, uint8_t b);
 
 /**
- * @brief Counts the number of '1' bits in a 32-bit unsigned integer.
- * @param value The 32-bit unsigned integer.
- * @return The number of bits set to '1' in the given value.
+ * Perform a bitwise AND operation between two 16-bit unsigned integers.
+ * @param a First operand.
+ * @param b Second operand.
+ * @return Result of (a & b).
  */
-uint32_t fossil_sys_bitwise_count_ones_u32(uint32_t value);
+uint16_t fossil_sys_bitwise_and_u16(uint16_t a, uint16_t b);
 
 /**
- * @brief Counts the number of '1' bits in a 64-bit unsigned integer.
- * @param value The 64-bit unsigned integer.
- * @return The number of bits set to '1' in the given value.
+ * Perform a bitwise AND operation between two 32-bit unsigned integers.
+ * @param a First operand.
+ * @param b Second operand.
+ * @return Result of (a & b).
  */
-uint64_t fossil_sys_bitwise_count_ones_u64(uint64_t value);
+uint32_t fossil_sys_bitwise_and_u32(uint32_t a, uint32_t b);
 
 /**
- * @brief Reverses the bit order of an 8-bit unsigned integer.
- * @param value The 8-bit unsigned integer.
- * @return The value with its bits reversed.
+ * Perform a bitwise AND operation between two 64-bit unsigned integers.
+ * @param a First operand.
+ * @param b Second operand.
+ * @return Result of (a & b).
  */
-uint8_t fossil_sys_bitwise_reverse_u8(uint8_t value);
+uint64_t fossil_sys_bitwise_and_u64(uint64_t a, uint64_t b);
 
 /**
- * @brief Reverses the bit order of a 16-bit unsigned integer.
- * @param value The 16-bit unsigned integer.
- * @return The value with its bits reversed.
+ * Perform a bitwise OR operation between two 8-bit unsigned integers.
+ * @param a First operand.
+ * @param b Second operand.
+ * @return Result of (a | b).
  */
-uint16_t fossil_sys_bitwise_reverse_u16(uint16_t value);
+uint8_t fossil_sys_bitwise_or_u8(uint8_t a, uint8_t b);
 
 /**
- * @brief Reverses the bit order of a 32-bit unsigned integer.
- * @param value The 32-bit unsigned integer.
- * @return The value with its bits reversed.
+ * Perform a bitwise OR operation between two 16-bit unsigned integers.
+ * @param a First operand.
+ * @param b Second operand.
+ * @return Result of (a | b).
  */
-uint32_t fossil_sys_bitwise_reverse_u32(uint32_t value);
+uint16_t fossil_sys_bitwise_or_u16(uint16_t a, uint16_t b);
 
 /**
- * @brief Reverses the bit order of a 64-bit unsigned integer.
- * @param value The 64-bit unsigned integer.
- * @return The value with its bits reversed.
+ * Perform a bitwise OR operation between two 32-bit unsigned integers.
+ * @param a First operand.
+ * @param b Second operand.
+ * @return Result of (a | b).
  */
-uint64_t fossil_sys_bitwise_reverse_u64(uint64_t value);
+uint32_t fossil_sys_bitwise_or_u32(uint32_t a, uint32_t b);
 
 /**
- * @brief Rotates bits of an 8-bit unsigned integer to the left.
- * @param value The 8-bit unsigned integer.
- * @param shift The number of positions to rotate.
- * @return The resulting value after left rotation.
+ * Perform a bitwise OR operation between two 64-bit unsigned integers.
+ * @param a First operand.
+ * @param b Second operand.
+ * @return Result of (a | b).
  */
-uint8_t fossil_sys_bitwise_rotate_left_u8(uint8_t value, uint8_t shift);
+uint64_t fossil_sys_bitwise_or_u64(uint64_t a, uint64_t b);
 
 /**
- * @brief Rotates bits of a 16-bit unsigned integer to the left.
- * @param value The 16-bit unsigned integer.
- * @param shift The number of positions to rotate.
- * @return The resulting value after left rotation.
+ * Perform a bitwise XOR operation between two 8-bit unsigned integers.
+ * @param a First operand.
+ * @param b Second operand.
+ * @return Result of (a ^ b).
  */
-uint16_t fossil_sys_bitwise_rotate_left_u16(uint16_t value, uint8_t shift);
+uint8_t fossil_sys_bitwise_xor_u8(uint8_t a, uint8_t b);
 
 /**
- * @brief Rotates bits of a 32-bit unsigned integer to the left.
- * @param value The 32-bit unsigned integer.
- * @param shift The number of positions to rotate.
- * @return The resulting value after left rotation.
+ * Perform a bitwise XOR operation between two 16-bit unsigned integers.
+ * @param a First operand.
+ * @param b Second operand.
+ * @return Result of (a ^ b).
  */
-uint32_t fossil_sys_bitwise_rotate_left_u32(uint32_t value, uint8_t shift);
+uint16_t fossil_sys_bitwise_xor_u16(uint16_t a, uint16_t b);
 
 /**
- * @brief Rotates bits of a 64-bit unsigned integer to the left.
- * @param value The 64-bit unsigned integer.
- * @param shift The number of positions to rotate.
- * @return The resulting value after left rotation.
+ * Perform a bitwise XOR operation between two 32-bit unsigned integers.
+ * @param a First operand.
+ * @param b Second operand.
+ * @return Result of (a ^ b).
  */
-uint64_t fossil_sys_bitwise_rotate_left_u64(uint64_t value, uint8_t shift);
+uint32_t fossil_sys_bitwise_xor_u32(uint32_t a, uint32_t b);
 
 /**
- * @brief Rotates bits of an 8-bit unsigned integer to the right.
- * @param value The 8-bit unsigned integer.
- * @param shift The number of positions to rotate.
- * @return The resulting value after right rotation.
+ * Perform a bitwise XOR operation between two 64-bit unsigned integers.
+ * @param a First operand.
+ * @param b Second operand.
+ * @return Result of (a ^ b).
  */
-uint8_t fossil_sys_bitwise_rotate_right_u8(uint8_t value, uint8_t shift);
+uint64_t fossil_sys_bitwise_xor_u64(uint64_t a, uint64_t b);
 
 /**
- * @brief Rotates bits of a 16-bit unsigned integer to the right.
- * @param value The 16-bit unsigned integer.
- * @param shift The number of positions to rotate.
- * @return The resulting value after right rotation.
+ * Perform a bitwise NOT operation on an 8-bit unsigned integer.
+ * @param a The operand.
+ * @return Result of (~a).
  */
-uint16_t fossil_sys_bitwise_rotate_right_u16(uint16_t value, uint8_t shift);
+uint8_t fossil_sys_bitwise_not_u8(uint8_t a);
 
 /**
- * @brief Rotates bits of a 32-bit unsigned integer to the right.
- * @param value The 32-bit unsigned integer.
- * @param shift The number of positions to rotate.
- * @return The resulting value after right rotation.
+ * Perform a bitwise NOT operation on a 16-bit unsigned integer.
+ * @param a The operand.
+ * @return Result of (~a).
  */
-uint32_t fossil_sys_bitwise_rotate_right_u32(uint32_t value, uint8_t shift);
+uint16_t fossil_sys_bitwise_not_u16(uint16_t a);
 
 /**
- * @brief Rotates bits of a 64-bit unsigned integer to the right.
- * @param value The 64-bit unsigned integer.
- * @param shift The number of positions to rotate.
- * @return The resulting value after right rotation.
+ * Perform a bitwise NOT operation on a 32-bit unsigned integer.
+ * @param a The operand.
+ * @return Result of (~a).
  */
-uint64_t fossil_sys_bitwise_rotate_right_u64(uint64_t value, uint8_t shift);
-
-/* ============================================================================
- *                              SIGNED FUNCTIONS
- * ============================================================================ */
+uint32_t fossil_sys_bitwise_not_u32(uint32_t a);
 
 /**
- * @brief Counts the number of '1' bits in an 8-bit signed integer.
- * @param value The 8-bit signed integer.
- * @return The number of bits set to '1' in the given value.
- * @note The sign bit is included in the count. The function internally casts to `uint8_t` for bitwise operations.
+ * Perform a bitwise NOT operation on a 64-bit unsigned integer.
+ * @param a The operand.
+ * @return Result of (~a).
  */
-int8_t fossil_sys_bitwise_count_ones_i8(int8_t value);
+uint64_t fossil_sys_bitwise_not_u64(uint64_t a);
+
+/* ------------------------------------------------------------------------
+ *  Bitwise Shift Operations
+ *  These functions perform left and right shifts on integers of size
+ *  8, 16, 32, and 64 bits.
+ * ------------------------------------------------------------------------ */
 
 /**
- * @brief Counts the number of '1' bits in a 16-bit signed integer.
- * @param value The 16-bit signed integer.
- * @return The number of bits set to '1' in the given value.
- * @note The sign bit is included in the count. The function internally casts to `uint16_t` for bitwise operations.
+ * Perform a left bit shift on an 8-bit unsigned integer.
+ * @param a The value to shift.
+ * @param shift Number of positions to shift.
+ * @return The shifted result (a << shift).
  */
-int16_t fossil_sys_bitwise_count_ones_i16(int16_t value);
+uint8_t fossil_sys_bitwise_lshift_u8(uint8_t a, uint8_t shift);
 
 /**
- * @brief Counts the number of '1' bits in a 32-bit signed integer.
- * @param value The 32-bit signed integer.
- * @return The number of bits set to '1' in the given value.
- * @note The sign bit is included in the count. The function internally casts to `uint32_t` for bitwise operations.
+ * Perform a left bit shift on a 16-bit unsigned integer.
+ * @param a The value to shift.
+ * @param shift Number of positions to shift.
+ * @return The shifted result (a << shift).
  */
-int32_t fossil_sys_bitwise_count_ones_i32(int32_t value);
+uint16_t fossil_sys_bitwise_lshift_u16(uint16_t a, uint8_t shift);
 
 /**
- * @brief Counts the number of '1' bits in a 64-bit signed integer.
- * @param value The 64-bit signed integer.
- * @return The number of bits set to '1' in the given value.
- * @note The sign bit is included in the count. The function internally casts to `uint64_t` for bitwise operations.
+ * Perform a left bit shift on a 32-bit unsigned integer.
+ * @param a The value to shift.
+ * @param shift Number of positions to shift.
+ * @return The shifted result (a << shift).
  */
-int64_t fossil_sys_bitwise_count_ones_i64(int64_t value);
+uint32_t fossil_sys_bitwise_lshift_u32(uint32_t a, uint8_t shift);
 
 /**
- * @brief Reverses the bit order of an 8-bit signed integer.
- * @param value The 8-bit signed integer.
- * @return The value with its bits reversed.
- * @note The sign bit is preserved if the platform uses two's complement representation.
- *       The function internally casts to `uint8_t` for bitwise reversal.
+ * Perform a left bit shift on a 64-bit unsigned integer.
+ * @param a The value to shift.
+ * @param shift Number of positions to shift.
+ * @return The shifted result (a << shift).
  */
-int8_t fossil_sys_bitwise_reverse_i8(int8_t value);
+uint64_t fossil_sys_bitwise_lshift_u64(uint64_t a, uint8_t shift);
 
 /**
- * @brief Reverses the bit order of a 16-bit signed integer.
- * @param value The 16-bit signed integer.
- * @return The value with its bits reversed.
- * @note The sign bit is preserved if the platform uses two's complement representation.
- *       The function internally casts to `uint16_t` for bitwise reversal.
+ * Perform a right bit shift on an 8-bit unsigned integer.
+ * @param a The value to shift.
+ * @param shift Number of positions to shift.
+ * @return The shifted result (a >> shift).
  */
-int16_t fossil_sys_bitwise_reverse_i16(int16_t value);
+uint8_t fossil_sys_bitwise_rshift_u8(uint8_t a, uint8_t shift);
 
 /**
- * @brief Reverses the bit order of a 32-bit signed integer.
- * @param value The 32-bit signed integer.
- * @return The value with its bits reversed.
- * @note The sign bit is preserved if the platform uses two's complement representation.
- *       The function internally casts to `uint32_t` for bitwise reversal.
+ * Perform a right bit shift on a 16-bit unsigned integer.
+ * @param a The value to shift.
+ * @param shift Number of positions to shift.
+ * @return The shifted result (a >> shift).
  */
-int32_t fossil_sys_bitwise_reverse_i32(int32_t value);
+uint16_t fossil_sys_bitwise_rshift_u16(uint16_t a, uint8_t shift);
 
 /**
- * @brief Reverses the bit order of a 64-bit signed integer.
- * @param value The 64-bit signed integer.
- * @return The value with its bits reversed.
- * @note The sign bit is preserved if the platform uses two's complement representation.
- *       The function internally casts to `uint64_t` for bitwise reversal.
+ * Perform a right bit shift on a 32-bit unsigned integer.
+ * @param a The value to shift.
+ * @param shift Number of positions to shift.
+ * @return The shifted result (a >> shift).
  */
-int64_t fossil_sys_bitwise_reverse_i64(int64_t value);
+uint32_t fossil_sys_bitwise_rshift_u32(uint32_t a, uint8_t shift);
 
 /**
- * @brief Rotates bits of an 8-bit signed integer to the left.
- * @param value The 8-bit signed integer.
- * @param shift The number of positions to rotate.
- * @return The resulting value after left rotation.
- * @note The sign bit is not treated specially. The function performs an unsigned rotation
- *       by casting to `uint8_t`, rotating, and then casting back to `int8_t`.
+ * Perform a right bit shift on a 64-bit unsigned integer.
+ * @param a The value to shift.
+ * @param shift Number of positions to shift.
+ * @return The shifted result (a >> shift).
  */
-int8_t fossil_sys_bitwise_rotate_left_i8(int8_t value, int8_t shift);
+uint64_t fossil_sys_bitwise_rshift_u64(uint64_t a, uint8_t shift);
+
+/* ------------------------------------------------------------------------
+ *  Bit Manipulation Functions
+ *  These functions allow setting, clearing, toggling, and testing bits.
+ *  Operations are available for 32-bit unsigned integers.
+ * ------------------------------------------------------------------------ */
 
 /**
- * @brief Rotates bits of a 16-bit signed integer to the left.
- * @param value The 16-bit signed integer.
- * @param shift The number of positions to rotate.
- * @return The resulting value after left rotation.
- * @note The sign bit is not treated specially. The function performs an unsigned rotation
- *       by casting to `uint16_t`, rotating, and then casting back to `int16_t`.
+ * Check if a specific bit in a 32-bit unsigned integer is set.
+ * @param value The number to check.
+ * @param bit The bit position (0-31).
+ * @return true if the bit is set, false otherwise.
  */
-int16_t fossil_sys_bitwise_rotate_left_i16(int16_t value, int8_t shift);
+bool fossil_sys_bitwise_test_u32(uint32_t value, uint8_t bit);
 
 /**
- * @brief Rotates bits of a 32-bit signed integer to the left.
- * @param value The 32-bit signed integer.
- * @param shift The number of positions to rotate.
- * @return The resulting value after left rotation.
- * @note The sign bit is not treated specially. The function performs an unsigned rotation
- *       by casting to `uint32_t`, rotating, and then casting back to `int32_t`.
+ * Set a specific bit in a 32-bit unsigned integer.
+ * @param value The number to modify.
+ * @param bit The bit position (0-31).
+ * @return The modified number with the bit set.
  */
-int32_t fossil_sys_bitwise_rotate_left_i32(int32_t value, int8_t shift);
+uint32_t fossil_sys_bitwise_set_u32(uint32_t value, uint8_t bit);
 
 /**
- * @brief Rotates bits of a 64-bit signed integer to the left.
- * @param value The 64-bit signed integer.
- * @param shift The number of positions to rotate.
- * @return The resulting value after left rotation.
- * @note The sign bit is not treated specially. The function performs an unsigned rotation
- *       by casting to `uint64_t`, rotating, and then casting back to `int64_t`.
+ * Clear a specific bit in a 32-bit unsigned integer.
+ * @param value The number to modify.
+ * @param bit The bit position (0-31).
+ * @return The modified number with the bit cleared.
  */
-int64_t fossil_sys_bitwise_rotate_left_i64(int64_t value, int8_t shift);
+uint32_t fossil_sys_bitwise_clear_u32(uint32_t value, uint8_t bit);
 
 /**
- * @brief Rotates bits of an 8-bit signed integer to the right.
- * @param value The 8-bit signed integer.
- * @param shift The number of positions to rotate.
- * @return The resulting value after right rotation.
- * @note The sign bit is not treated specially. The function performs an unsigned rotation
- *       by casting to `uint8_t`, rotating, and then casting back to `int8_t`.
+ * Toggle a specific bit in a 32-bit unsigned integer.
+ * @param value The number to modify.
+ * @param bit The bit position (0-31).
+ * @return The modified number with the bit toggled.
  */
-int8_t fossil_sys_bitwise_rotate_right_i8(int8_t value, int8_t shift);
+uint32_t fossil_sys_bitwise_toggle_u32(uint32_t value, uint8_t bit);
+
+/* ------------------------------------------------------------------------
+ *  Serialization Functions
+ *  These functions convert 8, 16, 32, and 64-bit unsigned integers to their 
+ *  hexadecimal string representation for serialization.
+ * ------------------------------------------------------------------------ */
 
 /**
- * @brief Rotates bits of a 16-bit signed integer to the right.
- * @param value The 16-bit signed integer.
- * @param shift The number of positions to rotate.
- * @return The resulting value after right rotation.
- * @note The sign bit is not treated specially. The function performs an unsigned rotation
- *       by casting to `uint16_t`, rotating, and then casting back to `int16_t`.
+ * Serialize a 8-bit unsigned integer to a hexadecimal string.
+ * @param value The value to serialize.
+ * @return Hexadecimal string representing the value.
  */
-int16_t fossil_sys_bitwise_rotate_right_i16(int16_t value, int8_t shift);
+char* fossil_sys_bitwise_serialize_u8(uint8_t value);
 
 /**
- * @brief Rotates bits of a 32-bit signed integer to the right.
- * @param value The 32-bit signed integer.
- * @param shift The number of positions to rotate.
- * @return The resulting value after right rotation.
- * @note The sign bit is not treated specially. The function performs an unsigned rotation
- *       by casting to `uint32_t`, rotating, and then casting back to `int32_t`.
+ * Serialize a 16-bit unsigned integer to a hexadecimal string.
+ * @param value The value to serialize.
+ * @return Hexadecimal string representing the value.
  */
-int32_t fossil_sys_bitwise_rotate_right_i32(int32_t value, int8_t shift);
+char* fossil_sys_bitwise_serialize_u16(uint16_t value);
 
 /**
- * @brief Rotates bits of a 64-bit signed integer to the right.
- * @param value The 64-bit signed integer.
- * @param shift The number of positions to rotate.
- * @return The resulting value after right rotation.
- * @note The sign bit is not treated specially. The function performs an unsigned rotation
- *       by casting to `uint64_t`, rotating, and then casting back to `int64_t`.
+ * Serialize a 32-bit unsigned integer to a hexadecimal string.
+ * @param value The value to serialize.
+ * @return Hexadecimal string representing the value.
  */
-int64_t fossil_sys_bitwise_rotate_right_i64(int64_t value, int8_t shift);
+char* fossil_sys_bitwise_serialize_u32(uint32_t value);
+
+/**
+ * Serialize a 64-bit unsigned integer to a hexadecimal string.
+ * @param value The value to serialize.
+ * @return Hexadecimal string representing the value.
+ */
+char* fossil_sys_bitwise_serialize_u64(uint64_t value);
 
 #ifdef __cplusplus
 }
 
 #include <stdint.h>
+#include <string>
 
 namespace fossil {
 namespace sys {
 
-// Class for 8-bit signed integer bitwise operations
-class BitwiseI8 {
-public:
-    /**
-     * @brief Counts the number of '1' bits in an 8-bit signed integer.
-     * @param value The 8-bit signed integer.
-     * @return The number of bits set to '1' in the given value.
-     * @note Wraps the C function `fossil_sys_bitwise_count_ones_i8`.
-     */
-    static int count_ones(int8_t value) {
-        return fossil_sys_bitwise_count_ones_i8(value);
-    }
+// ------------------------------------------------------------------------
+//  8-bit Class Wrapper
+// ------------------------------------------------------------------------
 
-    /**
-     * @brief Reverses the bit order of an 8-bit signed integer.
-     * @param value The 8-bit signed integer.
-     * @return The value with its bits reversed.
-     * @note Wraps the C function `fossil_sys_bitwise_reverse_i8`.
-     */
-    static int8_t reverse_bits(int8_t value) {
-        return fossil_sys_bitwise_reverse_i8(value);
-    }
-
-    /**
-     * @brief Rotates bits of an 8-bit signed integer to the left.
-     * @param value The 8-bit signed integer.
-     * @param shift The number of positions to rotate.
-     * @return The resulting value after left rotation.
-     * @note Wraps the C function `fossil_sys_bitwise_rotate_left_i8`.
-     */
-    static int8_t rotate_left(int8_t value, int8_t shift) {
-        return fossil_sys_bitwise_rotate_left_i8(value, shift);
-    }
-
-    /**
-     * @brief Rotates bits of an 8-bit signed integer to the right.
-     * @param value The 8-bit signed integer.
-     * @param shift The number of positions to rotate.
-     * @return The resulting value after right rotation.
-     * @note Wraps the C function `fossil_sys_bitwise_rotate_right_i8`.
-     */
-    static int8_t rotate_right(int8_t value, int8_t shift) {
-        return fossil_sys_bitwise_rotate_right_i8(value, shift);
-    }
-};
-
-// Class for 16-bit signed integer bitwise operations
-class BitwiseI16 {
-public:
-    /**
-     * @brief Counts the number of '1' bits in a 16-bit signed integer.
-     * @param value The 16-bit signed integer.
-     * @return The number of bits set to '1' in the given value.
-     * @note Wraps the C function `fossil_sys_bitwise_count_ones_i16`.
-     */
-    static int count_ones(int16_t value) {
-        return fossil_sys_bitwise_count_ones_i16(value);
-    }
-
-    /**
-     * @brief Reverses the bit order of a 16-bit signed integer.
-     * @param value The 16-bit signed integer.
-     * @return The value with its bits reversed.
-     * @note Wraps the C function `fossil_sys_bitwise_reverse_i16`.
-     */
-    static int16_t reverse_bits(int16_t value) {
-        return fossil_sys_bitwise_reverse_i16(value);
-    }
-
-    /**
-     * @brief Rotates bits of a 16-bit signed integer to the left.
-     * @param value The 16-bit signed integer.
-     * @param shift The number of positions to rotate.
-     * @return The resulting value after left rotation.
-     * @note Wraps the C function `fossil_sys_bitwise_rotate_left_i16`.
-     */
-    static int16_t rotate_left(int16_t value, int8_t shift) {
-        return fossil_sys_bitwise_rotate_left_i16(value, shift);
-    }
-
-    /**
-     * @brief Rotates bits of a 16-bit signed integer to the right.
-     * @param value The 16-bit signed integer.
-     * @param shift The number of positions to rotate.
-     * @return The resulting value after right rotation.
-     * @note Wraps the C function `fossil_sys_bitwise_rotate_right_i16`.
-     */
-    static int16_t rotate_right(int16_t value, int8_t shift) {
-        return fossil_sys_bitwise_rotate_right_i16(value, shift);
-    }
-};
-
-// Class for 32-bit signed integer bitwise operations
-class BitwiseI32 {
-public:
-    /**
-     * @brief Counts the number of '1' bits in a 32-bit signed integer.
-     * @param value The 32-bit signed integer.
-     * @return The number of bits set to '1' in the given value.
-     * @note Wraps the C function `fossil_sys_bitwise_count_ones_i32`.
-     */
-    static int count_ones(int32_t value) {
-        return fossil_sys_bitwise_count_ones_i32(value);
-    }
-
-    /**
-     * @brief Reverses the bit order of a 32-bit signed integer.
-     * @param value The 32-bit signed integer.
-     * @return The value with its bits reversed.
-     * @note Wraps the C function `fossil_sys_bitwise_reverse_i32`.
-     */
-    static int32_t reverse_bits(int32_t value) {
-        return fossil_sys_bitwise_reverse_i32(value);
-    }
-
-    /**
-     * @brief Rotates bits of a 32-bit signed integer to the left.
-     * @param value The 32-bit signed integer.
-     * @param shift The number of positions to rotate.
-     * @return The resulting value after left rotation.
-     * @note Wraps the C function `fossil_sys_bitwise_rotate_left_i32`.
-     */
-    static int32_t rotate_left(int32_t value, int8_t shift) {
-        return fossil_sys_bitwise_rotate_left_i32(value, shift);
-    }
-
-    /**
-     * @brief Rotates bits of a 32-bit signed integer to the right.
-     * @param value The 32-bit signed integer.
-     * @param shift The number of positions to rotate.
-     * @return The resulting value after right rotation.
-     * @note Wraps the C function `fossil_sys_bitwise_rotate_right_i32`.
-     */
-    static int32_t rotate_right(int32_t value, int8_t shift) {
-        return fossil_sys_bitwise_rotate_right_i32(value, shift);
-    }
-};
-
-// Class for 64-bit signed integer bitwise operations
-class BitwiseI64 {
-public:
-    /**
-     * @brief Counts the number of '1' bits in a 64-bit signed integer.
-     * @param value The 64-bit signed integer.
-     * @return The number of bits set to '1' in the given value.
-     * @note Wraps the C function `fossil_sys_bitwise_count_ones_i64`.
-     */
-    static int count_ones(int64_t value) {
-        return fossil_sys_bitwise_count_ones_i64(value);
-    }
-
-    /**
-     * @brief Reverses the bit order of a 64-bit signed integer.
-     * @param value The 64-bit signed integer.
-     * @return The value with its bits reversed.
-     * @note Wraps the C function `fossil_sys_bitwise_reverse_i64`.
-     */
-    static int64_t reverse_bits(int64_t value) {
-        return fossil_sys_bitwise_reverse_i64(value);
-    }
-
-    /**
-     * @brief Rotates bits of a 64-bit signed integer to the left.
-     * @param value The 64-bit signed integer.
-     * @param shift The number of positions to rotate.
-     * @return The resulting value after left rotation.
-     * @note Wraps the C function `fossil_sys_bitwise_rotate_left_i64`.
-     */
-    static int64_t rotate_left(int64_t value, int8_t shift) {
-        return fossil_sys_bitwise_rotate_left_i64(value, shift);
-    }
-
-    /**
-     * @brief Rotates bits of a 64-bit signed integer to the right.
-     * @param value The 64-bit signed integer.
-     * @param shift The number of positions to rotate.
-     * @return The resulting value after right rotation.
-     * @note Wraps the C function `fossil_sys_bitwise_rotate_right_i64`.
-     */
-    static int64_t rotate_right(int64_t value, int8_t shift) {
-        return fossil_sys_bitwise_rotate_right_i64(value, shift);
-    }
-};
-
-// Class for 8-bit unsigned integer bitwise operations
 class BitwiseU8 {
 public:
-    /**
-     * @brief Counts the number of '1' bits in an 8-bit unsigned integer.
-     * @param value The 8-bit unsigned integer.
-     * @return The number of bits set to '1' in the given value.
-     * @note Wraps the C function `fossil_sys_bitwise_count_ones_u8`.
-     */
-    static int count_ones(uint8_t value) {
-        return fossil_sys_bitwise_count_ones_u8(value);
-    }
+    static uint8_t and_op(uint8_t a, uint8_t b);
+    static uint8_t or_op(uint8_t a, uint8_t b);
+    static uint8_t xor_op(uint8_t a, uint8_t b);
+    static uint8_t not_op(uint8_t a);
 
-    /**
-     * @brief Reverses the bit order of an 8-bit unsigned integer.
-     * @param value The 8-bit unsigned integer.
-     * @return The value with its bits reversed.
-     * @note Wraps the C function `fossil_sys_bitwise_reverse_u8`.
-     */
-    static uint8_t reverse_bits(uint8_t value) {
-        return fossil_sys_bitwise_reverse_u8(value);
-    }
+    static uint8_t lshift(uint8_t a, uint8_t shift);
+    static uint8_t rshift(uint8_t a, uint8_t shift);
 
-    /**
-     * @brief Rotates bits of an 8-bit unsigned integer to the left.
-     * @param value The 8-bit unsigned integer.
-     * @param shift The number of positions to rotate.
-     * @return The resulting value after left rotation.
-     * @note Wraps the C function `fossil_sys_bitwise_rotate_left_u8`.
-     */
-    static uint8_t rotate_left(uint8_t value, unsigned int shift) {
-        return fossil_sys_bitwise_rotate_left_u8(value, shift);
-    }
+    static std::string serialize(uint8_t value);
 
-    /**
-     * @brief Rotates bits of an 8-bit unsigned integer to the right.
-     * @param value The 8-bit unsigned integer.
-     * @param shift The number of positions to rotate.
-     * @return The resulting value after right rotation.
-     * @note Wraps the C function `fossil_sys_bitwise_rotate_right_u8`.
-     */
-    static uint8_t rotate_right(uint8_t value, unsigned int shift) {
-        return fossil_sys_bitwise_rotate_right_u8(value, shift);
-    }
+    // Operator overloads
+    uint8_t operator&(uint8_t other) const { return and_op(value, other); }
+    uint8_t operator|(uint8_t other) const { return or_op(value, other); }
+    uint8_t operator^(uint8_t other) const { return xor_op(value, other); }
+    uint8_t operator~() const { return not_op(value); }
+    uint8_t operator<<(uint8_t shift) const { return lshift(value, shift); }
+    uint8_t operator>>(uint8_t shift) const { return rshift(value, shift); }
+
+    explicit BitwiseU8(uint8_t val) : value(val) {}
+
+private:
+    uint8_t value;
 };
 
-// Class for 16-bit unsigned integer bitwise operations
+// ------------------------------------------------------------------------
+//  16-bit Class Wrapper
+// ------------------------------------------------------------------------
+
 class BitwiseU16 {
 public:
-    /**
-     * @brief Counts the number of '1' bits in a 16-bit unsigned integer.
-     * @param value The 16-bit unsigned integer.
-     * @return The number of bits set to '1' in the given value.
-     * @note Wraps the C function `fossil_sys_bitwise_count_ones_u16`.
-     */
-    static int count_ones(uint16_t value) {
-        return fossil_sys_bitwise_count_ones_u16(value);
-    }
+    static uint16_t and_op(uint16_t a, uint16_t b);
+    static uint16_t or_op(uint16_t a, uint16_t b);
+    static uint16_t xor_op(uint16_t a, uint16_t b);
+    static uint16_t not_op(uint16_t a);
 
-    /**
-     * @brief Reverses the bit order of a 16-bit unsigned integer.
-     * @param value The 16-bit unsigned integer.
-     * @return The value with its bits reversed.
-     * @note Wraps the C function `fossil_sys_bitwise_reverse_u16`.
-     */
-    static uint16_t reverse_bits(uint16_t value) {
-        return fossil_sys_bitwise_reverse_u16(value);
-    }
+    static uint16_t lshift(uint16_t a, uint8_t shift);
+    static uint16_t rshift(uint16_t a, uint8_t shift);
 
-    /**
-     * @brief Rotates bits of a 16-bit unsigned integer to the left.
-     * @param value The 16-bit unsigned integer.
-     * @param shift The number of positions to rotate.
-     * @return The resulting value after left rotation.
-     * @note Wraps the C function `fossil_sys_bitwise_rotate_left_u16`.
-     */
-    static uint16_t rotate_left(uint16_t value, unsigned int shift) {
-        return fossil_sys_bitwise_rotate_left_u16(value, shift);
-    }
+    static std::string serialize(uint16_t value);
 
-    /**
-     * @brief Rotates bits of a 16-bit unsigned integer to the right.
-     * @param value The 16-bit unsigned integer.
-     * @param shift The number of positions to rotate.
-     * @return The resulting value after right rotation.
-     * @note Wraps the C function `fossil_sys_bitwise_rotate_right_u16`.
-     */
-    static uint16_t rotate_right(uint16_t value, unsigned int shift) {
-        return fossil_sys_bitwise_rotate_right_u16(value, shift);
-    }
+    // Operator overloads
+    uint16_t operator&(uint16_t other) const { return and_op(value, other); }
+    uint16_t operator|(uint16_t other) const { return or_op(value, other); }
+    uint16_t operator^(uint16_t other) const { return xor_op(value, other); }
+    uint16_t operator~() const { return not_op(value); }
+    uint16_t operator<<(uint8_t shift) const { return lshift(value, shift); }
+    uint16_t operator>>(uint8_t shift) const { return rshift(value, shift); }
+
+    explicit BitwiseU16(uint16_t val) : value(val) {}
+
+private:
+    uint16_t value;
 };
 
-// Class for 32-bit unsigned integer bitwise operations
+// ------------------------------------------------------------------------
+//  32-bit Class Wrapper
+// ------------------------------------------------------------------------
+
 class BitwiseU32 {
 public:
-    /**
-     * @brief Counts the number of '1' bits in a 32-bit unsigned integer.
-     * @param value The 32-bit unsigned integer.
-     * @return The number of bits set to '1' in the given value.
-     * @note Wraps the C function `fossil_sys_bitwise_count_ones_u32`.
-     */
-    static int count_ones(uint32_t value) {
-        return fossil_sys_bitwise_count_ones_u32(value);
-    }
+    static uint32_t and_op(uint32_t a, uint32_t b);
+    static uint32_t or_op(uint32_t a, uint32_t b);
+    static uint32_t xor_op(uint32_t a, uint32_t b);
+    static uint32_t not_op(uint32_t a);
 
-    /**
-     * @brief Reverses the bit order of a 32-bit unsigned integer.
-     * @param value The 32-bit unsigned integer.
-     * @return The value with its bits reversed.
-     * @note Wraps the C function `fossil_sys_bitwise_reverse_u32`.
-     */
-    static uint32_t reverse_bits(uint32_t value) {
-        return fossil_sys_bitwise_reverse_u32(value);
-    }
+    static uint32_t lshift(uint32_t a, uint8_t shift);
+    static uint32_t rshift(uint32_t a, uint8_t shift);
 
-    /**
-     * @brief Rotates bits of a 32-bit unsigned integer to the left.
-     * @param value The 32-bit unsigned integer.
-     * @param shift The number of positions to rotate.
-     * @return The resulting value after left rotation.
-     * @note Wraps the C function `fossil_sys_bitwise_rotate_left_u32`.
-     */
-    static uint32_t rotate_left(uint32_t value, unsigned int shift) {
-        return fossil_sys_bitwise_rotate_left_u32(value, shift);
-    }
+    static std::string serialize(uint32_t value);
 
-    /**
-     * @brief Rotates bits of a 32-bit unsigned integer to the right.
-     * @param value The 32-bit unsigned integer.
-     * @param shift The number of positions to rotate.
-     * @return The resulting value after right rotation.
-     * @note Wraps the C function `fossil_sys_bitwise_rotate_right_u32`.
-     */
-    static uint32_t rotate_right(uint32_t value, unsigned int shift) {
-        return fossil_sys_bitwise_rotate_right_u32(value, shift);
-    }
+    static bool test_bit(uint32_t value, uint8_t bit);
+    static uint32_t set_bit(uint32_t value, uint8_t bit);
+    static uint32_t clear_bit(uint32_t value, uint8_t bit);
+    static uint32_t toggle_bit(uint32_t value, uint8_t bit);
+
+    // Operator overloads
+    uint32_t operator&(uint32_t other) const { return and_op(value, other); }
+    uint32_t operator|(uint32_t other) const { return or_op(value, other); }
+    uint32_t operator^(uint32_t other) const { return xor_op(value, other); }
+    uint32_t operator~() const { return not_op(value); }
+    uint32_t operator<<(uint8_t shift) const { return lshift(value, shift); }
+    uint32_t operator>>(uint8_t shift) const { return rshift(value, shift); }
+
+    explicit BitwiseU32(uint32_t val) : value(val) {}
+
+private:
+    uint32_t value;
 };
 
-// Class for 64-bit unsigned integer bitwise operations
+// ------------------------------------------------------------------------
+//  64-bit Class Wrapper
+// ------------------------------------------------------------------------
+
 class BitwiseU64 {
 public:
-    /**
-     * @brief Counts the number of '1' bits in a 64-bit unsigned integer.
-     * @param value The 64-bit unsigned integer.
-     * @return The number of bits set to '1' in the given value.
-     * @note Wraps the C function `fossil_sys_bitwise_count_ones_u64`.
-     */
-    static int count_ones(uint64_t value) {
-        return fossil_sys_bitwise_count_ones_u64(value);
-    }
+    static uint64_t and_op(uint64_t a, uint64_t b);
+    static uint64_t or_op(uint64_t a, uint64_t b);
+    static uint64_t xor_op(uint64_t a, uint64_t b);
+    static uint64_t not_op(uint64_t a);
 
-    /**
-     * @brief Reverses the bit order of a 64-bit unsigned integer.
-     * @param value The 64-bit unsigned integer.
-     * @return The value with its bits reversed.
-     * @note Wraps the C function `fossil_sys_bitwise_reverse_u64`.
-     */
-    static uint64_t reverse_bits(uint64_t value) {
-        return fossil_sys_bitwise_reverse_u64(value);
-    }
+    static uint64_t lshift(uint64_t a, uint8_t shift);
+    static uint64_t rshift(uint64_t a, uint8_t shift);
 
-    /**
-     * @brief Rotates bits of a 64-bit unsigned integer to the left.
-     * @param value The 64-bit unsigned integer.
-     * @param shift The number of positions to rotate.
-     * @return The resulting value after left rotation.
-     * @note Wraps the C function `fossil_sys_bitwise_rotate_left_u64`.
-     */
-    static uint64_t rotate_left(uint64_t value, unsigned int shift) {
-        return fossil_sys_bitwise_rotate_left_u64(value, shift);
-    }
+    static std::string serialize(uint64_t value);
 
-    /**
-     * @brief Rotates bits of a 64-bit unsigned integer to the right.
-     * @param value The 64-bit unsigned integer.
-     * @param shift The number of positions to rotate.
-     * @return The resulting value after right rotation.
-     * @note Wraps the C function `fossil_sys_bitwise_rotate_right_u64`.
-     */
-    static uint64_t rotate_right(uint64_t value, unsigned int shift) {
-        return fossil_sys_bitwise_rotate_right_u64(value, shift);
-    }
+    // Operator overloads
+    uint64_t operator&(uint64_t other) const { return and_op(value, other); }
+    uint64_t operator|(uint64_t other) const { return or_op(value, other); }
+    uint64_t operator^(uint64_t other) const { return xor_op(value, other); }
+    uint64_t operator~() const { return not_op(value); }
+    uint64_t operator<<(uint8_t shift) const { return lshift(value, shift); }
+    uint64_t operator>>(uint8_t shift) const { return rshift(value, shift); }
 
+    explicit BitwiseU64(uint64_t val) : value(val) {}
+
+private:
+    uint64_t value;
 };
 
 } // namespace sys
 } // namespace fossil
-
 #endif
 
 #endif /* FOSSIL_SYS_BITWISE_H */
