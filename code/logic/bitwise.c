@@ -12,219 +12,80 @@
  * -----------------------------------------------------------------------------
  */
 #include "fossil/sys/bitwise.h"
+#include <stdlib.h>
+#include <stdio.h>
 
-// ============================================================================
-/*                             UNSIGNED FUNCTIONS
+/* ============================================================================
+ *  Basic Bitwise Operations
  * ============================================================================ */
 
-uint8_t fossil_sys_bitwise_count_ones_u8(uint8_t value) {
-    uint8_t count = 0;
-    while (value) {
-        count += value & 1;
-        value >>= 1;
-    }
-    return count;
-}
+uint8_t fossil_sys_bitwise_and_u8(uint8_t a, uint8_t b) { return a & b; }
+uint16_t fossil_sys_bitwise_and_u16(uint16_t a, uint16_t b) { return a & b; }
+uint32_t fossil_sys_bitwise_and_u32(uint32_t a, uint32_t b) { return a & b; }
+uint64_t fossil_sys_bitwise_and_u64(uint64_t a, uint64_t b) { return a & b; }
 
-uint16_t fossil_sys_bitwise_count_ones_u16(uint16_t value) {
-    uint16_t count = 0;
-    while (value) {
-        count += value & 1;
-        value >>= 1;
-    }
-    return count;
-}
+uint8_t fossil_sys_bitwise_or_u8(uint8_t a, uint8_t b) { return a | b; }
+uint16_t fossil_sys_bitwise_or_u16(uint16_t a, uint16_t b) { return a | b; }
+uint32_t fossil_sys_bitwise_or_u32(uint32_t a, uint32_t b) { return a | b; }
+uint64_t fossil_sys_bitwise_or_u64(uint64_t a, uint64_t b) { return a | b; }
 
-uint32_t fossil_sys_bitwise_count_ones_u32(uint32_t value) {
-    uint32_t count = 0;
-    while (value) {
-        count += value & 1;
-        value >>= 1;
-    }
-    return count;
-}
+uint8_t fossil_sys_bitwise_xor_u8(uint8_t a, uint8_t b) { return a ^ b; }
+uint16_t fossil_sys_bitwise_xor_u16(uint16_t a, uint16_t b) { return a ^ b; }
+uint32_t fossil_sys_bitwise_xor_u32(uint32_t a, uint32_t b) { return a ^ b; }
+uint64_t fossil_sys_bitwise_xor_u64(uint64_t a, uint64_t b) { return a ^ b; }
 
-uint64_t fossil_sys_bitwise_count_ones_u64(uint64_t value) {
-    uint64_t count = 0;
-    while (value) {
-        count += value & 1;
-        value >>= 1;
-    }
-    return count;
-}
+uint8_t fossil_sys_bitwise_not_u8(uint8_t a) { return ~a; }
+uint16_t fossil_sys_bitwise_not_u16(uint16_t a) { return ~a; }
+uint32_t fossil_sys_bitwise_not_u32(uint32_t a) { return ~a; }
+uint64_t fossil_sys_bitwise_not_u64(uint64_t a) { return ~a; }
 
-uint8_t fossil_sys_bitwise_reverse_u8(uint8_t value) {
-    uint8_t reversed = 0;
-    for (int i = 0; i < 8; i++) {
-        reversed = (reversed << 1) | (value & 1);
-        value >>= 1;
-    }
-    return reversed;
-}
-
-uint16_t fossil_sys_bitwise_reverse_u16(uint16_t value) {
-    uint16_t reversed = 0;
-    for (int i = 0; i < 16; i++) {
-        reversed = (reversed << 1) | (value & 1);
-        value >>= 1;
-    }
-    return reversed;
-}
-
-uint32_t fossil_sys_bitwise_reverse_u32(uint32_t value) {
-    uint32_t reversed = 0;
-    for (int i = 0; i < 32; i++) {
-        reversed = (reversed << 1) | (value & 1);
-        value >>= 1;
-    }
-    return reversed;
-}
-
-uint64_t fossil_sys_bitwise_reverse_u64(uint64_t value) {
-    uint64_t reversed = 0;
-    for (int i = 0; i < 64; i++) {
-        reversed = (reversed << 1) | (value & 1);
-        value >>= 1;
-    }
-    return reversed;
-}
-
-uint8_t fossil_sys_bitwise_rotate_left_u8(uint8_t value, uint8_t shift) {
-    return (value << shift) | (value >> (8 - shift));
-}
-
-uint16_t fossil_sys_bitwise_rotate_left_u16(uint16_t value, uint8_t shift) {
-    return (value << shift) | (value >> (16 - shift));
-}
-
-uint32_t fossil_sys_bitwise_rotate_left_u32(uint32_t value, uint8_t shift) {
-    return (value << shift) | (value >> (32 - shift));
-}
-
-uint64_t fossil_sys_bitwise_rotate_left_u64(uint64_t value, uint8_t shift) {
-    return (value << shift) | (value >> (64 - shift));
-}
-
-uint8_t fossil_sys_bitwise_rotate_right_u8(uint8_t value, uint8_t shift) {
-    return (value >> shift) | (value << (8 - shift));
-}
-
-uint16_t fossil_sys_bitwise_rotate_right_u16(uint16_t value, uint8_t shift) {
-    return (value >> shift) | (value << (16 - shift));
-}
-
-uint32_t fossil_sys_bitwise_rotate_right_u32(uint32_t value, uint8_t shift) {
-    return (value >> shift) | (value << (32 - shift));
-}
-
-uint64_t fossil_sys_bitwise_rotate_right_u64(uint64_t value, uint8_t shift) {
-    return (value >> shift) | (value << (64 - shift));
-}
-
-// ============================================================================
-/*                             SIGNED FUNCTIONS
+/* ============================================================================
+ *  Bitwise Shift Operations
  * ============================================================================ */
 
-int8_t fossil_sys_bitwise_count_ones_i8(int8_t value) {
-    int8_t count = 0;
-    while (value) {
-        count += value & 1;
-        value >>= 1;
-    }
-    return count;
+uint8_t fossil_sys_bitwise_lshift_u8(uint8_t a, uint8_t shift) { return a << shift; }
+uint16_t fossil_sys_bitwise_lshift_u16(uint16_t a, uint8_t shift) { return a << shift; }
+uint32_t fossil_sys_bitwise_lshift_u32(uint32_t a, uint8_t shift) { return a << shift; }
+uint64_t fossil_sys_bitwise_lshift_u64(uint64_t a, uint8_t shift) { return a << shift; }
+
+uint8_t fossil_sys_bitwise_rshift_u8(uint8_t a, uint8_t shift) { return a >> shift; }
+uint16_t fossil_sys_bitwise_rshift_u16(uint16_t a, uint8_t shift) { return a >> shift; }
+uint32_t fossil_sys_bitwise_rshift_u32(uint32_t a, uint8_t shift) { return a >> shift; }
+uint64_t fossil_sys_bitwise_rshift_u64(uint64_t a, uint8_t shift) { return a >> shift; }
+
+/* ============================================================================
+ *  Bit Manipulation Functions
+ * ============================================================================ */
+
+bool fossil_sys_bitwise_test_u32(uint32_t value, uint8_t bit) { return (value & (1U << bit)) != 0; }
+uint32_t fossil_sys_bitwise_set_u32(uint32_t value, uint8_t bit) { return value | (1U << bit); }
+uint32_t fossil_sys_bitwise_clear_u32(uint32_t value, uint8_t bit) { return value & ~(1U << bit); }
+uint32_t fossil_sys_bitwise_toggle_u32(uint32_t value, uint8_t bit) { return value ^ (1U << bit); }
+
+/* ============================================================================
+ *  Serialization Functions (Hex String Representation)
+ * ============================================================================ */
+
+char* fossil_sys_bitwise_serialize_u8(uint8_t value) {
+    char* buffer = (char*)malloc(3); 
+    if (buffer) sprintf(buffer, "%02X", value);
+    return buffer;
 }
 
-int16_t fossil_sys_bitwise_count_ones_i16(int16_t value) {
-    int16_t count = 0;
-    while (value) {
-        count += value & 1;
-        value >>= 1;
-    }
-    return count;
+char* fossil_sys_bitwise_serialize_u16(uint16_t value) {
+    char* buffer = (char*)malloc(5); 
+    if (buffer) sprintf(buffer, "%04X", value);
+    return buffer;
 }
 
-int32_t fossil_sys_bitwise_count_ones_i32(int32_t value) {
-    int32_t count = 0;
-    while (value) {
-        count += value & 1;
-        value >>= 1;
-    }
-    return count;
+char* fossil_sys_bitwise_serialize_u32(uint32_t value) {
+    char* buffer = (char*)malloc(9); 
+    if (buffer) sprintf(buffer, "%08X", value);
+    return buffer;
 }
 
-int64_t fossil_sys_bitwise_count_ones_i64(int64_t value) {
-    int64_t count = 0;
-    while (value) {
-        count += value & 1;
-        value >>= 1;
-    }
-    return count;
-}
-
-int8_t fossil_sys_bitwise_reverse_i8(int8_t value) {
-    int8_t reversed = 0;
-    for (int i = 0; i < 8; i++) {
-        reversed = (reversed << 1) | (value & 1);
-        value >>= 1;
-    }
-    return reversed;
-}
-
-int16_t fossil_sys_bitwise_reverse_i16(int16_t value) {
-    int16_t reversed = 0;
-    for (int i = 0; i < 16; i++) {
-        reversed = (reversed << 1) | (value & 1);
-        value >>= 1;
-    }
-    return reversed;
-}
-
-int32_t fossil_sys_bitwise_reverse_i32(int32_t value) {
-    int32_t reversed = 0;
-    for (int i = 0; i < 32; i++) {
-        reversed = (reversed << 1) | (value & 1);
-        value >>= 1;
-    }
-    return reversed;
-}
-
-int64_t fossil_sys_bitwise_reverse_i64(int64_t value) {
-    int64_t reversed = 0;
-    for (int i = 0; i < 64; i++) {
-        reversed = (reversed << 1) | (value & 1);
-        value >>= 1;
-    }
-    return reversed;
-}
-
-int8_t fossil_sys_bitwise_rotate_left_i8(int8_t value, int8_t shift) {
-    return (value << shift) | (value >> (8 - shift));
-}
-
-int16_t fossil_sys_bitwise_rotate_left_i16(int16_t value, int8_t shift) {
-    return (value << shift) | (value >> (16 - shift));
-}
-
-int32_t fossil_sys_bitwise_rotate_left_i32(int32_t value, int8_t shift) {
-    return (value << shift) | (value >> (32 - shift));
-}
-
-int64_t fossil_sys_bitwise_rotate_left_i64(int64_t value, int8_t shift) {
-    return (value << shift) | (value >> (64 - shift));
-}
-
-int8_t fossil_sys_bitwise_rotate_right_i8(int8_t value, int8_t shift) {
-    return (value >> shift) | (value << (8 - shift));
-}
-
-int16_t fossil_sys_bitwise_rotate_right_i16(int16_t value, int8_t shift) {
-    return (value >> shift) | (value << (16 - shift));
-}
-
-int32_t fossil_sys_bitwise_rotate_right_i32(int32_t value, int8_t shift) {
-    return (value >> shift) | (value << (32 - shift));
-}
-
-int64_t fossil_sys_bitwise_rotate_right_i64(int64_t value, int8_t shift) {
-    return (value >> shift) | (value << (64 - shift));
+char* fossil_sys_bitwise_serialize_u64(uint64_t value) {
+    char* buffer = (char*)malloc(17); 
+    if (buffer) sprintf(buffer, "%016llX", (unsigned long long)value);
+    return buffer;
 }
