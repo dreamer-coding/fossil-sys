@@ -63,7 +63,7 @@ FOSSIL_TEST_CASE(cpp_test_bitwise_reverse) {
     // Signed
     static const int8_t test_val_i8 = static_cast<int8_t>(0x0F);   // 00001111 in binary
     static const int16_t test_val_i16 = static_cast<int16_t>(0x00FF); // 0000000011111111 in binary
-    static const int32_t test_val_i32 = static_cast<int32_t>(0x12345678));
+    static const int32_t test_val_i32 = static_cast<int32_t>(0x12345678);
     static const int64_t test_val_i64 = static_cast<int64_t>(0x8000000000000001LL);
 
     ASSUME_ITS_EQUAL_I8(fossil_sys_bitwise_reverse_i8(test_val_i8), 0xF0);
@@ -91,7 +91,7 @@ FOSSIL_TEST_CASE(cpp_test_bitwise_rotate_left) {
     // Signed
     static const int8_t test_val_i8 = static_cast<int8_t>(0x81); // 10000001 in binary
     static const int16_t test_val_i16 = static_cast<int16_t>(0x8001);
-    static const int32_t test_val_i32 = static_cast<int32_t>(0x12345678));
+    static const int32_t test_val_i32 = static_cast<int32_t>(0x12345678);
     static const int64_t test_val_i64 = static_cast<int64_t>(0x8000000000000001LL);
 
     ASSUME_ITS_EQUAL_I8(fossil_sys_bitwise_rotate_left_i8(test_val_i8, 2), 0x06);
@@ -119,7 +119,7 @@ FOSSIL_TEST_CASE(cpp_test_bitwise_rotate_right) {
     // Signed
     static const int8_t test_val_i8 = static_cast<int8_t>(0x81);  // 10000001 in binary
     static const int16_t test_val_i16 = static_cast<int16_t>(0x8001);
-    static const int32_t test_val_i32 = static_cast<int32_t>(0x12345678));
+    static const int32_t test_val_i32 = static_cast<int32_t>(0x12345678);
     static const int64_t test_val_i64 = static_cast<int64_t>(0x8000000000000001LL);
 
     ASSUME_ITS_EQUAL_I8(fossil_sys_bitwise_rotate_right_i8(test_val_i8, 2), 0x60);
