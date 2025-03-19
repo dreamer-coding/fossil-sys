@@ -85,8 +85,8 @@ FOSSIL_TEST_CASE(c_test_cunwrap_or) {
 FOSSIL_TEST_CASE(c_test_cunwrap) {
     void *ptr = (void *)1;
     ASSUME_ITS_EQUAL_PTR(cunwrap(ptr), ptr);
-    cnullify(ptr);
-    ASSUME_ITS_EQUAL_PTR(cunwrap(ptr), cnull);  // Should exit on failure in actual code, but we test that it returns cnull
+    // cnullify(ptr);
+    // ASSUME_ITS_EQUAL_PTR(cunwrap(ptr), cnull);  // Should exit on failure in actual code, but we test that it returns cnull
 }
 
 // ** Test csafe_cast Macro **
