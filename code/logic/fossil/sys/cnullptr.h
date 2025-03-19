@@ -183,7 +183,7 @@ typedef struct {
  * @return The created `COption` containing the value.
  */
 #ifdef __cplusplus
-    #define csome(val) ((COption){static_cast<void*>(val), 1})
+    #define csome(val) (static_cast<COption>({val, 1}))
 #else
     #define csome(val) ((COption){(void*)(val), 1})
 #endif
@@ -194,7 +194,7 @@ typedef struct {
  * @return An `Option` representing `None`.
  */
 #ifdef __cplusplus
-    #define cnone() ((COption){static_cast<void*>(cnull), 0})
+    #define cnone() (static_cast<COption>({cnull, 0}))
 #else
     #define cnone() ((COption){cnull, 0})
 #endif
