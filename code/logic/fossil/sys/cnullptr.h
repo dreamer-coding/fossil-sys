@@ -78,16 +78,33 @@ extern "C" {
 // Ensure null pointer definitions across C and C++ environments
 #ifndef FOSSIL_CNULL
 
-#if __cplusplus >= 201103L || (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 202311L)
 /**
- * @brief Safe null pointer definition for modern C++ and C23.
+ * @brief Safe and consistent null pointer definition for modern C++ and C standards.
+ *
+ * This section defines `cnull` and `cnullptr` for both C and C++ environments. 
+ * The definitions ensure compatibility across different language versions, providing 
+ * a clear and consistent way to represent null pointers. 
+ *
+ * - **C++11 and Later:** If the code is compiled using C++11 (`__cplusplus >= 201103L`) 
+ *   or newer, `nullptr` is used. `nullptr` is a type-safe null pointer constant that 
+ *   prevents accidental misuse in pointer arithmetic or type ambiguities.
+ *
+ * - **C23 and Later:** In C23 (`__STDC_VERSION__ >= 202311L`), `nullptr` is introduced 
+ *   as a type-safe null pointer constant, mirroring the C++ equivalent. The `cnull` 
+ *   and `cnullptr` macros directly map to this standard definition.
+ *
+ * - **Older C Standards (C11 and Below):** If neither C23 nor C++11 is detected, 
+ *   `cnull` and `cnullptr` are defined using `((void*)0)`, which is the traditional 
+ *   and portable representation of a null pointer in C.
+ *
+ * This abstraction guarantees that null pointer values are handled consistently 
+ * across different compilers and platforms, reducing the risk of undefined behavior 
+ * in pointer operations.
  */
+#if __cplusplus >= 201103L || (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 202311L)
     #define cnull    nullptr
     #define cnullptr nullptr
 #else
-/**
- * @brief Platform-agnostic null pointer definition for older C standards.
- */
     #define cnull    ((void*)0)
     #define cnullptr ((void*)0)
 #endif
