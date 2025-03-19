@@ -132,6 +132,8 @@ FOSSIL_TEST_CASE(c_test_cunwrap_or_option) {
     COption none_option = cnone();
     ASSUME_ITS_EQUAL_PTR(cunwrap_or_option(some_option, (void *)99), (void *)1);
     ASSUME_ITS_EQUAL_PTR(cunwrap_or_option(none_option, (void *)99), (void *)99);
+    
+    cunused(none_option);
 }
 
 // ** Test cdrop Macro **
