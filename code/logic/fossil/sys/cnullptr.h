@@ -182,14 +182,22 @@ typedef struct {
  * @param val The value to wrap in the Option.
  * @return The created `COption` containing the value.
  */
-#define csome(val) ((COption){(val), 1})
+#ifdef __cplusplus
+    #define csome(val) ((COption){static_cast<void*>(val), 1})
+#else
+    #define csome(val) ((COption){(void*)(val), 1})
+#endif
 
 /**
  * @brief Creates an empty `Option` (None).
  *
  * @return An `Option` representing `None`.
  */
-#define cnone() ((COption){cnull, 0})
+#ifdef __cplusplus
+    #define cnone() ((COption){static_cast<void*>(cnull), 0})
+#else
+    #define cnone() ((COption){cnull, 0})
+#endif
 
 /**
  * @brief Unwraps the `COption`. If it's `Some`, return the value; if it's `None`, panic.
