@@ -118,6 +118,7 @@ FOSSIL_TEST_CASE(cpp_test_cunwrap_option) {
     
     // Uncommenting the following line will trigger panic due to unwrapping a None value
     // ASSUME_ITS_EQUAL_PTR(cunwrap_option(none_option), cnull); // Should panic in actual code
+    cunused(none_option); // avoid unused error
 }
 
 // ** Test cunwrap_or_option Macro **
@@ -126,8 +127,6 @@ FOSSIL_TEST_CASE(cpp_test_cunwrap_or_option) {
     COption none_option = cnone();
     ASSUME_ITS_EQUAL_PTR(cunwrap_or_option(some_option, reinterpret_cast<void *>(99)), reinterpret_cast<void *>(1));
     ASSUME_ITS_EQUAL_PTR(cunwrap_or_option(none_option, reinterpret_cast<void *>(99)), reinterpret_cast<void *>(99));
-
-    cunused(none_option);
 }
 
 // ** Test cdrop Macro **
