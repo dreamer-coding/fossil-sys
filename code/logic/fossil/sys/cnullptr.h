@@ -21,6 +21,60 @@
 extern "C" {
 #endif
 
+/**
+ * @brief A cross-platform, safe null pointer management library for C and C++.
+ * 
+ * This library provides a set of macros and utilities to ensure consistent 
+ * null pointer management across different versions of C and C++.
+ * It introduces safer, more expressive pointer handling inspired by concepts 
+ * from modern programming languages like Rust, offering features like `Option` 
+ * semantics, safe pointer casting, and enhanced error management.
+ * 
+ * Key Features:
+ * - **Platform Agnostic Null Pointers:** Provides consistent `cnull` and `cnullptr` 
+ *   definitions across C and C++ using modern `nullptr` or fallback `void*` based 
+ *   null representation.
+ * - **Safe Pointer Manipulation:** Macros like `cnullify()`, `cnotnull()`, and 
+ *   `csafe_cast()` ensure safer memory management and prevent invalid pointer 
+ *   dereferences.
+ * - **Error Handling:** Offers expressive error management using `cpanic()` and 
+ *   `cunwrap()`, providing detailed error messages and file/line diagnostics.
+ * - **Optional Pointers:** Implements `COption`, a struct emulating Rust’s `Option<T>` 
+ *   with macros like `csome()`, `cnone()`, `cunwrap_option()`, and `cunwrap_or_option()`.
+ * - **Compile-Time Safety Hints:** Provides annotations like `cnullable` and `cnonnull` 
+ *   for static analysis, improving code safety by detecting null pointer misuse.
+ * - **Branch Prediction Optimization:** Includes `clikely()` and `cunlikely()` macros 
+ *   to optimize conditional branches based on runtime behavior.
+ * - **String Safety Constants:** Defines safe constants for null terminators, 
+ *   newline characters, and empty strings in both C and wide-character formats.
+ * 
+ * Intended Usage:
+ * The library is suitable for scenarios requiring robust pointer management, particularly 
+ * in low-level systems programming, embedded environments, and performance-critical 
+ * applications. Developers transitioning from modern languages like Rust or C++ may 
+ * find the familiar semantics helpful.
+ * 
+ * Compatibility:
+ * - Supports **C11** and **C23** standards.
+ * - Fully compatible with **C++11** and later.
+ * - Provides graceful fallbacks for older compilers using `void*` based null pointers.
+ * 
+ * Example Usage:
+ * ```c
+ * int* ptr = cnull;
+ * cnullify(ptr); // Safely set to null
+ * 
+ * int* data = malloc(sizeof(int));
+ * *data = 42;
+ * COption opt = csome(data);
+ * 
+ * int* result = (int*)cunwrap_option(opt); // Unwrap safely
+ * printf("Value: %d\n", *result);
+ * 
+ * cdrop(data); // Nullify pointer safely
+ * ```
+ */
+
 // Ensure null pointer definitions across C and C++ environments
 #ifndef FOSSIL_CNULL
 
