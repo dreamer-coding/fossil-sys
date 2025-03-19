@@ -78,7 +78,11 @@ extern "C" {
  * @param ptr The pointer to cast.
  * @return The casted pointer or `cnull` if the input pointer is null.
  */
-#define csafe_cast(type, ptr) ((cnotnull(ptr)) ? ((type)(ptr)) : cnull)
+#ifdef __cplusplus
+    #define csafe_cast(type, ptr) ((cnotnull(ptr)) ? (static_cast<type>(ptr)) : cnull)
+#else
+    #define csafe_cast(type, ptr) ((cnotnull(ptr)) ? ((type)(ptr)) : cnull)
+#endif
 
 /**
  * @brief Marks a variable as intentionally unused to prevent warnings.
