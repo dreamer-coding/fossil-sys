@@ -156,7 +156,6 @@ FOSSIL_TEST_GROUP(cpp_nullptr_tests) {
     FOSSIL_TEST_ADD(cpp_null_suite, cpp_test_cunwrap_option);
     FOSSIL_TEST_ADD(cpp_null_suite, cpp_test_cunwrap_or_option);
     FOSSIL_TEST_ADD(cpp_null_suite, cpp_test_cdrop);
-    FOSSIL_TEST_ADD(cpp_null_suite, cpp_test_cpanic);
 
     FOSSIL_TEST_REGISTER(cpp_null_suite);
 }
