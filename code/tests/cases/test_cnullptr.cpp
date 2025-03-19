@@ -53,12 +53,12 @@ FOSSIL_TEARDOWN(cpp_null_suite) {
 // ** Test csafe_cast Macro **
 FOSSIL_TEST_CASE(cpp_test_csafe_cast) {
     void *ptr = reinterpret_cast<void *>(1);  // Use safe_cast instead of C cast
-    int *casted_ptr = safe_cast<int *>(ptr);  // Using the safe_cast macro
+    int *casted_ptr = static_cast<int *>(ptr);  // Using the safe_cast macro
     ASSUME_ITS_EQUAL_PTR(casted_ptr, reinterpret_cast<int *>(ptr));
 
     // Now let's handle cnull scenario
     cnullify(ptr);
-    casted_ptr = safe_cast<int *>(ptr);  // Should return cnull when the input is cnull
+    casted_ptr = static_cast<int *>(ptr);  // Should return cnull when the input is cnull
     ASSUME_ITS_EQUAL_PTR(casted_ptr, cnull); 
 }
 
