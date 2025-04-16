@@ -87,13 +87,13 @@ int fossil_sys_thread_create(fossil_sys_thread_t **out_thread, fossil_sys_thread
     if (!t) return -1;
 
 #ifdef _WIN32
-    void **args = malloc(2 * sizeof(void *));
-    if (!args) { free(t); return -1; }
-    args[0] = (void *)fn;
-    args[1] = arg;
-
-    t->handle = CreateThread(NULL, 0, thread_entry, args, 0, &t->id);
-    if (!t->handle) { free(args); free(t); return -1; }
+    t->handle = CreateThread(NULL, 0, thread_entry, (LPVOID)fn, 0, &t->id);
+    if (!t->handle) {
+        free(t); return -1;
+    }
+    CloseHandle(t->handle); // Close the handle, we don't need it
+    t->handle = NULL; // Set to NULL to indicate it's not used
+    t->id = 0; // Set to 0 to indicate it's not used
 
 #else
     void **args = malloc(2 * sizeof(void *));
