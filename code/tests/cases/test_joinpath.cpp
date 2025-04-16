@@ -59,7 +59,7 @@ FOSSIL_TEARDOWN(cpp_path_suite) {
 FOSSIL_TEST_CASE(cpp_test_fossil_sys_path_envvar_class) {
     std::string envvar = fossil::sys::Path::envvar();
 #if defined(_WIN32)
-    ASSUME_ITS_EQUAL_CSTR(envvar, "Path");
+    ASSUME_ITS_EQUAL_CSTR(envvar.c_str(), "Path");
 #else
     ASSUME_ITS_EQUAL_CSTR(envvar.c_str(), "PATH");
 #endif
