@@ -72,6 +72,7 @@ int fossil_sys_bitwise_lookup(const char *name, const fossil_sys_bitwise_table_t
 
 #ifdef __cplusplus
 }
+
 #include <string>
 
 /**
