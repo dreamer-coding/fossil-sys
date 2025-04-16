@@ -83,30 +83,37 @@ static void *thread_entry(void *arg) {
 
 int fossil_sys_thread_create(fossil_sys_thread_t **out_thread, fossil_sys_thread_func fn, void *arg) {
     if (!out_thread || !fn) return -1;
-    fossil_sys_thread_t *t = malloc(sizeof(fossil_sys_thread_t));
-    if (!t) return -1;
 
+    fossil_sys_thread_t *thread = malloc(sizeof(fossil_sys_thread_t));
+    if (!thread) return -1;
 #ifdef _WIN32
-    t->handle = CreateThread(NULL, 0, thread_entry, (LPVOID)fn, 0, &t->id);
-    if (!t->handle) {
-        free(t); return -1;
-    }
-    CloseHandle(t->handle); // Close the handle, we don't need it
-    t->handle = NULL; // Set to NULL to indicate it's not used
-    t->id = 0; // Set to 0 to indicate it's not used
-
-#else
     void **args = malloc(2 * sizeof(void *));
-    if (!args) { free(t); return -1; }
+    if (!args) { free(thread); return -1; }
     args[0] = (void *)fn;
     args[1] = arg;
 
-    if (pthread_create(&t->thread, NULL, thread_entry, args) != 0) {
-        free(args); free(t); return -1;
+    thread->handle = CreateThread(NULL, 0, thread_entry, args, 0, &thread->id);
+    if (!thread->handle) {
+        free(args);
+        free(thread);
+        return -1;
     }
-#endif
+    CloseHandle(thread->handle); // Close the handle, we don't need it
+    thread->handle = NULL; // Set to NULL to indicate it's not joinable
+#else
+    void **args = malloc(2 * sizeof(void *));
+    if (!args) { free(thread); return -1; }
+    args[0] = (void *)fn;
+    args[1] = arg;
 
-    *out_thread = t;
+    if (pthread_create(&thread->thread, NULL, thread_entry, args) != 0) {
+        free(args);
+        free(thread);
+        return -1;
+    }
+    // No need to store the thread ID as it is not defined in the structure
+#endif
+    *out_thread = thread;
     return 0;
 }
 
