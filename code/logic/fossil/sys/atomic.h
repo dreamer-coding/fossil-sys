@@ -25,48 +25,9 @@
     #include <stdint.h>
 #endif
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 //
 // Types
 //
-
-#ifdef __cplusplus
-#include <atomic>
-typedef struct {
-    std::atomic<int32_t> value;
-} fossil_sys_atomic_i32;
-
-typedef struct {
-    std::atomic<int64_t> value;
-} fossil_sys_atomic_i64;
-
-typedef struct {
-    std::atomic<uint32_t> value;
-} fossil_sys_atomic_u32;
-
-typedef struct {
-    std::atomic<uint64_t> value;
-} fossil_sys_atomic_u64;
-#else
-typedef struct {
-    _Atomic int32_t value;
-} fossil_sys_atomic_i32;
-
-typedef struct {
-    _Atomic int64_t value;
-} fossil_sys_atomic_i64;
-
-typedef struct {
-    _Atomic uint32_t value;
-} fossil_sys_atomic_u32;
-
-typedef struct {
-    _Atomic uint64_t value;
-} fossil_sys_atomic_u64;
-#endif
 
 //
 // Memory ordering (optional abstraction layer)
@@ -78,6 +39,51 @@ typedef enum {
     FOSSIL_ATOMIC_ACQ_REL,
     FOSSIL_ATOMIC_SEQ_CST
 } fossil_sys_atomic_order;
+
+#ifdef __cplusplus
+#include <atomic>
+extern "C" {
+#endif
+
+typedef struct {
+#ifdef __cplusplus
+    std::atomic<int32_t> value;
+#else
+    _Atomic int32_t value;
+#endif
+} fossil_sys_atomic_i32;
+
+typedef struct {
+#ifdef __cplusplus
+    std::atomic<int64_t> value;
+#else
+    _Atomic int64_t value;
+#endif
+} fossil_sys_atomic_i64;
+
+typedef struct {
+#ifdef __cplusplus
+    std::atomic<uint32_t> value;
+#else
+    _Atomic uint32_t value;
+#endif
+} fossil_sys_atomic_u32;
+
+typedef struct {
+#ifdef __cplusplus
+    std::atomic<uint64_t> value;
+#else
+    _Atomic uint64_t value;
+#endif
+} fossil_sys_atomic_u64;
+
+#ifdef __cplusplus
+}
+#endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 //
 // Init
