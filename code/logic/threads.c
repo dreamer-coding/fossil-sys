@@ -66,8 +66,14 @@ struct fossil_sys_thread_event_t {
 
 #ifdef _WIN32
 static DWORD WINAPI thread_entry(LPVOID arg) {
-    fossil_sys_thread_func fn = ((fossil_sys_thread_func *)arg)[0];
-    void *fn_arg = ((void **)arg)[1];
+    struct thread_args {
+        fossil_sys_thread_func fn;
+        void *arg;
+    };
+
+    struct thread_args *args = (struct thread_args *)arg;
+    fossil_sys_thread_func fn = args->fn;
+    void *fn_arg = args->arg;
     free(arg);
     fn(fn_arg);
     return 0;
@@ -81,16 +87,21 @@ static void *thread_entry(void *arg) {
 }
 #endif
 
-int fossil_sys_thread_create(fossil_sys_thread_t **out_thread, fossil_sys_thread_func fn, void *arg) {
-    if (!out_thread || !fn) return -1;
-    fossil_sys_thread_t *t = malloc(sizeof(fossil_sys_thread_t));
-    if (!t) return -1;
+    struct thread_args {
+        fossil_sys_thread_func fn;
+        void *arg;
+    };
+
+    t->handle = CreateThread(NULL, 0, thread_entry, (void *)args, 0, &t->id);
+    if (!args) { free(t); return -1; }
+    args->fn = fn;
+    args->arg = arg;
 
 #ifdef _WIN32
     void **args = malloc(2 * sizeof(void *));
     if (!args) { free(t); return -1; }
     args[0] = (void *)fn;
-    args[1] = arg;
+    if (pthread_create(&t->thread, NULL, thread_entry, (void *)args) != 0) {
 
     t->handle = CreateThread(NULL, 0, thread_entry, args, 0, &t->id);
     if (!t->handle) { free(args); free(t); return -1; }
