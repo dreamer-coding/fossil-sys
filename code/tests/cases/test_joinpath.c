@@ -47,9 +47,9 @@ FOSSIL_TEARDOWN(c_bitwise_suite) {
 FOSSIL_TEST_CASE(c_test_fossil_sys_path_separator) {
     char sep = fossil_sys_path_separator();
 #if defined(_WIN32)
-    ASSUME_ITS_EQUAL(sep, '\\');
+    ASSUME_ITS_EQUAL_I32(sep, '\\');
 #else
-    ASSUME_ITS_EQUAL(sep, '/');
+    ASSUME_ITS_EQUAL_I32(sep, '/');
 #endif
 }
 
@@ -57,22 +57,22 @@ FOSSIL_TEST_CASE(c_test_fossil_sys_path_separator) {
 FOSSIL_TEST_CASE(c_test_fossil_sys_path_envvar) {
     const char *envvar = fossil_sys_path_envvar();
 #if defined(_WIN32)
-    ASSUME_ITS_EQUAL_STR(envvar, "Path");
+    ASSUME_ITS_EQUAL_CSTR(envvar, "Path");
 #else
-    ASSUME_ITS_EQUAL_STR(envvar, "PATH");
+    ASSUME_ITS_EQUAL_CSTR(envvar, "PATH");
 #endif
 }
 
 // ** Test fossil_sys_path_join Function **
 FOSSIL_TEST_CASE(c_test_fossil_sys_path_join) {
     char *joined = fossil_sys_path_join("home", "user");
-    ASSUME_ITS_NOT_NULL(joined);
-    ASSUME_ITS_EQUAL_STR(joined, "home/user");
+    ASSUME_NOT_CNULL(joined);
+    ASSUME_ITS_EQUAL_CSTR(joined, "home/user");
     free(joined);
 
     joined = fossil_sys_path_join("home/", "user");
-    ASSUME_ITS_NOT_NULL(joined);
-    ASSUME_ITS_EQUAL_STR(joined, "home/user");
+    ASSUME_NOT_CNULL(joined);
+    ASSUME_ITS_EQUAL_CSTR(joined, "home/user");
     free(joined);
 }
 
@@ -80,48 +80,48 @@ FOSSIL_TEST_CASE(c_test_fossil_sys_path_join) {
 FOSSIL_TEST_CASE(c_test_fossil_sys_path_joinv) {
     const char *paths[] = {"home", "user", "documents"};
     char *joined = fossil_sys_path_joinv(3, paths);
-    ASSUME_ITS_NOT_NULL(joined);
-    ASSUME_ITS_EQUAL_STR(joined, "home/user/documents");
+    ASSUME_NOT_CNULL(joined);
+    ASSUME_ITS_EQUAL_CSTR(joined, "home/user/documents");
     free(joined);
 }
 
 // ** Test fossil_sys_path_normalize Function **
 FOSSIL_TEST_CASE(c_test_fossil_sys_path_normalize) {
     char *normalized = fossil_sys_path_normalize("home//user///documents");
-    ASSUME_ITS_NOT_NULL(normalized);
-    ASSUME_ITS_EQUAL_STR(normalized, "home/user/documents");
+    ASSUME_NOT_CNULL(normalized);
+    ASSUME_ITS_EQUAL_CSTR(normalized, "home/user/documents");
     free(normalized);
 }
 
 // ** Test fossil_sys_path_basename Function **
 FOSSIL_TEST_CASE(c_test_fossil_sys_path_basename) {
     char *basename = fossil_sys_path_basename("home/user/documents/file.txt");
-    ASSUME_ITS_NOT_NULL(basename);
-    ASSUME_ITS_EQUAL_STR(basename, "file.txt");
+    ASSUME_NOT_CNULL(basename);
+    ASSUME_ITS_EQUAL_CSTR(basename, "file.txt");
     free(basename);
 }
 
 // ** Test fossil_sys_path_dirname Function **
 FOSSIL_TEST_CASE(c_test_fossil_sys_path_dirname) {
     char *dirname = fossil_sys_path_dirname("home/user/documents/file.txt");
-    ASSUME_ITS_NOT_NULL(dirname);
-    ASSUME_ITS_EQUAL_STR(dirname, "home/user/documents");
+    ASSUME_NOT_CNULL(dirname);
+    ASSUME_ITS_EQUAL_CSTR(dirname, "home/user/documents");
     free(dirname);
 }
 
 // ** Test fossil_sys_path_extname Function **
 FOSSIL_TEST_CASE(c_test_fossil_sys_path_extname) {
     char *extname = fossil_sys_path_extname("file.txt");
-    ASSUME_ITS_NOT_NULL(extname);
-    ASSUME_ITS_EQUAL_STR(extname, ".txt");
+    ASSUME_NOT_CNULL(extname);
+    ASSUME_ITS_EQUAL_CSTR(extname, ".txt");
     free(extname);
 }
 
 // ** Test fossil_sys_path_strip_ext Function **
 FOSSIL_TEST_CASE(c_test_fossil_sys_path_strip_ext) {
     char *stripped = fossil_sys_path_strip_ext("file.txt");
-    ASSUME_ITS_NOT_NULL(stripped);
-    ASSUME_ITS_EQUAL_STR(stripped, "file");
+    ASSUME_NOT_CNULL(stripped);
+    ASSUME_ITS_EQUAL_CSTR(stripped, "file");
     free(stripped);
 }
 
