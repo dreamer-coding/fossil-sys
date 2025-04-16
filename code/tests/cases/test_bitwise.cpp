@@ -49,7 +49,7 @@ FOSSIL_TEST_CASE(cpp_test_class_bitwise_parse) {
         {"read", 0x1},
         {"write", 0x2},
         {"execute", 0x4},
-        {NULL, 0}
+        {nullptr, 0}
     };
 
     fossil_sys_bitwise_table_t table = {entries, sizeof(entries) / sizeof(entries[0]) - 1};
@@ -70,7 +70,7 @@ FOSSIL_TEST_CASE(cpp_test_class_bitwise_format) {
         {"read", 0x1},
         {"write", 0x2},
         {"execute", 0x4},
-        {NULL, 0}
+        {nullptr, 0}
     };
 
     fossil_sys_bitwise_table_t table = {entries, sizeof(entries) / sizeof(entries[0]) - 1};
@@ -95,7 +95,7 @@ FOSSIL_TEST_CASE(cpp_test_class_bitwise_lookup) {
         {"read", 0x1},
         {"write", 0x2},
         {"execute", 0x4},
-        {NULL, 0}
+        {nullptr, 0}
     };
 
     fossil_sys_bitwise_table_t table = {entries, sizeof(entries) / sizeof(entries[0]) - 1};
