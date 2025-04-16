@@ -117,9 +117,9 @@ FOSSIL_TEST_CASE(cpp_test_class_bitwise_lookup) {
 // * Fossil Logic Test Pool
 // * * * * * * * * * * * * * * * * * * * * * * * *
 FOSSIL_TEST_GROUP(cpp_bitwise_tests) {
-    // FOSSIL_TEST_ADD(cpp_bitwise_suite, cpp_test_class_bitwise_parse);
-    // FOSSIL_TEST_ADD(cpp_bitwise_suite, cpp_test_class_bitwise_format);
-    // FOSSIL_TEST_ADD(cpp_bitwise_suite, cpp_test_class_bitwise_lookup);
+    FOSSIL_TEST_ADD(cpp_bitwise_suite, cpp_test_class_bitwise_parse);
+    FOSSIL_TEST_ADD(cpp_bitwise_suite, cpp_test_class_bitwise_format);
+    FOSSIL_TEST_ADD(cpp_bitwise_suite, cpp_test_class_bitwise_lookup);
 
     FOSSIL_TEST_REGISTER(cpp_bitwise_suite);
 }
