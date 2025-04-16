@@ -33,6 +33,24 @@ extern "C" {
 // Types
 //
 
+#ifdef __cplusplus
+#include <atomic>
+typedef struct {
+    std::atomic<int32_t> value;
+} fossil_sys_atomic_i32;
+
+typedef struct {
+    std::atomic<int64_t> value;
+} fossil_sys_atomic_i64;
+
+typedef struct {
+    std::atomic<uint32_t> value;
+} fossil_sys_atomic_u32;
+
+typedef struct {
+    std::atomic<uint64_t> value;
+} fossil_sys_atomic_u64;
+#else
 typedef struct {
     _Atomic int32_t value;
 } fossil_sys_atomic_i32;
@@ -48,6 +66,7 @@ typedef struct {
 typedef struct {
     _Atomic uint64_t value;
 } fossil_sys_atomic_u64;
+#endif
 
 //
 // Memory ordering (optional abstraction layer)
