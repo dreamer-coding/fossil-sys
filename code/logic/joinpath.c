@@ -34,6 +34,19 @@
 #endif
 
 
+char *_custom_strdup(const char *str) {
+    if (!str) {
+        return NULL;
+    }
+    size_t len = strlen(str);
+    char *copy = (char *)malloc(len + 1);
+    if (!copy) {
+        return NULL;
+    }
+    strcpy(copy, str);
+    return copy;
+}
+
 char fossil_sys_path_separator(void) {
     return PATH_SEP;
 }
@@ -208,7 +221,7 @@ char *fossil_sys_path_basename(const char *path) {
         base = path;
     }
 
-    return strdup(base);
+    return _custom_strdup(base);
 }
 
 char *fossil_sys_path_dirname(const char *path) {
@@ -216,7 +229,7 @@ char *fossil_sys_path_dirname(const char *path) {
         return NULL;
     }
 
-    char *dir = strdup(path);
+    char *dir = _custom_strdup(path);
     if (!dir) {
         return NULL;
     }
@@ -239,7 +252,7 @@ char *fossil_sys_path_extname(const char *path) {
 
     const char *ext = strrchr(path, '.');
     if (ext) {
-        return strdup(ext);
+        return _custom_strdup(ext);
     } else {
         return NULL;
     }
@@ -250,7 +263,7 @@ char *fossil_sys_path_strip_ext(const char *path) {
         return NULL;
     }
 
-    char *stripped = strdup(path);
+    char *stripped = _custom_strdup(path);
     if (!stripped) {
         return NULL;
     }
