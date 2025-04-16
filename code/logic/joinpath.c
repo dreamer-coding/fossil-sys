@@ -181,7 +181,7 @@ char *fossil_sys_path_extname(const char *path) {
     }
 
     const char *ext = strrchr(path, '.');
-    if (ext) {
+    if (ext && ext > strrchr(path, PATH_SEP)) {
         return _custom_strdup(ext);
     } else {
         return NULL;
@@ -199,7 +199,7 @@ char *fossil_sys_path_strip_ext(const char *path) {
     }
 
     char *last_dot = strrchr(stripped, '.');
-    if (last_dot) {
+    if (last_dot && last_dot > strrchr(stripped, PATH_SEP)) {
         *last_dot = '\0';
     }
 

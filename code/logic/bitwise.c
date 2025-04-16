@@ -14,9 +14,17 @@
 #include "fossil/sys/bitwise.h"
 #include <string.h>
 
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+
 uint64_t fossil_sys_bitwise_parse(const char *input, const fossil_sys_bitwise_table_t *table) {
     uint64_t result = 0;
-    char input_copy[strlen(input) + 1];
+    size_t input_len = strlen(input);
+    char *input_copy = (char *)malloc(input_len + 1);
+    if (!input_copy) {
+        return 0; // Memory allocation failed
+    }
     strcpy(input_copy, input);
     char *token = strtok(input_copy, "|");
     while (token != NULL) {
@@ -28,6 +36,7 @@ uint64_t fossil_sys_bitwise_parse(const char *input, const fossil_sys_bitwise_ta
         }
         token = strtok(NULL, "|");
     }
+    free(input_copy);
     return result;
 }
 
@@ -47,7 +56,11 @@ int fossil_sys_bitwise_format(uint64_t bits, const fossil_sys_bitwise_table_t *t
             }
         }
     }
-    out[offset] = '\0'; // Null-terminate the string
+    if (offset < out_size) {
+        out[offset] = '\0'; // Null-terminate the string
+    } else {
+        return -1; // Buffer too small
+    }
     return 0;
 }
 
