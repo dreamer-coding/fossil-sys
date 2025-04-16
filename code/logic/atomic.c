@@ -13,14 +13,6 @@
  */
 #include "fossil/sys/atomic.h"
 
-#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
-    // C11 atomics
-    #include <stdatomic.h>
-#else
-    // Fallback for older compilers (e.g., GCC, Clang, Windows)
-    #include <stdint.h>
-#endif
-
 //
 // Load / Store
 //

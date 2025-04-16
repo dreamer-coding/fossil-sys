@@ -17,6 +17,18 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
+    // C11 atomics
+    #include <stdatomic.h>
+#else
+    // Fallback for older compilers (e.g., GCC, Clang, Windows)
+    #include <stdint.h>
+#endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 //
 // Types
 //
@@ -56,10 +68,6 @@ typedef enum {
 #define fossil_sys_atomic_i64_init(val) ((fossil_sys_atomic_i64){ .value = (val) })
 #define fossil_sys_atomic_u32_init(val) ((fossil_sys_atomic_u32){ .value = (val) })
 #define fossil_sys_atomic_u64_init(val) ((fossil_sys_atomic_u64){ .value = (val) })
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 //
 // Load / Store
