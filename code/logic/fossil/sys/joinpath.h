@@ -271,19 +271,6 @@ namespace fossil {
                 return fossil_sys_path_isfile(path.c_str());
             }
 
-        private:
-            // Private constructor to prevent instantiation
-            Path() = default;
-
-            // Private destructor
-            ~Path() = default;
-
-            // Private copy constructor and assignment operator
-            Path(const Path &) = delete;
-            Path &operator=(const Path &) = delete;
-            // Private move constructor and assignment operator
-            Path(Path &&) = delete;
-            Path &operator=(Path &&) = delete;
         };
 
     }
