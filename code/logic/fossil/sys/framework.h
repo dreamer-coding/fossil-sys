@@ -16,8 +16,12 @@
 
 #include "cnullptr.h"
 #include "datetime.h"
+#include "joinpath.h"
 #include "hostinfo.h"
 #include "syscall.h"
+#include "threads.h"
+#include "bitwise.h"
+#include "atomic.h"
 #include "memory.h"
 #include "types.h"
 
