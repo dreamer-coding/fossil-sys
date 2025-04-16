@@ -23,15 +23,15 @@
 // * * * * * * * * * * * * * * * * * * * * * * * *
 
 // Define the test suite and add test cases
-FOSSIL_TEST_SUITE(c_bitwise_suite);
+FOSSIL_TEST_SUITE(c_path_suite);
 
 // Setup function for the test suite
-FOSSIL_SETUP(c_bitwise_suite) {
+FOSSIL_SETUP(c_path_suite) {
     // Setup code here
 }
 
 // Teardown function for the test suite
-FOSSIL_TEARDOWN(c_bitwise_suite) {
+FOSSIL_TEARDOWN(c_path_suite) {
     // Teardown code here
 }
 
@@ -160,19 +160,19 @@ FOSSIL_TEST_CASE(c_test_fossil_sys_path_isfile) {
 // * Fossil Logic Test Pool
 // * * * * * * * * * * * * * * * * * * * * * * * *
 FOSSIL_TEST_GROUP(c_path_tests) {
-    // FOSSIL_TEST_ADD(c_bitwise_suite, c_test_fossil_sys_path_separator);
-    FOSSIL_TEST_ADD(c_bitwise_suite, c_test_fossil_sys_path_envvar);
-    FOSSIL_TEST_ADD(c_bitwise_suite, c_test_fossil_sys_path_join);
-    FOSSIL_TEST_ADD(c_bitwise_suite, c_test_fossil_sys_path_joinv);
-    FOSSIL_TEST_ADD(c_bitwise_suite, c_test_fossil_sys_path_normalize);
-    FOSSIL_TEST_ADD(c_bitwise_suite, c_test_fossil_sys_path_basename);
-    FOSSIL_TEST_ADD(c_bitwise_suite, c_test_fossil_sys_path_dirname);
-    FOSSIL_TEST_ADD(c_bitwise_suite, c_test_fossil_sys_path_extname);
-    FOSSIL_TEST_ADD(c_bitwise_suite, c_test_fossil_sys_path_strip_ext);
-    FOSSIL_TEST_ADD(c_bitwise_suite, c_test_fossil_sys_path_isabs);
-    FOSSIL_TEST_ADD(c_bitwise_suite, c_test_fossil_sys_path_exists);
-    FOSSIL_TEST_ADD(c_bitwise_suite, c_test_fossil_sys_path_isdir);
-    FOSSIL_TEST_ADD(c_bitwise_suite, c_test_fossil_sys_path_isfile);
+    // FOSSIL_TEST_ADD(c_path_suite, c_test_fossil_sys_path_separator);
+    FOSSIL_TEST_ADD(c_path_suite, c_test_fossil_sys_path_envvar);
+    FOSSIL_TEST_ADD(c_path_suite, c_test_fossil_sys_path_join);
+    FOSSIL_TEST_ADD(c_path_suite, c_test_fossil_sys_path_joinv);
+    FOSSIL_TEST_ADD(c_path_suite, c_test_fossil_sys_path_normalize);
+    FOSSIL_TEST_ADD(c_path_suite, c_test_fossil_sys_path_basename);
+    FOSSIL_TEST_ADD(c_path_suite, c_test_fossil_sys_path_dirname);
+    FOSSIL_TEST_ADD(c_path_suite, c_test_fossil_sys_path_extname);
+    FOSSIL_TEST_ADD(c_path_suite, c_test_fossil_sys_path_strip_ext);
+    FOSSIL_TEST_ADD(c_path_suite, c_test_fossil_sys_path_isabs);
+    FOSSIL_TEST_ADD(c_path_suite, c_test_fossil_sys_path_exists);
+    FOSSIL_TEST_ADD(c_path_suite, c_test_fossil_sys_path_isdir);
+    FOSSIL_TEST_ADD(c_path_suite, c_test_fossil_sys_path_isfile);
 
-    FOSSIL_TEST_REGISTER(c_bitwise_suite);
+    FOSSIL_TEST_REGISTER(c_path_suite);
 }

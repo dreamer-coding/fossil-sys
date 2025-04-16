@@ -23,15 +23,15 @@
 // * * * * * * * * * * * * * * * * * * * * * * * *
 
 // Define the test suite and add test cases
-FOSSIL_TEST_SUITE(cpp_bitwise_suite);
+FOSSIL_TEST_SUITE(cpp_path_suite);
 
 // Setup function for the test suite
-FOSSIL_SETUP(cpp_bitwise_suite) {
+FOSSIL_SETUP(cpp_path_suite) {
     // Setup code here
 }
 
 // Teardown function for the test suite
-FOSSIL_TEARDOWN(cpp_bitwise_suite) {
+FOSSIL_TEARDOWN(cpp_path_suite) {
     // Teardown code here
 }
 
@@ -61,54 +61,54 @@ FOSSIL_TEST_CASE(cpp_test_fossil_sys_path_envvar_class) {
 #if defined(_WIN32)
     ASSUME_ITS_EQUAL_CSTR(envvar, "Path");
 #else
-    ASSUME_ITS_EQUAL_CSTR(envvar, "PATH");
+    ASSUME_ITS_EQUAL_CSTR(envvar.c_str(), "PATH");
 #endif
 }
 
 // ** Test fossil::sys::Path::join Function **
 FOSSIL_TEST_CASE(cpp_test_fossil_sys_path_join_class) {
     std::string joined = fossil::sys::Path::join("home", "user");
-    ASSUME_ITS_EQUAL_CSTR(joined, "home/user");
+    ASSUME_ITS_EQUAL_CSTR(joined.c_str(), "home/user");
 
     joined = fossil::sys::Path::join("home/", "user");
-    ASSUME_ITS_EQUAL_CSTR(joined, "home/user");
+    ASSUME_ITS_EQUAL_CSTR(joined.c_str(), "home/user");
 }
 
 // ** Test fossil::sys::Path::joinv Function **
 FOSSIL_TEST_CASE(cpp_test_fossil_sys_path_joinv_class) {
     const char *paths[] = {"home", "user", "documents"};
     std::string joined = fossil::sys::Path::joinv(3, paths);
-    ASSUME_ITS_EQUAL_CSTR(joined, "home/user/documents");
+    ASSUME_ITS_EQUAL_CSTR(joined.c_str(), "home/user/documents");
 }
 
 // ** Test fossil::sys::Path::normalize Function **
 FOSSIL_TEST_CASE(cpp_test_fossil_sys_path_normalize_class) {
     std::string normalized = fossil::sys::Path::normalize("home//user///documents");
-    ASSUME_ITS_EQUAL_CSTR(normalized, "home/user/documents");
+    ASSUME_ITS_EQUAL_CSTR(normalized.c_str(), "home/user/documents");
 }
 
 // ** Test fossil::sys::Path::basename Function **
 FOSSIL_TEST_CASE(cpp_test_fossil_sys_path_basename_class) {
     std::string basename = fossil::sys::Path::basename("home/user/documents/file.txt");
-    ASSUME_ITS_EQUAL_CSTR(basename, "file.txt");
+    ASSUME_ITS_EQUAL_CSTR(basename.c_str(), "file.txt");
 }
 
 // ** Test fossil::sys::Path::dirname Function **
 FOSSIL_TEST_CASE(cpp_test_fossil_sys_path_dirname_class) {
     std::string dirname = fossil::sys::Path::dirname("home/user/documents/file.txt");
-    ASSUME_ITS_EQUAL_CSTR(dirname, "home/user/documents");
+    ASSUME_ITS_EQUAL_CSTR(dirname.c_str(), "home/user/documents");
 }
 
 // ** Test fossil::sys::Path::extname Function **
 FOSSIL_TEST_CASE(cpp_test_fossil_sys_path_extname_class) {
     std::string extname = fossil::sys::Path::extname("file.txt");
-    ASSUME_ITS_EQUAL_CSTR(extname, ".txt");
+    ASSUME_ITS_EQUAL_CSTR(extname.c_str(), ".txt");
 }
 
 // ** Test fossil::sys::Path::strip_ext Function **
 FOSSIL_TEST_CASE(cpp_test_fossil_sys_path_strip_ext_class) {
     std::string stripped = fossil::sys::Path::strip_ext("file.txt");
-    ASSUME_ITS_EQUAL_CSTR(stripped, "file");
+    ASSUME_ITS_EQUAL_CSTR(stripped.c_str(), "file");
 }
 
 // ** Test fossil::sys::Path::isabs Function **
@@ -144,19 +144,19 @@ FOSSIL_TEST_CASE(cpp_test_fossil_sys_path_isfile_class) {
 // * Fossil Logic Test Pool
 // * * * * * * * * * * * * * * * * * * * * * * * *
 FOSSIL_TEST_GROUP(cpp_path_tests) {
-    // FOSSIL_TEST_ADD(cpp_bitwise_suite, cpp_test_fossil_sys_path_separator_class);
-    FOSSIL_TEST_ADD(cpp_bitwise_suite, cpp_test_fossil_sys_path_envvar_class);
-    FOSSIL_TEST_ADD(cpp_bitwise_suite, cpp_test_fossil_sys_path_join_class);
-    FOSSIL_TEST_ADD(cpp_bitwise_suite, cpp_test_fossil_sys_path_joinv_class);
-    FOSSIL_TEST_ADD(cpp_bitwise_suite, cpp_test_fossil_sys_path_normalize_class);
-    FOSSIL_TEST_ADD(cpp_bitwise_suite, cpp_test_fossil_sys_path_basename_class);
-    FOSSIL_TEST_ADD(cpp_bitwise_suite, cpp_test_fossil_sys_path_dirname_class);
-    FOSSIL_TEST_ADD(cpp_bitwise_suite, cpp_test_fossil_sys_path_extname_class);
-    FOSSIL_TEST_ADD(cpp_bitwise_suite, cpp_test_fossil_sys_path_strip_ext_class);
-    FOSSIL_TEST_ADD(cpp_bitwise_suite, cpp_test_fossil_sys_path_isabs_class);
-    FOSSIL_TEST_ADD(cpp_bitwise_suite, cpp_test_fossil_sys_path_exists_class);
-    FOSSIL_TEST_ADD(cpp_bitwise_suite, cpp_test_fossil_sys_path_isdir_class);
-    FOSSIL_TEST_ADD(cpp_bitwise_suite, cpp_test_fossil_sys_path_isfile_class);
+    // FOSSIL_TEST_ADD(cpp_path_suite, cpp_test_fossil_sys_path_separator_class);
+    FOSSIL_TEST_ADD(cpp_path_suite, cpp_test_fossil_sys_path_envvar_class);
+    FOSSIL_TEST_ADD(cpp_path_suite, cpp_test_fossil_sys_path_join_class);
+    FOSSIL_TEST_ADD(cpp_path_suite, cpp_test_fossil_sys_path_joinv_class);
+    FOSSIL_TEST_ADD(cpp_path_suite, cpp_test_fossil_sys_path_normalize_class);
+    FOSSIL_TEST_ADD(cpp_path_suite, cpp_test_fossil_sys_path_basename_class);
+    FOSSIL_TEST_ADD(cpp_path_suite, cpp_test_fossil_sys_path_dirname_class);
+    FOSSIL_TEST_ADD(cpp_path_suite, cpp_test_fossil_sys_path_extname_class);
+    FOSSIL_TEST_ADD(cpp_path_suite, cpp_test_fossil_sys_path_strip_ext_class);
+    FOSSIL_TEST_ADD(cpp_path_suite, cpp_test_fossil_sys_path_isabs_class);
+    FOSSIL_TEST_ADD(cpp_path_suite, cpp_test_fossil_sys_path_exists_class);
+    FOSSIL_TEST_ADD(cpp_path_suite, cpp_test_fossil_sys_path_isdir_class);
+    FOSSIL_TEST_ADD(cpp_path_suite, cpp_test_fossil_sys_path_isfile_class);
 
-    FOSSIL_TEST_REGISTER(cpp_bitwise_suite);
+    FOSSIL_TEST_REGISTER(cpp_path_suite);
 }

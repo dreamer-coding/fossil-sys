@@ -45,65 +45,71 @@ FOSSIL_TEARDOWN(cpp_bitwise_suite) {
 
 // ** Test fossil::sys::Bitwise::parse Function **
 FOSSIL_TEST_CASE(cpp_test_class_bitwise_parse) {
-    fossil_sys_bitwise_table_t table[] = {
+    fossil_sys_bitwise_entry_t entries[] = {
         {"read", 0x1},
         {"write", 0x2},
         {"execute", 0x4},
         {NULL, 0}
     };
 
-    uint64_t result = fossil::sys::Bitwise::parse("read|write", table);
+    fossil_sys_bitwise_table_t table = {entries, sizeof(entries) / sizeof(entries[0]) - 1};
+
+    uint64_t result = fossil::sys::Bitwise::parse("read|write", &table);
     ASSUME_ITS_EQUAL_I32(result, 0x3); // 0x1 | 0x2
 
-    result = fossil::sys::Bitwise::parse("execute", table);
+    result = fossil::sys::Bitwise::parse("execute", &table);
     ASSUME_ITS_EQUAL_I32(result, 0x4);
 
-    result = fossil::sys::Bitwise::parse("", table);
+    result = fossil::sys::Bitwise::parse("", &table);
     ASSUME_ITS_EQUAL_I32(result, 0x0);
 }
 
 // ** Test fossil::sys::Bitwise::format Function **
 FOSSIL_TEST_CASE(cpp_test_class_bitwise_format) {
-    fossil_sys_bitwise_table_t table[] = {
+    fossil_sys_bitwise_entry_t entries[] = {
         {"read", 0x1},
         {"write", 0x2},
         {"execute", 0x4},
         {NULL, 0}
     };
 
+    fossil_sys_bitwise_table_t table = {entries, sizeof(entries) / sizeof(entries[0]) - 1};
+
     char buffer[64];
-    int status = fossil::sys::Bitwise::format(0x3, table, buffer, sizeof(buffer));
+    int status = fossil::sys::Bitwise::format(0x3, &table, buffer, sizeof(buffer));
     ASSUME_ITS_EQUAL_I32(status, 0);
     ASSUME_ITS_EQUAL_CSTR(buffer, "read|write");
 
-    status = fossil::sys::Bitwise::format(0x4, table, buffer, sizeof(buffer));
+    status = fossil::sys::Bitwise::format(0x4, &table, buffer, sizeof(buffer));
     ASSUME_ITS_EQUAL_I32(status, 0);
     ASSUME_ITS_EQUAL_CSTR(buffer, "execute");
 
-    status = fossil::sys::Bitwise::format(0x0, table, buffer, sizeof(buffer));
+    status = fossil::sys::Bitwise::format(0x0, &table, buffer, sizeof(buffer));
     ASSUME_ITS_EQUAL_I32(status, 0);
     ASSUME_ITS_EQUAL_CSTR(buffer, "");
 }
 
 // ** Test fossil::sys::Bitwise::lookup Function **
 FOSSIL_TEST_CASE(cpp_test_class_bitwise_lookup) {
-    fossil_sys_bitwise_table_t table[] = {
+    fossil_sys_bitwise_entry_t entries[] = {
         {"read", 0x1},
         {"write", 0x2},
         {"execute", 0x4},
         {NULL, 0}
     };
 
+    fossil_sys_bitwise_table_t table = {entries, sizeof(entries) / sizeof(entries[0]) - 1};
+
     uint64_t bit;
-    int status = fossil::sys::Bitwise::lookup("read", table, bit);
+    int status = fossil::sys::Bitwise::lookup("read", &table, bit);
     ASSUME_ITS_EQUAL_I32(status, 0);
     ASSUME_ITS_EQUAL_I32(bit, 0x1);
 
-    status = fossil::sys::Bitwise::lookup("write", table, bit);
+    status = fossil::sys::Bitwise::lookup("write", &table, bit);
     ASSUME_ITS_EQUAL_I32(status, 0);
     ASSUME_ITS_EQUAL_I32(bit, 0x2);
 
-    status = fossil::sys::Bitwise::lookup("unknown", table, bit);
+    status = fossil::sys::Bitwise::lookup("unknown", &table, bit);
     ASSUME_NOT_EQUAL_I32(status, 0);
 }
 
