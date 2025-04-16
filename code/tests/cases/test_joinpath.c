@@ -47,9 +47,9 @@ FOSSIL_TEARDOWN(c_bitwise_suite) {
 FOSSIL_TEST_CASE(c_test_fossil_sys_path_separator) {
     char sep = fossil_sys_path_separator();
 #if defined(_WIN32)
-    ASSUME_ITS_EQUAL_I32(sep, '\\');
+    ASSUME_ITS_EQUAL_CSTR(sep, '\\');
 #else
-    ASSUME_ITS_EQUAL_I32(sep, '/');
+    ASSUME_ITS_EQUAL_CSTR(sep, '/');
 #endif
 }
 
