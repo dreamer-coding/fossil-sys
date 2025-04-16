@@ -185,12 +185,13 @@ char *fossil_sys_path_relpath(const char *path, const char *start) {
         return NULL;
     }
 #if defined(_WIN32)
-    if (_makepath(rel_path, NULL, abs_start, abs_path, NULL) != 0) {
+    if (strncmp(abs_path, abs_start, strlen(abs_start)) != 0) {
         free(abs_path);
         free(abs_start);
         free(rel_path);
         return NULL;
     }
+    snprintf(rel_path, MAX_PATH, "%s", abs_path + strlen(abs_start));
 #else
     if (realpath(abs_path, rel_path) == NULL) {
         free(abs_path);
