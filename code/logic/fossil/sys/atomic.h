@@ -22,19 +22,19 @@
 //
 
 typedef struct {
-    volatile int32_t value;
+    _Atomic int32_t value;
 } fossil_sys_atomic_i32;
 
 typedef struct {
-    volatile int64_t value;
+    _Atomic int64_t value;
 } fossil_sys_atomic_i64;
 
 typedef struct {
-    volatile uint32_t value;
+    _Atomic uint32_t value;
 } fossil_sys_atomic_u32;
 
 typedef struct {
-    volatile uint64_t value;
+    _Atomic uint64_t value;
 } fossil_sys_atomic_u64;
 
 //
