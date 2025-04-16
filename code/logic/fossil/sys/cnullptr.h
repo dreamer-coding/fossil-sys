@@ -14,96 +14,149 @@
 #ifndef FOSSIL_SYS_CNULLPTR_H
 #define FOSSIL_SYS_CNULLPTR_H
 
-#include <stdint.h>
-#include <stddef.h>
-#include <assert.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-// Ensure null pointer is defined for compatibility with C11, C23, and C++ standards
+/**
+ * @brief A cross-platform, safe null pointer management library for C and C++.
+ * 
+ * This library provides a set of macros and utilities to ensure consistent 
+ * null pointer management across different versions of C and C++.
+ * It introduces safer, more expressive pointer handling inspired by concepts 
+ * from modern programming languages like Rust, offering features like `Option` 
+ * semantics, safe pointer casting, and enhanced error management.
+ * 
+ * Key Features:
+ * - **Platform Agnostic Null Pointers:** Provides consistent `cnull` and `cnullptr` 
+ *   definitions across C and C++ using modern `nullptr` or fallback `void*` based 
+ *   null representation.
+ * - **Safe Pointer Manipulation:** Macros like `cnullify()`, `cnotnull()`, and 
+ *   `csafe_cast()` ensure safer memory management and prevent invalid pointer 
+ *   dereferences.
+ * - **Error Handling:** Offers expressive error management using `cpanic()` and 
+ *   `cunwrap()`, providing detailed error messages and file/line diagnostics.
+ * - **Optional Pointers:** Implements `COption`, a struct emulating Rust’s `Option<T>` 
+ *   with macros like `csome()`, `cnone()`, `cunwrap_option()`, and `cunwrap_or_option()`.
+ * - **Compile-Time Safety Hints:** Provides annotations like `cnullable` and `cnonnull` 
+ *   for static analysis, improving code safety by detecting null pointer misuse.
+ * - **Branch Prediction Optimization:** Includes `clikely()` and `cunlikely()` macros 
+ *   to optimize conditional branches based on runtime behavior.
+ * - **String Safety Constants:** Defines safe constants for null terminators, 
+ *   newline characters, and empty strings in both C and wide-character formats.
+ * 
+ * Intended Usage:
+ * The library is suitable for scenarios requiring robust pointer management, particularly 
+ * in low-level systems programming, embedded environments, and performance-critical 
+ * applications. Developers transitioning from modern languages like Rust or C++ may 
+ * find the familiar semantics helpful.
+ * 
+ * Compatibility:
+ * - Supports **C11** and **C23** standards.
+ * - Fully compatible with **C++11** and later.
+ * - Provides graceful fallbacks for older compilers using `void*` based null pointers.
+ * 
+ * Example Usage:
+ * ```c
+ * int* ptr = cnull;
+ * cnullify(ptr); // Safely set to null
+ * 
+ * int* data = malloc(sizeof(int));
+ * *data = 42;
+ * COption opt = csome(data);
+ * 
+ * int* result = (int*)cunwrap_option(opt); // Unwrap safely
+ * printf("Value: %d\n", *result);
+ * 
+ * cdrop(data); // Nullify pointer safely
+ * ```
+ */
+
+// Ensure null pointer definitions across C and C++ environments
 #ifndef FOSSIL_CNULL
 
-#if __cplusplus >= 201103L || (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 202311L)
 /**
- * @brief Definition for cnull pointers in C++11 and later or C23 and later.
+ * @brief Safe and consistent null pointer definition for modern C++ and C standards.
  *
- * In C++11 or later, `cnullptr` is a keyword representing a cnull pointer constant.
- * In C23 or later, `_cnullptr` is recognized in the same way as C++.
+ * This section defines `cnull` and `cnullptr` for both C and C++ environments. 
+ * The definitions ensure compatibility across different language versions, providing 
+ * a clear and consistent way to represent null pointers. 
+ *
+ * - **C++11 and Later:** If the code is compiled using C++11 (`__cplusplus >= 201103L`) 
+ *   or newer, `nullptr` is used. `nullptr` is a type-safe null pointer constant that 
+ *   prevents accidental misuse in pointer arithmetic or type ambiguities.
+ *
+ * - **C23 and Later:** In C23 (`__STDC_VERSION__ >= 202311L`), `nullptr` is introduced 
+ *   as a type-safe null pointer constant, mirroring the C++ equivalent. The `cnull` 
+ *   and `cnullptr` macros directly map to this standard definition.
+ *
+ * - **Older C Standards (C11 and Below):** If neither C23 nor C++11 is detected, 
+ *   `cnull` and `cnullptr` are defined using `((void*)0)`, which is the traditional 
+ *   and portable representation of a null pointer in C.
+ *
+ * This abstraction guarantees that null pointer values are handled consistently 
+ * across different compilers and platforms, reducing the risk of undefined behavior 
+ * in pointer operations.
  */
+#if __cplusplus >= 201103L || (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 202311L)
     #define cnull    nullptr
     #define cnullptr nullptr
 #else
-    #if defined(_WIN64) || defined(_WIN32)
-/**
- * @brief Definition for cnull pointers on Windows systems.
- *
- * For Windows (both 32-bit and 64-bit), we define `cnull` and `cnullptr` as 0.
- */
-    #define cnull    0
-    #define cnullptr 0
-#else
-/**
- * @brief Definition for cnull pointers on POSIX systems, macOS, and embedded systems.
- *
- * For POSIX, macOS, and embedded systems, we define `cnull` and `cnullptr` as a void pointer to 0.
- */
-    #define cnull    (void *)(0)
-    #define cnullptr (void *)(0)
-    #endif
-#endif
+    #define cnull    ((void*)0)
+    #define cnullptr ((void*)0)
 #endif
 
+#endif // FOSSIL_CNULL
+
 /**
- * @brief Macro to nullify a pointer.
- *
- * This macro sets a pointer to `cnull` (`nullptr` in C++ or platform-appropriate null in C).
- * It ensures that the pointer is safely assigned a null value.
- *
- * @param ptr The pointer to be nullified.
+ * @brief Nullify a pointer safely.
+ * 
+ * Ensures that the pointer is explicitly set to `cnull`.
  */
 #define cnullify(ptr) ((ptr) = cnull)
 
 /**
- * @brief Checks if a pointer is not null.
+ * @brief Check if a pointer is not null safely.
  *
- * A macro that explicitly verifies if a pointer is not null before using it.
- *
- * @param ptr The pointer to check.
- * @return 1 if not null, 0 otherwise.
+ * Prevents misuse of potentially null pointers.
  */
 #define cnotnull(ptr) ((ptr) != cnull)
 
 /**
- * @brief Represents an optional (nullable) value.
+ * @brief Option-like behavior to return a pointer or a default value.
  *
- * If the value is null, it returns a default value instead.
- *
- * @param ptr The pointer to check.
- * @param default_val The default value to return if `ptr` is null.
- * @return `ptr` if not null, otherwise `default_val`.
+ * Mimics Rust's `Option::unwrap_or()` safely.
  */
-#define cmaybe(ptr, default_val) ((ptr) ? (ptr) : (default_val))
+#define cunwrap_or(ptr, default_val) ((ptr) ? (ptr) : (default_val))
 
 /**
- * @brief Unwraps a pointer, asserting that it is not null.
+ * @brief Unwraps a pointer safely or terminates if it's null.
  *
- * If the pointer is null, the program will terminate with an assertion failure.
- * Otherwise, it returns the pointer itself for safe dereferencing.
- *
- * @param ptr The pointer to unwrap.
- * @return The unwrapped pointer if it is not null.
+ * Mimics Rust's `Option::unwrap()`.
  */
-#define cunwrap(ptr) (assert((ptr) != cnull), (ptr))
+#define cunwrap(ptr) ((cnotnull(ptr)) ? (ptr) : (fprintf(stderr, "Fatal error: called cunwrap() on a null pointer at %s:%d\n", __FILE__, __LINE__), exit(EXIT_FAILURE), cnull))
 
 /**
- * @brief Marks a variable as unused to suppress compiler warnings.
+ * @brief Safely casts one pointer type to another with null-checking.
  *
- * Some compilers generate warnings when a variable is declared but not used.
- * This macro safely prevents such warnings without affecting the program.
+ * Mimics Rust's `as` with additional null safety. If the input is `cnull`,
+ * it returns `cnull` instead of attempting an invalid cast.
  *
- * @param x The variable that is intentionally unused.
+ * @param type The target type for the cast.
+ * @param ptr The pointer to cast.
+ * @return The casted pointer or `cnull` if the input pointer is null.
+ */
+#ifdef __cplusplus
+    #define csafe_cast(type, ptr) ((cnotnull(ptr)) ? (static_cast<type>(ptr)) : cnull)
+#else
+    #define csafe_cast(type, ptr) ((cnotnull(ptr)) ? ((type)(ptr)) : cnull)
+#endif
+
+/**
+ * @brief Marks a variable as intentionally unused to prevent warnings.
  */
 #ifndef cunused
     #if defined(__GNUC__) || defined(__clang__)
@@ -114,88 +167,136 @@ extern "C" {
 #endif
 
 /**
- * @brief Annotations for nullable and nonnull pointers.
+ * @brief Compiler hints for nullable and nonnull values.
  *
- * These macros provide compiler hints about pointer validity, improving static analysis and safety.
- *
- * - **GCC/Clang:** Uses `__attribute__((nullable))` and `__attribute__((nonnull))`
- * - **MSVC:** Uses `_Null_terminated_` and `_In_` (though `_In_` is not strictly equivalent to nonnull)
- * - **Fallback:** If the compiler does not support these attributes, it defines empty macros.
+ * Provides stronger safety checks at compile time.
  */
 #if defined(__clang__) || defined(__GNUC__)
     #define cnullable __attribute__((nullable))
     #define cnonnull  __attribute__((nonnull))
 #elif defined(_MSC_VER)
-    #define cnullable _Null_terminated_  // Not a perfect match, but useful for MSVC
-    #define cnonnull  _In_               // MSVC does not have a direct `nonnull` equivalent
+    #define cnullable _Null_terminated_
+    #define cnonnull  _In_
 #else
     #define cnullable
     #define cnonnull
 #endif
 
-// Termination values for regular and wide strings
+/**
+ * @brief Compiler branch prediction hints for likely and unlikely conditions.
+ *
+ * Helps the compiler optimize branches based on expected conditions.
+ */
+#if defined(__GNUC__) || defined(__clang__)
+    #define clikely(x)   __builtin_expect(!!(x), 1)
+    #define cunlikely(x) __builtin_expect(!!(x), 0)
+#else
+    #define clikely(x)   (x)
+    #define cunlikely(x) (x)
+#endif
+
+// Safe string and character constants
 
 /**
- * @brief Null-terminated character for C strings.
- *
- * This is used as a constant for the null character in C strings, typically to represent the end of a string.
+ * @brief Null terminators for C and wide strings.
  */
 #define cterm '\0'
-
-/**
- * @brief Null-terminated wide-character for wide strings.
- *
- * This is used as a constant for the null character in wide strings (`wchar_t` arrays), typically to represent the end of a wide string.
- */
 #define wterm L'\0'
 
-// Newline constants for regular and wide strings
+/**
+ * @brief Newline constants for C and wide strings.
+ */
+#define cnewline '\n'
+#define wnewline L'\n'
 
 /**
- * @brief Defines the newline character for C.
- *
- * This is used in C and C++ environments for regular strings to denote a newline.
+ * @brief Empty string constants for C and wide strings.
  */
-#define cnewline    '\n'
+#define cempty ""
+#define wempty L""
 
 /**
- * @brief Defines the newline character for wide strings in C and C++.
+ * @brief Ensure safe cleanup by nullifying pointers after use.
  *
- * This is used for wide-character strings (`wchar_t`) to denote a newline.
+ * Mimics Rust's memory safety using explicit pointer management.
  */
-#define wnewline    L'\n'
+#define cdrop(ptr) do { cnullify(ptr); } while (0)
 
 /**
- * @brief Defines an empty C string.
+ * @brief Panic behavior for immediate program termination with error message.
+ * 
+ * This macro causes the program to immediately terminate with an error message,
+ * similar to Rust's `panic!()` functionality.
  *
- * This represents an empty string (`""`) for use in C and C++ code.
+ * @param msg The message to display when panicking.
  */
-#define cempty      ""
+#define cpanic(msg) (fprintf(stderr, "Panic: %s\n", msg), exit(EXIT_FAILURE))
 
 /**
- * @brief Defines an empty wide-character string.
- *
- * This represents an empty wide string (`L""`) for use in C and C++ code.
+ * @brief Mimics Rust's Option type.
+ * 
+ * The `coptional` macro represents a nullable pointer that can be either `cnull` or a valid pointer.
+ * It can be used to model optional values that may or may not be present.
  */
-#define wempty      L""
+#define coptional(ptr) ((ptr) ? (ptr) : cnull)
 
 /**
- * @brief Type-safe compiler attributes for null and nullable types.
- *
- * - `cnull` and `cnullptr` handle null pointers across platforms.
- * - The constants `cterminator`, `wterminator`, `cterm`, `wterm` are used to represent the null terminators
- *   for regular and wide-character strings.
- * - `cnewline` and `wnewline` are used to represent newline characters for regular and wide strings.
- * - `cempty` and `wempty` represent empty strings for regular and wide-character strings.
- *
- * These definitions ensure proper handling of string terminations and special characters across platforms.
- * Compiler-specific attributes:
- * - **GCC/Clang**: The use of `nullptr` for null pointers in C++ and null terminators for strings.
- * - **MSVC**: MSVC compilers do not natively support `nullptr` but handle `cnull` as 0.
+ * @brief `COption` structure to mimic Rust's `Option<T>`.
+ * 
+ * This structure allows representation of an optional value where it can either contain a value
+ * (`Some`) or be `None` (`cnull`).
  */
+typedef struct {
+    void* value;  // The value held by the Option (could be a pointer to any type)
+    int is_some;  // Flag indicating whether the Option is `Some` (1) or `None` (0)
+} COption;
+
+/**
+ * @brief Creates an `Option` with a value (Some).
+ *
+ * @param val The value to wrap in the Option.
+ * @return The created `COption` containing the value.
+ */
+#ifdef __cplusplus
+    #define csome(val) (COption{val, 1})
+#else
+    #define csome(val) ((COption){(void*)(val), 1})
+#endif
+
+/**
+ * @brief Creates an empty `Option` (None).
+ *
+ * @return An `Option` representing `None`.
+ */
+#ifdef __cplusplus
+    #define cnone() (COption{cnull, 0})
+#else
+    #define cnone() ((COption){cnull, 0})
+#endif
+
+/**
+ * @brief Unwraps the `COption`. If it's `Some`, return the value; if it's `None`, panic.
+ *
+ * Mimics Rust's `Option::unwrap()`.
+ *
+ * @param opt The `COption` to unwrap.
+ * @return The value inside the `Option`.
+ */
+#define cunwrap_option(opt) ((opt).is_some ? (opt).value : (fprintf(stderr, "Panic: Unwrapped a None value at %s:%d\n", __FILE__, __LINE__), exit(EXIT_FAILURE), cnull))
+
+/**
+ * @brief Returns the value inside the `COption` or a default value if it's `None`.
+ *
+ * Mimics Rust's `Option::unwrap_or()`.
+ *
+ * @param opt The `COption` to unwrap.
+ * @param default_val The default value to return if the `COption` is `None`.
+ * @return The value inside the `Option`, or the default value if `None`.
+ */
+#define cunwrap_or_option(opt, default_val) ((opt).is_some ? (opt).value : (default_val))
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif
+#endif // FOSSIL_SYS_CNULLPTR_H

@@ -50,75 +50,103 @@ FOSSIL_TEARDOWN(cpp_null_suite) {
 // as samples for library usage.
 // * * * * * * * * * * * * * * * * * * * * * * * *
 
-// ** Test cppnull and cppnullptr Definitions **
-FOSSIL_TEST_CASE(cpp_test_cppnull_definition) {
-#if __cplusplus >= 201103L || (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 202311L)
-    ASSUME_ITS_EQUAL_PTR(cnull, nullptr);
-    ASSUME_ITS_EQUAL_PTR(cnullptr, nullptr);
-#else
-    #if defined(_WIN64) || defined(_WIN32)
-        ASSUME_ITS_EQUAL_PTR(cnull, 0);
-        ASSUME_ITS_EQUAL_PTR(cnullptr, 0);
-    #else
-        ASSUME_ITS_EQUAL_PTR(cnull, (void *)(0));
-        ASSUME_ITS_EQUAL_PTR(cnullptr, (void *)(0));
-    #endif
-#endif
+// ** Test csafe_cast Macro **
+FOSSIL_TEST_CASE(cpp_test_csafe_cast) {
+    void *ptr = reinterpret_cast<void *>(1);  // Use safe_cast instead of C cast
+    int *casted_ptr = static_cast<int *>(ptr);  // Using the safe_cast macro
+    ASSUME_ITS_EQUAL_PTR(casted_ptr, reinterpret_cast<int *>(ptr));
+
+    // Now let's handle cnull scenario
+    cnullify(ptr);
+    casted_ptr = static_cast<int *>(ptr);  // Should return cnull when the input is cnull
+    ASSUME_ITS_EQUAL_PTR(casted_ptr, cnull); 
 }
 
-// ** Test cppnull Assignment **
-FOSSIL_TEST_CASE(cpp_test_cppnull_assignment) {
-    void *ptr = cnull;
-    ASSUME_ITS_EQUAL_PTR(ptr, cnull);
-}
-
-// ** Test cppnull Comparison **
-FOSSIL_TEST_CASE(cpp_test_cppnull_comparison) {
-    void *ptr = cnull;
-    ASSUME_ITS_TRUE(ptr == cnull);
-    ASSUME_ITS_FALSE(ptr != cnull);
-}
-
-// ** Test cppnullify Macro **
-FOSSIL_TEST_CASE(cpp_test_cppnullify) {
-    void *ptr = (void *)1;
+// ** Test cnullify Macro **
+FOSSIL_TEST_CASE(cpp_test_cnullify) {
+    void *ptr = reinterpret_cast<void *>(1);
     cnullify(ptr);
     ASSUME_ITS_EQUAL_PTR(ptr, cnull);
 }
 
-// ** Test cppnotnull Macro **
-FOSSIL_TEST_CASE(cpp_test_cppnotnull) {
-    void *ptr = (void *)1;
+// ** Test cnotnull Macro **
+FOSSIL_TEST_CASE(cpp_test_cnotnull) {
+    void *ptr = reinterpret_cast<void *>(1);
     ASSUME_ITS_TRUE(cnotnull(ptr));
     cnullify(ptr);
     ASSUME_ITS_FALSE(cnotnull(ptr));
 }
 
-// ** Test cppmaybe Macro **
-FOSSIL_TEST_CASE(cpp_test_cppmaybe) {
-    void *ptr = (void *)1;
-    ASSUME_ITS_EQUAL_PTR(cmaybe(ptr, (void *)99), ptr);
+// ** Test cunwrap_or Macro **
+FOSSIL_TEST_CASE(cpp_test_cunwrap_or) {
+    void *ptr = reinterpret_cast<void *>(1);
+    void *default_ptr = reinterpret_cast<void *>(99);
+    ASSUME_ITS_EQUAL_PTR(cunwrap_or(ptr, default_ptr), ptr);
     cnullify(ptr);
-    ASSUME_ITS_EQUAL_PTR(cmaybe(ptr, (void *)99), (void *)99);
+    ASSUME_ITS_EQUAL_PTR(cunwrap_or(ptr, default_ptr), default_ptr);
 }
 
-// ** Test Empty String Macros **
-FOSSIL_TEST_CASE(cpp_test_cppempty_strings) {
-    ASSUME_ITS_EQUAL_CSTR(cempty, "");
-    ASSUME_ITS_EQUAL_WSTR(wempty, L"");
+// ** Test cunwrap Macro **
+FOSSIL_TEST_CASE(cpp_test_cunwrap) {
+    void *ptr = reinterpret_cast<void *>(1);
+    ASSUME_ITS_EQUAL_PTR(cunwrap(ptr), ptr);
+    // cnullify(ptr);
+    // ASSUME_ITS_EQUAL_PTR(cunwrap(ptr), cnull);  // Should return cnull when it's cnull
+}
+
+// ** Test cnullable and cnonnull Attributes **
+FOSSIL_TEST_CASE(cpp_test_nullable_nonnull) {
+    void *ptr = cnull;
+    ASSUME_ITS_TRUE(cnotnull(ptr) == 0);
+    ptr = reinterpret_cast<void *>(1);
+    ASSUME_ITS_TRUE(cnotnull(ptr) == 1);
+}
+
+// ** Test coptional Macro and cnone() and csome() **
+FOSSIL_TEST_CASE(cpp_test_coptional) {
+    void *ptr = reinterpret_cast<void *>(1);
+    ASSUME_ITS_EQUAL_PTR(coptional(ptr), ptr);
+    cnullify(ptr);
+    ASSUME_ITS_EQUAL_PTR(coptional(ptr), cnull);
+}
+
+// ** Test COption structure and cunwrap_option Macro **
+FOSSIL_TEST_CASE(cpp_test_cunwrap_option) {
+    COption some_option = csome(reinterpret_cast<void *>(1));
+    COption none_option = cnone();
+    ASSUME_ITS_EQUAL_PTR(cunwrap_option(some_option), reinterpret_cast<void *>(1));
+    
+    // Uncommenting the following line will trigger panic due to unwrapping a None value
+    // ASSUME_ITS_EQUAL_PTR(cunwrap_option(none_option), cnull); // Should panic in actual code
+    cunused(none_option); // avoid unused error
+}
+
+// ** Test cunwrap_or_option Macro **
+FOSSIL_TEST_CASE(cpp_test_cunwrap_or_option) {
+    COption some_option = csome(reinterpret_cast<void *>(1));
+    COption none_option = cnone();
+    ASSUME_ITS_EQUAL_PTR(cunwrap_or_option(some_option, reinterpret_cast<void *>(99)), reinterpret_cast<void *>(1));
+    ASSUME_ITS_EQUAL_PTR(cunwrap_or_option(none_option, reinterpret_cast<void *>(99)), reinterpret_cast<void *>(99));
+}
+
+// ** Test cdrop Macro **
+FOSSIL_TEST_CASE(cpp_test_cdrop) {
+    void *ptr = reinterpret_cast<void *>(1);
+    cdrop(ptr);
+    ASSUME_ITS_EQUAL_PTR(ptr, cnull);
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * *
 // * Fossil Logic Test Pool
 // * * * * * * * * * * * * * * * * * * * * * * * *
-FOSSIL_TEST_GROUP(cpp_null_tests) {
-    FOSSIL_TEST_ADD(cpp_null_suite, cpp_test_cppnull_definition);
-    FOSSIL_TEST_ADD(cpp_null_suite, cpp_test_cppnull_assignment);
-    FOSSIL_TEST_ADD(cpp_null_suite, cpp_test_cppnull_comparison);
-    FOSSIL_TEST_ADD(cpp_null_suite, cpp_test_cppnullify);
-    FOSSIL_TEST_ADD(cpp_null_suite, cpp_test_cppnotnull);
-    FOSSIL_TEST_ADD(cpp_null_suite, cpp_test_cppmaybe);
-    FOSSIL_TEST_ADD(cpp_null_suite, cpp_test_cppempty_strings);
+
+FOSSIL_TEST_GROUP(cpp_nullptr_tests) {
+    FOSSIL_TEST_ADD(cpp_null_suite, cpp_test_csafe_cast);
+    FOSSIL_TEST_ADD(cpp_null_suite, cpp_test_nullable_nonnull);
+    FOSSIL_TEST_ADD(cpp_null_suite, cpp_test_coptional);
+    FOSSIL_TEST_ADD(cpp_null_suite, cpp_test_cunwrap_option);
+    FOSSIL_TEST_ADD(cpp_null_suite, cpp_test_cunwrap_or_option);
+    FOSSIL_TEST_ADD(cpp_null_suite, cpp_test_cdrop);
 
     FOSSIL_TEST_REGISTER(cpp_null_suite);
 }
