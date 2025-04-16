@@ -59,23 +59,6 @@ char *fossil_sys_path_joinv(size_t count, const char **paths);
 char *fossil_sys_path_normalize(const char *path);
 
 /**
- * Converts a given path to an absolute path.
- * 
- * @param path The path to convert.
- * @return A newly allocated string containing the absolute path.
- */
-char *fossil_sys_path_abspath(const char *path);
-
-/**
- * Computes the relative path from a starting point to a target path.
- * 
- * @param path The target path.
- * @param start The starting path.
- * @return A newly allocated string containing the relative path.
- */
-char *fossil_sys_path_relpath(const char *path, const char *start);
-
-/**
  * Extracts the base name (file name) from a given path.
  * 
  * @param path The path to extract the base name from.
@@ -206,27 +189,6 @@ namespace fossil {
              */
             static std::string normalize(const std::string &path) {
                 return fossil_sys_path_normalize(path.c_str());
-            }
-
-            /**
-             * Converts a given path to an absolute path.
-             * 
-             * @param path The path to convert.
-             * @return A string containing the absolute path.
-             */
-            static std::string abspath(const std::string &path) {
-                return fossil_sys_path_abspath(path.c_str());
-            }
-
-            /**
-             * Computes the relative path from a starting point to a target path.
-             * 
-             * @param path The target path.
-             * @param start The starting path.
-             * @return A string containing the relative path.
-             */
-            static std::string relpath(const std::string &path, const std::string &start) {
-                return fossil_sys_path_relpath(path.c_str(), start.c_str());
             }
 
             /**
