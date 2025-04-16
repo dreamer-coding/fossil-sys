@@ -17,8 +17,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-#include <limits.h> // For realpath
-#include <stdlib.h> // For realpath declaration
+#include <limits.h> // For PATH_MAX
+#include <unistd.h> // For realpath declaration
 
 #ifndef MAX_PATH
 #define MAX_PATH 4096 // Define MAX_PATH if not already defined
