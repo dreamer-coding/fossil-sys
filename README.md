@@ -16,10 +16,10 @@ Before using Fossil Sys, ensure you have the following:
 
 - **Meson Build System**: Install Meson to manage the build process. For installation or upgrading, use:
 
-   ```sh
-   python -m pip install meson           # to install Meson
-   python -m pip install --upgrade meson # to upgrade Meson
-   ```
+    ```sh
+    python -m pip install meson           # to install Meson
+    python -m pip install --upgrade meson # to upgrade Meson
+    ```
 
 ## Adding Dependency
 
@@ -27,23 +27,23 @@ Before using Fossil Sys, ensure you have the following:
 
 2. **Add Wrap File**: Create a `.wrap` file (e.g., `fossil-sys.wrap`) in the `subprojects` directory with the following content:
 
-    ```ini
-    # ======================
-    # Git Wrap package definition
-    # ======================
-    [wrap-git]
-    url = https://github.com/fossillogic/fossil-sys.git
-    revision = v0.1.0
+     ```ini
+     # ======================
+     # Git Wrap package definition
+     # ======================
+     [wrap-git]
+     url = https://github.com/fossillogic/fossil-sys.git
+     revision = v0.1.1
 
-    [provide]
-    fossil-sys = fossil_sys_dep
-    ```
+     [provide]
+     fossil-sys = fossil_sys_dep
+     ```
 
 3. **Integrate Dependency**: Add the dependency in your `meson.build` file:
 
-    ```ini
-    dep = dependency('fossil-sys')
-    ```
+     ```ini
+     dep = dependency('fossil-sys')
+     ```
 
 ## Configure Options
 

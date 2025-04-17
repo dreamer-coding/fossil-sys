@@ -18,6 +18,7 @@
 #include "datetime.h"
 #include "hostinfo.h"
 #include "syscall.h"
+#include "bitwise.h"
 #include "memory.h"
 #include "types.h"
 
