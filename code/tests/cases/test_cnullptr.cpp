@@ -105,9 +105,9 @@ FOSSIL_TEST_CASE(cpp_test_nullable_nonnull) {
 // ** Test coptional Macro and cnone() and csome() **
 FOSSIL_TEST_CASE(cpp_test_coptional) {
     void *ptr = reinterpret_cast<void *>(1);
-    ASSUME_ITS_EQUAL_PTR(coptional(ptr), ptr);
+    ASSUME_ITS_EQUAL_PTR(c_optional(ptr), ptr);
     cnullify(ptr);
-    ASSUME_ITS_EQUAL_PTR(coptional(ptr), cnull);
+    ASSUME_ITS_EQUAL_PTR(c_optional(ptr), cnull);
 }
 
 // ** Test COption structure and cunwrap_option Macro **
