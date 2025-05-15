@@ -33,7 +33,7 @@ Before using Fossil Sys, ensure you have the following:
      # ======================
      [wrap-git]
      url = https://github.com/fossillogic/fossil-sys.git
-     revision = v0.1.1.1
+     revision = v0.1.1
 
      [provide]
      fossil-sys = fossil_sys_dep
