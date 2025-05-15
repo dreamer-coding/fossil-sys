@@ -238,7 +238,7 @@ extern "C" {
  * The `coptional` macro represents a nullable pointer that can be either `cnull` or a valid pointer.
  * It can be used to model optional values that may or may not be present.
  */
-#define coptional(ptr) ((ptr) ? (ptr) : cnull)
+#define c_optional(ptr) ((ptr) ? (ptr) : cnull)
 
 /**
  * @brief `COption` structure to mimic Rust's `Option<T>`.
