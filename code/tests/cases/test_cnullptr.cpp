@@ -142,6 +142,16 @@ FOSSIL_TEST(cpp_test_cdrop) {
 
 FOSSIL_TEST_GROUP(cpp_nullptr_tests) {
     FOSSIL_TEST_ADD(cpp_null_suite, cpp_test_csafe_cast);
+    FOSSIL_TEST_ADD(cpp_null_suite, cpp_test_cnullify);
+    FOSSIL_TEST_ADD(cpp_null_suite, cpp_test_cnotnull);
+    FOSSIL_TEST_ADD(cpp_null_suite, cpp_test_cunwrap_or);
+    FOSSIL_TEST_ADD(cpp_null_suite, cpp_test_cunwrap);
+    FOSSIL_TEST_ADD(cpp_null_suite, cpp_test_nullable_nonnull);
+    FOSSIL_TEST_ADD(cpp_null_suite, cpp_test_coptional);
+    FOSSIL_TEST_ADD(cpp_null_suite, cpp_test_cunwrap_option);
+    FOSSIL_TEST_ADD(cpp_null_suite, cpp_test_cunwrap_or_option);
+    FOSSIL_TEST_ADD(cpp_null_suite, cpp_test_cdrop);
+    FOSSIL_TEST_ADD(cpp_null_suite, cpp_test_cnotnull);
     FOSSIL_TEST_ADD(cpp_null_suite, cpp_test_nullable_nonnull);
     FOSSIL_TEST_ADD(cpp_null_suite, cpp_test_coptional);
     FOSSIL_TEST_ADD(cpp_null_suite, cpp_test_cunwrap_option);
