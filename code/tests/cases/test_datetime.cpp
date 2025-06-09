@@ -11,7 +11,7 @@
  * Copyright (C) 2024 Fossil Logic. All rights reserved.
  * -----------------------------------------------------------------------------
  */
-#include <fossil/test/framework.h>
+#include <fossil/pizza/framework.h>
 
 #include "fossil/sys/framework.h"
 
@@ -23,7 +23,7 @@
 // * * * * * * * * * * * * * * * * * * * * * * * *
 
 // Define the test suite and add test cases
-FOSSIL_TEST_SUITE(cpp_time_suite);
+FOSSIL_SUITE(cpp_time_suite);
 
 // Setup function for the test suite
 FOSSIL_SETUP(cpp_time_suite) {
@@ -43,7 +43,7 @@ FOSSIL_TEARDOWN(cpp_time_suite) {
 // as samples for library usage.
 // * * * * * * * * * * * * * * * * * * * * * * * *
 
-FOSSIL_TEST_CASE(cpp_test_time_now) {
+FOSSIL_TEST(cpp_test_time_now) {
     fossil_sys_time_datetime_t dt;
     fossil_sys_time_now(&dt);
     ASSUME_ITS_TRUE(dt.year > 0); // Ensure year is valid
@@ -51,7 +51,7 @@ FOSSIL_TEST_CASE(cpp_test_time_now) {
     ASSUME_ITS_TRUE(dt.day >= 1 && dt.day <= 31); // Ensure day is valid
 }
 
-FOSSIL_TEST_CASE(cpp_test_time_format) {
+FOSSIL_TEST(cpp_test_time_format) {
     fossil_sys_time_datetime_t dt = {2024, 1, 1, 12, 0, 0, 0};
     char buffer[100];
     int len = fossil_sys_time_format(&dt, buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", 1);
@@ -59,18 +59,18 @@ FOSSIL_TEST_CASE(cpp_test_time_format) {
     ASSUME_ITS_TRUE(strcmp(buffer, "2024-01-01 12:00:00") == 0); // Ensure correct format
 }
 
-FOSSIL_TEST_CASE(cpp_test_time_is_leap_year) {
+FOSSIL_TEST(cpp_test_time_is_leap_year) {
     ASSUME_ITS_TRUE(fossil_sys_time_is_leap_year(2024) == 1); // 2024 is a leap year
     ASSUME_ITS_TRUE(fossil_sys_time_is_leap_year(2023) == 0); // 2023 is not a leap year
 }
 
-FOSSIL_TEST_CASE(cpp_test_time_days_in_month) {
+FOSSIL_TEST(cpp_test_time_days_in_month) {
     ASSUME_ITS_TRUE(fossil_sys_time_days_in_month(2024, 2) == 29); // February in a leap year
     ASSUME_ITS_TRUE(fossil_sys_time_days_in_month(2023, 2) == 28); // February in a non-leap year
     ASSUME_ITS_TRUE(fossil_sys_time_days_in_month(2024, 1) == 31); // January
 }
 
-FOSSIL_TEST_CASE(cpp_test_datetime_constructor) {
+FOSSIL_TEST(cpp_test_datetime_constructor) {
     fossil::sys::DateTime dt;
     auto datetime = dt.get();
     ASSUME_ITS_TRUE(datetime.year > 0); // Ensure year is valid
@@ -78,13 +78,13 @@ FOSSIL_TEST_CASE(cpp_test_datetime_constructor) {
     ASSUME_ITS_TRUE(datetime.day >= 1 && datetime.day <= 31); // Ensure day is valid
 }
 
-FOSSIL_TEST_CASE(cpp_test_datetime_format) {
+FOSSIL_TEST(cpp_test_datetime_format) {
     fossil::sys::DateTime dt({2024, 1, 1, 12, 0, 0, 0});
     std::string formatted = dt.format("%Y-%m-%d %H:%M:%S", true);
     ASSUME_ITS_TRUE(formatted == "2024-01-01 12:00:00"); // Ensure correct format
 }
 
-FOSSIL_TEST_CASE(cpp_test_calendar_constructor) {
+FOSSIL_TEST(cpp_test_calendar_constructor) {
     fossil::sys::Calendar cal(2024, 2, 29);
     auto calendar = cal.get();
     ASSUME_ITS_TRUE(calendar.year == 2024); // Ensure correct year
@@ -92,12 +92,12 @@ FOSSIL_TEST_CASE(cpp_test_calendar_constructor) {
     ASSUME_ITS_TRUE(calendar.day == 29); // Ensure correct day
 }
 
-FOSSIL_TEST_CASE(cpp_test_calendar_is_leap_year) {
+FOSSIL_TEST(cpp_test_calendar_is_leap_year) {
     fossil::sys::Calendar cal(2024, 1, 1);
     ASSUME_ITS_TRUE(cal.is_leap_year() == true); // 2024 is a leap year
 }
 
-FOSSIL_TEST_CASE(cpp_test_calendar_days_in_month) {
+FOSSIL_TEST(cpp_test_calendar_days_in_month) {
     fossil::sys::Calendar cal(2024, 2, 1);
     ASSUME_ITS_TRUE(cal.days_in_month() == 29); // February in a leap year
 }

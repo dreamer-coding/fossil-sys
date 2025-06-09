@@ -11,7 +11,7 @@
  * Copyright (C) 2024 Fossil Logic. All rights reserved.
  * -----------------------------------------------------------------------------
  */
-#include <fossil/test/framework.h>
+#include <fossil/pizza/framework.h>
 
 #include "fossil/sys/framework.h"
 
@@ -23,7 +23,7 @@
 // * * * * * * * * * * * * * * * * * * * * * * * *
 
 // Define the test suite and add test cases
-FOSSIL_TEST_SUITE(cpp_syscall_suite);
+FOSSIL_SUITE(cpp_syscall_suite);
 
 // Setup function for the test suite
 FOSSIL_SETUP(cpp_syscall_suite) {
@@ -43,41 +43,41 @@ FOSSIL_TEARDOWN(cpp_syscall_suite) {
 // as samples for library usage.
 // * * * * * * * * * * * * * * * * * * * * * * * *
 
-FOSSIL_TEST_CASE(cpp_test_sys_call_execute) {
+FOSSIL_TEST(cpp_test_sys_call_execute) {
     int result = fossil_sys_call_execute("echo Fossil Logic");
     ASSUME_ITS_TRUE(result == 0);
 }
 
-FOSSIL_TEST_CASE(cpp_test_sys_call_getpid) {
+FOSSIL_TEST(cpp_test_sys_call_getpid) {
     int pid = fossil_sys_call_getpid();
     ASSUME_ITS_TRUE(pid > 0);
 }
 
-FOSSIL_TEST_CASE(cpp_test_sys_call_create_file) {
+FOSSIL_TEST(cpp_test_sys_call_create_file) {
     const char *filename = "test_file.txt";
     int result = fossil_sys_call_create_file(filename);
     ASSUME_ITS_TRUE(result == 0);
     remove(filename); // Clean up the test file
 }
 
-FOSSIL_TEST_CASE(cpp_test_sys_call_execute_string) {
+FOSSIL_TEST(cpp_test_sys_call_execute_string) {
     int result = fossil::sys::Syscall::execute("echo Fossil Logic");
     ASSUME_ITS_TRUE(result == 0);
 }
 
-FOSSIL_TEST_CASE(cpp_test_sys_call_getpid_class) {
+FOSSIL_TEST(cpp_test_sys_call_getpid_class) {
     int pid = fossil::sys::Syscall::getpid();
     ASSUME_ITS_TRUE(pid > 0);
 }
 
-FOSSIL_TEST_CASE(cpp_test_sys_call_create_file_class) {
+FOSSIL_TEST(cpp_test_sys_call_create_file_class) {
     const std::string filename = "test_file_class.txt";
     int result = fossil::sys::Syscall::create_file(filename);
     ASSUME_ITS_TRUE(result == 0);
     remove(filename.c_str()); // Clean up the test file
 }
 
-FOSSIL_TEST_CASE(cpp_test_sys_call_create_file_cstr_class) {
+FOSSIL_TEST(cpp_test_sys_call_create_file_cstr_class) {
     const char *filename = "test_file_cstr_class.txt";
     int result = fossil::sys::Syscall::create_file(filename);
     ASSUME_ITS_TRUE(result == 0);

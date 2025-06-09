@@ -11,7 +11,7 @@
  * Copyright (C) 2024 Fossil Logic. All rights reserved.
  * -----------------------------------------------------------------------------
  */
-#include <fossil/test/framework.h>
+#include <fossil/pizza/framework.h>
 
 #include "fossil/sys/framework.h"
 
@@ -23,7 +23,7 @@
 // * * * * * * * * * * * * * * * * * * * * * * * *
 
 // Define the test suite and add test cases
-FOSSIL_TEST_SUITE(c_bitwise_suite);
+FOSSIL_SUITE(c_bitwise_suite);
 
 // Setup function for the test suite
 FOSSIL_SETUP(c_bitwise_suite) {
@@ -44,7 +44,7 @@ FOSSIL_TEARDOWN(c_bitwise_suite) {
 // * * * * * * * * * * * * * * * * * * * * * * * *
 
 // ** Test fossil_sys_bitwise_parse Function **
-FOSSIL_TEST_CASE(c_test_bitwise_parse) {
+FOSSIL_TEST(c_test_bitwise_parse) {
     fossil_sys_bitwise_entry_t entries[] = {
         {"read", 0x1},
         {"write", 0x2},
@@ -65,7 +65,7 @@ FOSSIL_TEST_CASE(c_test_bitwise_parse) {
 }
 
 // ** Test fossil_sys_bitwise_format Function **
-FOSSIL_TEST_CASE(c_test_bitwise_format) {
+FOSSIL_TEST(c_test_bitwise_format) {
     fossil_sys_bitwise_entry_t entries[] = {
         {"read", 0x1},
         {"write", 0x2},
@@ -90,7 +90,7 @@ FOSSIL_TEST_CASE(c_test_bitwise_format) {
 }
 
 // ** Test fossil_sys_bitwise_lookup Function **
-FOSSIL_TEST_CASE(c_test_bitwise_lookup) {
+FOSSIL_TEST(c_test_bitwise_lookup) {
     fossil_sys_bitwise_entry_t entries[] = {
         {"read", 0x1},
         {"write", 0x2},

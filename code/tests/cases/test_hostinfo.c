@@ -11,7 +11,7 @@
  * Copyright (C) 2024 Fossil Logic. All rights reserved.
  * -----------------------------------------------------------------------------
  */
-#include <fossil/test/framework.h>
+#include <fossil/pizza/framework.h>
 
 #include "fossil/sys/framework.h"
 
@@ -23,7 +23,7 @@
 // * * * * * * * * * * * * * * * * * * * * * * * *
 
 // Define the test suite and add test cases
-FOSSIL_TEST_SUITE(c_hostinfo_suite);
+FOSSIL_SUITE(c_hostinfo_suite);
 
 // Setup function for the test suite
 FOSSIL_SETUP(c_hostinfo_suite) {
@@ -43,7 +43,7 @@ FOSSIL_TEARDOWN(c_hostinfo_suite) {
 // as samples for library usage.
 // * * * * * * * * * * * * * * * * * * * * * * * *
 
-FOSSIL_TEST_CASE(c_test_hostinfo_get_system) {
+FOSSIL_TEST(c_test_hostinfo_get_system) {
     fossil_sys_hostinfo_system_t info;
     int result = fossil_sys_hostinfo_get_system(&info);
     ASSUME_ITS_TRUE(result == 0);
@@ -52,7 +52,7 @@ FOSSIL_TEST_CASE(c_test_hostinfo_get_system) {
     ASSUME_ITS_TRUE(strlen(info.kernel_version) > 0);
 }
 
-FOSSIL_TEST_CASE(c_test_hostinfo_get_memory) {
+FOSSIL_TEST(c_test_hostinfo_get_memory) {
     fossil_sys_hostinfo_memory_t info;
     int result = fossil_sys_hostinfo_get_memory(&info);
     ASSUME_ITS_TRUE(result == 0);
@@ -60,7 +60,7 @@ FOSSIL_TEST_CASE(c_test_hostinfo_get_memory) {
     ASSUME_ITS_TRUE(info.free_memory <= info.total_memory);
 }
 
-FOSSIL_TEST_CASE(c_test_hostinfo_get_endianness) {
+FOSSIL_TEST(c_test_hostinfo_get_endianness) {
     fossil_sys_hostinfo_endianness_t info;
     int result = fossil_sys_hostinfo_get_endianness(&info);
     ASSUME_ITS_TRUE(result == 0);
