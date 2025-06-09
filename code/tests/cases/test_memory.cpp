@@ -11,7 +11,7 @@
  * Copyright (C) 2024 Fossil Logic. All rights reserved.
  * -----------------------------------------------------------------------------
  */
-#include <fossil/test/framework.h>
+#include <fossil/pizza/framework.h>
 
 #include "fossil/sys/framework.h"
 
@@ -23,7 +23,7 @@
 // * * * * * * * * * * * * * * * * * * * * * * * *
 
 // Define the test suite and add test cases
-FOSSIL_TEST_SUITE(cpp_memory_suite);
+FOSSIL_SUITE(cpp_memory_suite);
 
 // Setup function for the test suite
 FOSSIL_SETUP(cpp_memory_suite) {
@@ -43,14 +43,14 @@ FOSSIL_TEARDOWN(cpp_memory_suite) {
 // as samples for library usage.
 // * * * * * * * * * * * * * * * * * * * * * * * *
 
-FOSSIL_TEST_CASE(cpp_test_memory_alloc) {
+FOSSIL_TEST(cpp_test_memory_alloc) {
     size_t size = 10;
     fossil_sys_memory_t ptr = fossil_sys_memory_alloc(size);
     ASSUME_NOT_CNULL(ptr);
     fossil_sys_memory_free(ptr); // Cleanup
 }
 
-FOSSIL_TEST_CASE(cpp_test_memory_realloc) {
+FOSSIL_TEST(cpp_test_memory_realloc) {
     size_t size = 10;
     fossil_sys_memory_t ptr = fossil_sys_memory_alloc(size);
     ASSUME_NOT_CNULL(ptr);
@@ -62,7 +62,7 @@ FOSSIL_TEST_CASE(cpp_test_memory_realloc) {
     fossil_sys_memory_free(ptr); // Cleanup
 }
 
-FOSSIL_TEST_CASE(cpp_test_memory_dup) {
+FOSSIL_TEST(cpp_test_memory_dup) {
     size_t size = 10;
     fossil_sys_memory_t src = fossil_sys_memory_alloc(size);
     ASSUME_NOT_CNULL(src);
@@ -75,7 +75,7 @@ FOSSIL_TEST_CASE(cpp_test_memory_dup) {
     fossil_sys_memory_free(dest); // Cleanup
 }
 
-FOSSIL_TEST_CASE(cpp_test_memory_zero) {
+FOSSIL_TEST(cpp_test_memory_zero) {
     size_t size = 10;
     fossil_sys_memory_t ptr = fossil_sys_memory_alloc(size);
     ASSUME_NOT_CNULL(ptr);
@@ -88,7 +88,7 @@ FOSSIL_TEST_CASE(cpp_test_memory_zero) {
     fossil_sys_memory_free(ptr); // Cleanup
 }
 
-FOSSIL_TEST_CASE(cpp_test_memory_compare) {
+FOSSIL_TEST(cpp_test_memory_compare) {
     size_t size = 10;
     fossil_sys_memory_t ptr1 = fossil_sys_memory_alloc(size);
     fossil_sys_memory_t ptr2 = fossil_sys_memory_alloc(size);
@@ -106,7 +106,7 @@ FOSSIL_TEST_CASE(cpp_test_memory_compare) {
     fossil_sys_memory_free(ptr2); // Cleanup
 }
 
-FOSSIL_TEST_CASE(cpp_test_memory_move) {
+FOSSIL_TEST(cpp_test_memory_move) {
     size_t size = 10;
     fossil_sys_memory_t src = fossil_sys_memory_alloc(size);
     ASSUME_NOT_CNULL(src);
@@ -122,7 +122,7 @@ FOSSIL_TEST_CASE(cpp_test_memory_move) {
     fossil_sys_memory_free(dest); // Cleanup
 }
 
-FOSSIL_TEST_CASE(cpp_test_memory_resize) {
+FOSSIL_TEST(cpp_test_memory_resize) {
     size_t size = 10;
     fossil_sys_memory_t ptr = fossil_sys_memory_alloc(size);
     ASSUME_NOT_CNULL(ptr);
@@ -133,7 +133,7 @@ FOSSIL_TEST_CASE(cpp_test_memory_resize) {
     fossil_sys_memory_free(ptr); // Cleanup
 }
 
-FOSSIL_TEST_CASE(cpp_test_memory_is_valid) {
+FOSSIL_TEST(cpp_test_memory_is_valid) {
     fossil_sys_memory_t ptr = fossil_sys_memory_alloc(10);
     ASSUME_ITS_TRUE(fossil_sys_memory_is_valid(ptr)); // Should be valid
     ASSUME_ITS_TRUE(!fossil_sys_memory_is_valid(nullptr)); // nullptr should not be valid
@@ -141,7 +141,7 @@ FOSSIL_TEST_CASE(cpp_test_memory_is_valid) {
     fossil_sys_memory_free(ptr); // Cleanup
 }
 
-FOSSIL_TEST_CASE(cpp_test_memory_calloc) {
+FOSSIL_TEST(cpp_test_memory_calloc) {
     size_t num = 10;
     size_t size = sizeof(int);
     fossil_sys_memory_t ptr = fossil_sys_memory_calloc(num, size);
@@ -154,7 +154,7 @@ FOSSIL_TEST_CASE(cpp_test_memory_calloc) {
     fossil_sys_memory_free(ptr); // Cleanup
 }
 
-FOSSIL_TEST_CASE(cpp_test_memory_init) {
+FOSSIL_TEST(cpp_test_memory_init) {
     size_t size = 10;
     int32_t value = 0xAA;
     fossil_sys_memory_t ptr = fossil_sys_memory_alloc(size);
@@ -168,14 +168,14 @@ FOSSIL_TEST_CASE(cpp_test_memory_init) {
     fossil_sys_memory_free(ptr); // Cleanup
 }
 
-FOSSIL_TEST_CASE(cpp_test_memory_class_alloc) {
+FOSSIL_TEST(cpp_test_memory_class_alloc) {
     size_t size = 10;
     fossil_sys_memory_t ptr = fossil::sys::Memory::alloc(size);
     ASSUME_NOT_CNULL(ptr);
     fossil::sys::Memory::free(ptr); // Cleanup
 }
 
-FOSSIL_TEST_CASE(cpp_test_memory_class_realloc) {
+FOSSIL_TEST(cpp_test_memory_class_realloc) {
     size_t size = 10;
     fossil_sys_memory_t ptr = fossil::sys::Memory::alloc(size);
     ASSUME_NOT_CNULL(ptr);
@@ -187,7 +187,7 @@ FOSSIL_TEST_CASE(cpp_test_memory_class_realloc) {
     fossil::sys::Memory::free(ptr); // Cleanup
 }
 
-FOSSIL_TEST_CASE(cpp_test_memory_class_calloc) {
+FOSSIL_TEST(cpp_test_memory_class_calloc) {
     size_t num = 10;
     size_t size = sizeof(int);
     fossil_sys_memory_t ptr = fossil::sys::Memory::calloc(num, size);
@@ -200,7 +200,7 @@ FOSSIL_TEST_CASE(cpp_test_memory_class_calloc) {
     fossil::sys::Memory::free(ptr); // Cleanup
 }
 
-FOSSIL_TEST_CASE(cpp_test_memory_class_init) {
+FOSSIL_TEST(cpp_test_memory_class_init) {
     size_t size = 10;
     int32_t value = 0xAA;
     fossil_sys_memory_t ptr = fossil::sys::Memory::alloc(size);
@@ -214,7 +214,7 @@ FOSSIL_TEST_CASE(cpp_test_memory_class_init) {
     fossil::sys::Memory::free(ptr); // Cleanup
 }
 
-FOSSIL_TEST_CASE(cpp_test_memory_class_copy) {
+FOSSIL_TEST(cpp_test_memory_class_copy) {
     size_t size = 10;
     fossil_sys_memory_t src = fossil::sys::Memory::alloc(size);
     ASSUME_NOT_CNULL(src);
@@ -230,7 +230,7 @@ FOSSIL_TEST_CASE(cpp_test_memory_class_copy) {
     fossil::sys::Memory::free(dest); // Cleanup
 }
 
-FOSSIL_TEST_CASE(cpp_test_memory_class_set) {
+FOSSIL_TEST(cpp_test_memory_class_set) {
     size_t size = 10;
     int32_t value = 0xAA;
     fossil_sys_memory_t ptr = fossil::sys::Memory::alloc(size);
@@ -244,7 +244,7 @@ FOSSIL_TEST_CASE(cpp_test_memory_class_set) {
     fossil::sys::Memory::free(ptr); // Cleanup
 }
 
-FOSSIL_TEST_CASE(cpp_test_memory_class_dup) {
+FOSSIL_TEST(cpp_test_memory_class_dup) {
     size_t size = 10;
     fossil_sys_memory_t src = fossil::sys::Memory::alloc(size);
     ASSUME_NOT_CNULL(src);
@@ -257,7 +257,7 @@ FOSSIL_TEST_CASE(cpp_test_memory_class_dup) {
     fossil::sys::Memory::free(dest); // Cleanup
 }
 
-FOSSIL_TEST_CASE(cpp_test_memory_class_zero) {
+FOSSIL_TEST(cpp_test_memory_class_zero) {
     size_t size = 10;
     fossil_sys_memory_t ptr = fossil::sys::Memory::alloc(size);
     ASSUME_NOT_CNULL(ptr);
@@ -270,7 +270,7 @@ FOSSIL_TEST_CASE(cpp_test_memory_class_zero) {
     fossil::sys::Memory::free(ptr); // Cleanup
 }
 
-FOSSIL_TEST_CASE(cpp_test_memory_class_compare) {
+FOSSIL_TEST(cpp_test_memory_class_compare) {
     size_t size = 10;
     fossil_sys_memory_t ptr1 = fossil::sys::Memory::alloc(size);
     fossil_sys_memory_t ptr2 = fossil::sys::Memory::alloc(size);
@@ -288,7 +288,7 @@ FOSSIL_TEST_CASE(cpp_test_memory_class_compare) {
     fossil::sys::Memory::free(ptr2); // Cleanup
 }
 
-FOSSIL_TEST_CASE(cpp_test_memory_class_move) {
+FOSSIL_TEST(cpp_test_memory_class_move) {
     size_t size = 10;
     fossil_sys_memory_t src = fossil::sys::Memory::alloc(size);
     ASSUME_NOT_CNULL(src);
@@ -304,7 +304,7 @@ FOSSIL_TEST_CASE(cpp_test_memory_class_move) {
     fossil::sys::Memory::free(dest); // Cleanup
 }
 
-FOSSIL_TEST_CASE(cpp_test_memory_class_resize) {
+FOSSIL_TEST(cpp_test_memory_class_resize) {
     size_t size = 10;
     fossil_sys_memory_t ptr = fossil::sys::Memory::alloc(size);
     ASSUME_NOT_CNULL(ptr);
@@ -315,7 +315,7 @@ FOSSIL_TEST_CASE(cpp_test_memory_class_resize) {
     fossil::sys::Memory::free(ptr); // Cleanup
 }
 
-FOSSIL_TEST_CASE(cpp_test_memory_class_is_valid) {
+FOSSIL_TEST(cpp_test_memory_class_is_valid) {
     fossil_sys_memory_t ptr = fossil::sys::Memory::alloc(10);
     ASSUME_ITS_TRUE(fossil::sys::Memory::isValid(ptr)); // Should be valid
     ASSUME_ITS_TRUE(!fossil::sys::Memory::isValid(nullptr)); // nullptr should not be valid

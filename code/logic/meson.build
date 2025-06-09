@@ -1,6 +1,6 @@
 dir = include_directories('.')
 
-fossil_sys_lib = library('fossil-sys',
+fossil_sys_lib = static_library('fossil-sys',
     files('memory.c', 'datetime.c', 'hostinfo.c', 'syscall.c', 'bitwise.c'),
     install: true,
     dependencies: [dependency('threads')],

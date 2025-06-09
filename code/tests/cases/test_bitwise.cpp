@@ -11,7 +11,7 @@
  * Copyright (C) 2024 Fossil Logic. All rights reserved.
  * -----------------------------------------------------------------------------
  */
-#include <fossil/test/framework.h>
+#include <fossil/pizza/framework.h>
 
 #include "fossil/sys/framework.h"
 
@@ -23,7 +23,7 @@
 // * * * * * * * * * * * * * * * * * * * * * * * *
 
 // Define the test suite and add test cases
-FOSSIL_TEST_SUITE(cpp_bitwise_suite);
+FOSSIL_SUITE(cpp_bitwise_suite);
 
 // Setup function for the test suite
 FOSSIL_SETUP(cpp_bitwise_suite) {
@@ -44,7 +44,7 @@ FOSSIL_TEARDOWN(cpp_bitwise_suite) {
 // * * * * * * * * * * * * * * * * * * * * * * * *
 
 // ** Test fossil::sys::Bitwise::parse Function **
-FOSSIL_TEST_CASE(cpp_test_class_bitwise_parse) {
+FOSSIL_TEST(cpp_test_class_bitwise_parse) {
     fossil_sys_bitwise_entry_t entries[] = {
         {"read", 0x1},
         {"write", 0x2},
@@ -65,7 +65,7 @@ FOSSIL_TEST_CASE(cpp_test_class_bitwise_parse) {
 }
 
 // ** Test fossil::sys::Bitwise::format Function **
-FOSSIL_TEST_CASE(cpp_test_class_bitwise_format) {
+FOSSIL_TEST(cpp_test_class_bitwise_format) {
     fossil_sys_bitwise_entry_t entries[] = {
         {"read", 0x1},
         {"write", 0x2},
@@ -90,7 +90,7 @@ FOSSIL_TEST_CASE(cpp_test_class_bitwise_format) {
 }
 
 // ** Test fossil::sys::Bitwise::lookup Function **
-FOSSIL_TEST_CASE(cpp_test_class_bitwise_lookup) {
+FOSSIL_TEST(cpp_test_class_bitwise_lookup) {
     fossil_sys_bitwise_entry_t entries[] = {
         {"read", 0x1},
         {"write", 0x2},
