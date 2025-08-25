@@ -161,19 +161,19 @@ fossil_sys_memory_t fossil_sys_memory_resize(fossil_sys_memory_t ptr, size_t old
         return NULL;
     }
 
-    // Allocate new memory
-    fossil_sys_memory_t new_ptr = fossil_sys_memory_realloc(ptr, new_size);
+    // allocate new buffer
+    fossil_sys_memory_t new_ptr = malloc(new_size);
     if (!new_ptr) {
-        // Allocation failed; return the original memory block
-        fprintf(stderr, "Error: fossil_sys_memory_resize() - Memory resize failed, original memory preserved.\n");
-        return ptr;
+        fprintf(stderr, "Error: fossil_sys_memory_resize() - Memory allocation failed.\n");
+        return ptr; // keep old buffer
     }
 
-    // Check if new size is larger, and if so, preserve the old data
-    if (new_size > old_size && ptr) {
-        // Initialize new memory with old data (if necessary)
-        memcpy(new_ptr, ptr, old_size);
-    }
+    // copy the smaller of old/new size
+    size_t copy_size = (new_size < old_size) ? new_size : old_size;
+    memcpy(new_ptr, ptr, copy_size);
+
+    // free old memory
+    fossil_sys_memory_free(ptr);
 
     return new_ptr;
 }
