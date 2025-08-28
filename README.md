@@ -21,29 +21,34 @@ Before using Fossil Sys, ensure you have the following:
     python -m pip install --upgrade meson # to upgrade Meson
     ```
 
-## Adding Dependency
+### Adding Dependency
 
-1. **Install Meson Build System**: Ensure Meson `1.3` or newer is installed on your system.
+#### Adding via Meson Git Wrap
 
-2. **Add Wrap File**: Create a `.wrap` file (e.g., `fossil-sys.wrap`) in the `subprojects` directory with the following content:
+To add a git-wrap, place a `.wrap` file in `subprojects` with the Git repo URL and revision, then use `dependency('fossil-sys')` in `meson.build` so Meson can fetch and build it automatically.
 
-     ```ini
-     # ======================
-     # Git Wrap package definition
-     # ======================
-     [wrap-git]
-     url = https://github.com/fossillogic/fossil-sys.git
-     revision = v0.1.2
+#### Adding via Conan GitHub repository
 
-     [provide]
-     fossil-sys = fossil_sys_dep
-     ```
+ packages directly from a GitHub repository if it contains a valid `conanfile.py`.
 
-3. **Integrate Dependency**: Add the dependency in your `meson.build` file:
+```bash
+conan install git+https://github.com/fossillogic/fossil-sys.git#v0.1.3 --name fossil_sys --build=missing
+```
 
-     ```ini
-     dep = dependency('fossil-sys')
-     ```
+#### Integrate the Dependency:
+
+Add the `fossil-sys.wrap` file in your `subprojects` directory and include the following content:
+
+```ini
+[wrap-git]
+url = https://github.com/fossillogic/fossil-sys.git
+revision = v0.1.3
+
+[provide]
+dependency_names = fossil-sys
+```
+
+**Note**: For the best experience, always use the latest releases. Visit the [releases](https://github.com/fossillogic/fossil-sys/releases) page for the latest versions.
 
 ## Configure Options
 
