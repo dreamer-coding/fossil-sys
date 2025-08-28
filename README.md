@@ -10,16 +10,14 @@ Fossil Sys is a versatile, cross-platform utilities library designed to provide 
 4. **High Performance**: Developed in C and C++ to maximize performance and resource efficiency, suitable for both desktop and embedded systems.
 5. **Extensive Documentation**: Offers comprehensive documentation and examples to help developers quickly understand and utilize the library.
 
-## Prerequisites
+## Getting Started
 
-Before using Fossil Sys, ensure you have the following:
+## ***Prerequisites***
 
-- **Meson Build System**: Install Meson to manage the build process. For installation or upgrading, use:
+To get started, ensure you have the following installed:
 
-    ```sh
-    python -m pip install meson           # to install Meson
-    python -m pip install --upgrade meson # to upgrade Meson
-    ```
+- **Meson Build System**: If you don’t have Meson `1.8.0` or newer installed, follow the installation instructions on the official [Meson website](https://mesonbuild.com/Getting-meson.html).
+- **Conan Package Manager**: If you prefer using Conan, ensure it is installed by following the instructions on the official [Conan website](https://docs.conan.io/en/latest/installation.html).
 
 ### Adding Dependency
 
