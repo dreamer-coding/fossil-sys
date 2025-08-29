@@ -10,3 +10,5 @@ fossil_sys_dep = declare_dependency(
     link_with: [fossil_sys_lib],
     dependencies: [dependency('threads')],
     include_directories: dir)
+
+meson.override_dependency('fossil-sys', fossil_sys_dep)
