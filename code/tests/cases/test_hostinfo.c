@@ -64,7 +64,7 @@ FOSSIL_TEST(c_test_hostinfo_get_architecture) {
     fossil_sys_hostinfo_architecture_t info;
     int result = fossil_sys_hostinfo_get_architecture(&info);
     ASSUME_ITS_TRUE(result == 0);
-    ASSUME_ITS_TRUE(strlen(info.name) > 0);
+    ASSUME_ITS_TRUE(strlen(info.arch_name) > 0);
 }
 
 FOSSIL_TEST(c_test_hostinfo_get_endianness) {
