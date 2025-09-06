@@ -29,12 +29,32 @@ typedef struct {
     char os_name[128];
     char os_version[128];
     char kernel_version[128];
+    char hostname[128];
+    char username[128];
+    char domain_name[128];
+    char machine_type[128];
+    char platform[128];
 } fossil_sys_hostinfo_system_t;
+
+// Architecture information structure
+typedef struct {
+    char architecture[128];
+    char cpu[128];
+    char cpu_cores[128];
+    char cpu_threads[128];
+    char cpu_frequency[128];
+    char cpu_architecture[128];
+} fossil_sys_hostinfo_architecture_t;
 
 // Memory information structure
 typedef struct {
-    uint64_t total_memory; // in bytes
-    uint64_t free_memory;  // in bytes
+    uint64_t total_memory;    // in bytes
+    uint64_t free_memory;     // in bytes
+    uint64_t used_memory;     // in bytes
+    uint64_t available_memory;// in bytes
+    uint64_t total_swap;      // in bytes
+    uint64_t free_swap;       // in bytes
+    uint64_t used_swap;       // in bytes
 } fossil_sys_hostinfo_memory_t;
 
 // Endianness information structure
@@ -49,6 +69,14 @@ typedef struct {
  * @return 0 on success, or a negative error code on failure.
  */
 int fossil_sys_hostinfo_get_system(fossil_sys_hostinfo_system_t *info);
+
+/**
+ * Retrieve architecture information.
+ *
+ * @param info A pointer to a structure that will be filled with architecture information.
+ * @return 0 on success, or a negative error code on failure.
+ */
+int fossil_sys_hostinfo_get_architecture(fossil_sys_hostinfo_architecture_t *info);
 
 /**
  * Retrieve memory information.
@@ -93,6 +121,17 @@ namespace fossil {
             static fossil_sys_hostinfo_system_t get_system() {
                 fossil_sys_hostinfo_system_t info;
                 fossil_sys_hostinfo_get_system(&info);
+                return info;
+            }
+
+            /**
+             * Get architecture information.
+             *
+             * @return A structure containing architecture information.
+             */
+            static fossil_sys_hostinfo_architecture_t get_architecture() {
+                fossil_sys_hostinfo_architecture_t info;
+                fossil_sys_hostinfo_get_architecture(&info);
                 return info;
             }
 
