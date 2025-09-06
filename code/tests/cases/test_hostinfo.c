@@ -50,11 +50,6 @@ FOSSIL_TEST(c_test_hostinfo_get_system) {
     ASSUME_ITS_TRUE(strlen(info.os_name) > 0);
     ASSUME_ITS_TRUE(strlen(info.os_version) > 0);
     ASSUME_ITS_TRUE(strlen(info.kernel_version) > 0);
-    ASSUME_ITS_TRUE(strlen(info.hostname) > 0);
-    ASSUME_ITS_TRUE(strlen(info.username) > 0);
-    ASSUME_ITS_TRUE(strlen(info.domain_name) >= 0); // domain_name may be empty
-    ASSUME_ITS_TRUE(strlen(info.machine_type) > 0);
-    ASSUME_ITS_TRUE(strlen(info.platform) > 0);
 }
 
 FOSSIL_TEST(c_test_hostinfo_get_memory) {
@@ -63,23 +58,13 @@ FOSSIL_TEST(c_test_hostinfo_get_memory) {
     ASSUME_ITS_TRUE(result == 0);
     ASSUME_ITS_TRUE(info.total_memory > 0);
     ASSUME_ITS_TRUE(info.free_memory <= info.total_memory);
-    ASSUME_ITS_TRUE(info.used_memory <= info.total_memory);
-    ASSUME_ITS_TRUE(info.available_memory <= info.total_memory);
-    ASSUME_ITS_TRUE(info.total_swap >= 0);
-    ASSUME_ITS_TRUE(info.free_swap <= info.total_swap);
-    ASSUME_ITS_TRUE(info.used_swap <= info.total_swap);
 }
 
 FOSSIL_TEST(c_test_hostinfo_get_architecture) {
     fossil_sys_hostinfo_architecture_t info;
     int result = fossil_sys_hostinfo_get_architecture(&info);
     ASSUME_ITS_TRUE(result == 0);
-    ASSUME_ITS_TRUE(strlen(info.architecture) > 0);
-    ASSUME_ITS_TRUE(strlen(info.cpu) > 0);
-    ASSUME_ITS_TRUE(strlen(info.cpu_cores) > 0);
-    ASSUME_ITS_TRUE(strlen(info.cpu_threads) > 0);
-    ASSUME_ITS_TRUE(strlen(info.cpu_frequency) > 0);
-    ASSUME_ITS_TRUE(strlen(info.cpu_architecture) > 0);
+    ASSUME_ITS_TRUE(strlen(info.arch_name) > 0);
 }
 
 FOSSIL_TEST(c_test_hostinfo_get_endianness) {

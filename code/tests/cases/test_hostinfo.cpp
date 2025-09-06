@@ -91,8 +91,8 @@ FOSSIL_TEST(cpp_test_hostinfo_class_get_endianness) {
 FOSSIL_TEST(cpp_test_hostinfo_class_get_architecture) {
     fossil::sys::Hostinfo hostinfo;
     fossil_sys_hostinfo_architecture_t info = hostinfo.get_architecture();
-    ASSUME_ITS_TRUE(strlen(info.arch_name) > 0);
-    ASSUME_ITS_TRUE(strlen(info.arch_version) > 0);
+    ASSUME_ITS_TRUE(strlen(info.name) > 0);
+    ASSUME_ITS_TRUE(strlen(info.version) > 0);
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * *
