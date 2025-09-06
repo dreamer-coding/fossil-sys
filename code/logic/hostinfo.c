@@ -14,6 +14,7 @@
 #include "fossil/sys/hostinfo.h"
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 #ifdef _WIN32
     #include <windows.h>
@@ -153,7 +154,7 @@ int fossil_sys_hostinfo_get_architecture(fossil_sys_hostinfo_architecture_t *inf
     strncpy(info->cpu, "Unknown", sizeof(info->cpu) - 1);
     info->cpu[sizeof(info->cpu) - 1] = '\0';
 
-    snprintf(info->cpu_cores, sizeof(info->cpu_cores), "%u", sysinfo.dwNumberOfProcessors);
+    snprintf(info->cpu_cores, sizeof(info->cpu_cores), "%lu", sysinfo.dwNumberOfProcessors);
     strncpy(info->cpu_threads, "Unknown", sizeof(info->cpu_threads) - 1);
     info->cpu_threads[sizeof(info->cpu_threads) - 1] = '\0';
     strncpy(info->cpu_frequency, "Unknown", sizeof(info->cpu_frequency) - 1);
