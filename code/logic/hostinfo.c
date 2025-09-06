@@ -27,7 +27,8 @@
     #include <sys/utsname.h>
     #include <sys/sysinfo.h>
     #include <sys/types.h>
-    #include <unistd.h> // for gethostname
+    #include <unistd.h>
+    #include <netdb.h> // for gethostname
 #endif
 
 int fossil_sys_hostinfo_get_system(fossil_sys_hostinfo_system_t *info) {
