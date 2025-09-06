@@ -163,19 +163,16 @@ int fossil_sys_hostinfo_get_architecture(fossil_sys_hostinfo_architecture_t *inf
     info->cpu_architecture[sizeof(info->cpu_architecture) - 1] = '\0';
 
 #elif defined(__APPLE__)
-    // Architecture
     size_t size = sizeof(info->architecture);
     if (sysctlbyname("hw.machine", info->architecture, &size, NULL, 0) != 0)
         strncpy(info->architecture, "Unknown", sizeof(info->architecture) - 1);
     info->architecture[sizeof(info->architecture) - 1] = '\0';
 
-    // CPU name
     size = sizeof(info->cpu);
     if (sysctlbyname("machdep.cpu.brand_string", info->cpu, &size, NULL, 0) != 0)
         strncpy(info->cpu, "Unknown", sizeof(info->cpu) - 1);
     info->cpu[sizeof(info->cpu) - 1] = '\0';
 
-    // CPU cores
     int cores = 0;
     size = sizeof(cores);
     if (sysctlbyname("hw.physicalcpu", &cores, &size, NULL, 0) == 0)
@@ -184,7 +181,6 @@ int fossil_sys_hostinfo_get_architecture(fossil_sys_hostinfo_architecture_t *inf
         strncpy(info->cpu_cores, "Unknown", sizeof(info->cpu_cores) - 1);
     info->cpu_cores[sizeof(info->cpu_cores) - 1] = '\0';
 
-    // CPU threads
     int threads = 0;
     size = sizeof(threads);
     if (sysctlbyname("hw.logicalcpu", &threads, &size, NULL, 0) == 0)
@@ -193,7 +189,6 @@ int fossil_sys_hostinfo_get_architecture(fossil_sys_hostinfo_architecture_t *inf
         strncpy(info->cpu_threads, "Unknown", sizeof(info->cpu_threads) - 1);
     info->cpu_threads[sizeof(info->cpu_threads) - 1] = '\0';
 
-    // CPU frequency
     uint64_t freq = 0;
     size = sizeof(freq);
     if (sysctlbyname("hw.cpufrequency", &freq, &size, NULL, 0) == 0)
@@ -212,7 +207,6 @@ int fossil_sys_hostinfo_get_architecture(fossil_sys_hostinfo_architecture_t *inf
     strncpy(info->architecture, sysinfo.machine, sizeof(info->architecture) - 1);
     info->architecture[sizeof(info->architecture) - 1] = '\0';
 
-    // Try /proc/cpuinfo for more details
     FILE *fp = fopen("/proc/cpuinfo", "r");
     if (fp) {
         char line[256];
