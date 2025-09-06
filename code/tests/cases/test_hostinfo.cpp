@@ -92,7 +92,11 @@ FOSSIL_TEST(cpp_test_hostinfo_class_get_architecture) {
     fossil::sys::Hostinfo hostinfo;
     fossil_sys_hostinfo_architecture_t info = hostinfo.get_architecture();
     ASSUME_ITS_TRUE(strlen(info.architecture) > 0);
-    ASSUME_ITS_TRUE(strlen(info.detail) > 0);
+    ASSUME_ITS_TRUE(strlen(info.cpu) > 0);
+    ASSUME_ITS_TRUE(strlen(info.cpu_cores) > 0);
+    ASSUME_ITS_TRUE(strlen(info.cpu_threads) > 0);
+    ASSUME_ITS_TRUE(strlen(info.cpu_frequency) > 0);
+    ASSUME_ITS_TRUE(strlen(info.cpu_architecture) > 0);
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * *
