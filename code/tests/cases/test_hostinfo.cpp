@@ -88,6 +88,17 @@ FOSSIL_TEST(cpp_test_hostinfo_class_get_endianness) {
     ASSUME_ITS_TRUE(info.is_little_endian == 0 || info.is_little_endian == 1);
 }
 
+FOSSIL_TEST(cpp_test_hostinfo_class_get_architecture) {
+    fossil::sys::Hostinfo hostinfo;
+    fossil_sys_hostinfo_architecture_t info = hostinfo.get_architecture();
+    ASSUME_ITS_TRUE(strlen(info.architecture) > 0);
+    ASSUME_ITS_TRUE(strlen(info.cpu) > 0);
+    ASSUME_ITS_TRUE(strlen(info.cpu_cores) > 0);
+    ASSUME_ITS_TRUE(strlen(info.cpu_threads) > 0);
+    ASSUME_ITS_TRUE(strlen(info.cpu_frequency) > 0);
+    ASSUME_ITS_TRUE(strlen(info.cpu_architecture) > 0);
+}
+
 // * * * * * * * * * * * * * * * * * * * * * * * *
 // * Fossil Logic Test Pool
 // * * * * * * * * * * * * * * * * * * * * * * * *
@@ -100,6 +111,7 @@ FOSSIL_TEST_GROUP(cpp_hostinfo_tests) {
     FOSSIL_TEST_ADD(cpp_hostinfo_suite, cpp_test_hostinfo_class_get_system);
     FOSSIL_TEST_ADD(cpp_hostinfo_suite, cpp_test_hostinfo_class_get_memory);
     FOSSIL_TEST_ADD(cpp_hostinfo_suite, cpp_test_hostinfo_class_get_endianness);
+    FOSSIL_TEST_ADD(cpp_hostinfo_suite, cpp_test_hostinfo_class_get_architecture);
 
     FOSSIL_TEST_REGISTER(cpp_hostinfo_suite);
 }
