@@ -19,9 +19,10 @@
 #ifdef _WIN32
     #include <windows.h>
 #elif defined(__APPLE__)
-    #include <sys/types.h>
+    #define _DARWIN_C_SOURCE
     #include <sys/utsname.h>
     #include <unistd.h>
+    #include <sys/types.h>
     #include <sys/sysctl.h>
 #else
     #include <sys/utsname.h>
