@@ -236,55 +236,49 @@ void fossil_sys_time_add_span(fossil_sys_time_datetime_t *dt,
 /**
  * Fossil namespace.
  */
-namespace fossil {
-
+namespace fossil
+{
     /**
-     * System namespace.
+     * @namespace fossil::sys
+     * @brief Contains system-level time and date utilities.
      */
-    namespace sys {
-
+    namespace sys
+    {
         /**
          * @class DateTime
-         * @brief A class that represents the current date and time.
-         *
-         * The DateTime class initializes an instance with the current system time.
-         * It uses the fossil_sys_time_now function to set the time.
-         *
-         * @note This class relies on the fossil_sys_time_now function to retrieve the current time.
-         *
          * @brief C++ wrapper for fossil_sys_time_datetime_t.
+         *
+         * Provides methods for manipulating and formatting date and time values.
+         * Internally uses fossil_sys_time_datetime_t and related C functions.
          */
-        class DateTime {
+        class DateTime
+        {
         public:
-
             /**
-             * @class Calendar
-             * @brief C++ wrapper for fossil_sys_time_calendar_t.
+             * @brief Constructs a DateTime object initialized to the current system time.
              */
             DateTime() {
                 fossil_sys_time_now(&dt);
             }
 
             /**
-             * @brief Initialize the DateTime object with a specific date and time.
-             *
-             * @param datetime The fossil_sys_time_datetime_t structure to initialize the DateTime object with.
+             * @brief Constructs a DateTime object from an existing fossil_sys_time_datetime_t.
+             * @param datetime The datetime structure to initialize from.
              */
             DateTime(const fossil_sys_time_datetime_t& datetime) : dt(datetime) {}
 
             /**
-             * @brief Get the current date and time.
+             * @brief Updates the DateTime object to the current system time.
              */
             void now() {
                 fossil_sys_time_now(&dt);
             }
 
             /**
-             * @brief Format the date and time into a string.
-             *
-             * @param format The format string specifying the desired output format.
-             * @param military_time If true, use 24-hour format; otherwise, use 12-hour format.
-             * @return std::string Returns the formatted date and time as a string.
+             * @brief Formats the DateTime as a string.
+             * @param format Format string specifying the output.
+             * @param military_time If true, uses 24-hour format; otherwise, 12-hour format.
+             * @return Formatted date/time string.
              */
             std::string format(const std::string& format, bool military_time = true) const {
                 char buffer[256];
@@ -293,67 +287,188 @@ namespace fossil {
             }
 
             /**
-             * @brief Get the DateTime object.
-             *
-             * @return fossil_sys_time_datetime_t Returns the DateTime object.
+             * @brief Gets the underlying fossil_sys_time_datetime_t structure.
+             * @return The datetime structure.
              */
             fossil_sys_time_datetime_t get() const {
                 return dt;
             }
 
+            /**
+             * @brief Adds seconds to the DateTime.
+             * @param seconds Number of seconds to add (can be negative).
+             */
+            void add_seconds(int64_t seconds) {
+                fossil_sys_time_add_seconds(&dt, seconds);
+            }
+
+            /**
+             * @brief Computes the difference in seconds between this and another DateTime.
+             * @param other The other DateTime to compare.
+             * @return Difference in seconds (positive if this > other).
+             */
+            int64_t diff_seconds(const DateTime& other) const {
+                return fossil_sys_time_diff_seconds(&dt, &other.dt);
+            }
+
+            /**
+             * @brief Normalizes the DateTime fields to valid ranges.
+             */
+            void normalize() {
+                fossil_sys_time_normalize(&dt);
+            }
+
+            /**
+             * @brief Validates the DateTime fields.
+             * @return True if valid, false otherwise.
+             */
+            bool validate() const {
+                return fossil_sys_time_validate(&dt) != 0;
+            }
+
+            /**
+             * @brief Converts the DateTime to a Unix timestamp.
+             * @return Unix timestamp (seconds since 1970-01-01 UTC).
+             */
+            int64_t to_unix() const {
+                return fossil_sys_time_to_unix(&dt);
+            }
+
+            /**
+             * @brief Sets the DateTime from a Unix timestamp.
+             * @param timestamp Unix timestamp to set from.
+             */
+            void from_unix(int64_t timestamp) {
+                fossil_sys_time_from_unix(timestamp, &dt);
+            }
+
+            /**
+             * @brief Adds a time span to the DateTime.
+             * @param span The time span to add.
+             */
+            void add_span(const fossil_sys_time_span_t& span) {
+                fossil_sys_time_add_span(&dt, &span);
+            }
+
         private:
-            fossil_sys_time_datetime_t dt;
+            fossil_sys_time_datetime_t dt; /**< Internal datetime structure. */
         };
 
         /**
          * @class Calendar
          * @brief C++ wrapper for fossil_sys_time_calendar_t.
+         *
+         * Provides methods for calendar-related queries such as leap year and days in month.
          */
-        class Calendar {
+        class Calendar
+        {
         public:
-
             /**
-             * @brief Initialize the Calendar object with a specific date.
-             *
-             * @param year The year.
-             * @param month The month (1-12).
-             * @param day The day of the month.
+             * @brief Constructs a Calendar object for the specified date.
+             * @param year Year value.
+             * @param month Month value.
+             * @param day Day value.
              */
-            Calendar(int year, int month, int day) : cal{year, month, day, fossil_sys_time_is_leap_year(year)} {}
+            Calendar(int year, int month, int day)
+                : cal{year, month, day, fossil_sys_time_is_leap_year(year)} {}
 
             /**
-             * @brief Get the year.
-             *
-             * @return int Returns the year.
+             * @brief Checks if the calendar year is a leap year.
+             * @return True if leap year, false otherwise.
              */
             bool is_leap_year() const {
                 return cal.is_leap_year;
             }
 
             /**
-             * @brief Get the month.
-             *
-             * @return int Returns the month.
+             * @brief Gets the number of days in the calendar's month.
+             * @return Number of days in the month.
              */
             int days_in_month() const {
                 return fossil_sys_time_days_in_month(cal.year, cal.month);
             }
 
             /**
-             * @brief Get the day.
-             *
-             * @return int Returns the day.
+             * @brief Gets the underlying fossil_sys_time_calendar_t structure.
+             * @return The calendar structure.
              */
             fossil_sys_time_calendar_t get() const {
                 return cal;
             }
 
         private:
-            fossil_sys_time_calendar_t cal;
+            fossil_sys_time_calendar_t cal; /**< Internal calendar structure. */
         };
 
-    }
+        /**
+         * @class TimeSpan
+         * @brief C++ wrapper for fossil_sys_time_span_t.
+         *
+         * Represents a duration of time and provides conversion utilities.
+         */
+        class TimeSpan
+        {
+        public:
+            /**
+             * @brief Constructs a zero-initialized TimeSpan.
+             */
+            TimeSpan() : span{0, 0, 0, 0, 0} {}
 
+            /**
+             * @brief Constructs a TimeSpan from total seconds.
+             * @param seconds Total seconds for the time span.
+             */
+            explicit TimeSpan(int64_t seconds) {
+                span = fossil_sys_time_span_from_seconds(seconds);
+            }
+
+            /**
+             * @brief Constructs a TimeSpan from explicit fields.
+             * @param days Number of days.
+             * @param hours Number of hours.
+             * @param minutes Number of minutes.
+             * @param seconds Number of seconds.
+             * @param nanoseconds Number of nanoseconds.
+             */
+            TimeSpan(int64_t days, int64_t hours, int64_t minutes, int64_t seconds, int64_t nanoseconds)
+                : span{days, hours, minutes, seconds, nanoseconds} {}
+
+            /**
+             * @brief Converts the TimeSpan to total seconds.
+             * @return Total seconds represented by the span.
+             */
+            int64_t to_seconds() const {
+                return fossil_sys_time_span_to_seconds(&span);
+            }
+
+            /**
+             * @brief Gets the underlying fossil_sys_time_span_t structure.
+             * @return The time span structure.
+             */
+            fossil_sys_time_span_t get() const {
+                return span;
+            }
+
+        private:
+            fossil_sys_time_span_t span; /**< Internal time span structure. */
+        };
+
+        /**
+         * @brief Gets a high-resolution monotonic timestamp in nanoseconds.
+         * @return Monotonic timestamp in nanoseconds.
+         */
+        inline uint64_t monotonic_ns() {
+            return fossil_sys_time_monotonic_ns();
+        }
+
+        /**
+         * @brief Sleeps for the specified number of nanoseconds.
+         * @param nanoseconds Number of nanoseconds to sleep.
+         */
+        inline void sleep_ns(uint64_t nanoseconds) {
+            fossil_sys_time_sleep_ns(nanoseconds);
+        }
+    }
 }
 
 #endif
