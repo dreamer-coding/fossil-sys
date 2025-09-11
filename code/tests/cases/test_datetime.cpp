@@ -156,6 +156,85 @@ FOSSIL_TEST(cpp_test_monotonic_ns_and_sleep_ns) {
     ASSUME_ITS_TRUE(t2 > t1);
 }
 
+FOSSIL_TEST(cpp_test_time_now_edge_cases) {
+    fossil::sys::DateTime dt;
+    auto datetime = dt.get();
+    // Check for valid hour, minute, second ranges
+    ASSUME_ITS_TRUE(datetime.hour >= 0 && datetime.hour <= 23);
+    ASSUME_ITS_TRUE(datetime.minute >= 0 && datetime.minute <= 59);
+    ASSUME_ITS_TRUE(datetime.second >= 0 && datetime.second <= 59);
+    // Check for valid millisecond range if supported
+    ASSUME_ITS_TRUE(datetime.millisecond >= 0 && datetime.millisecond <= 999);
+}
+
+FOSSIL_TEST(cpp_test_time_format_edge_cases) {
+    fossil::sys::DateTime dt({2024, 12, 31, 23, 59, 59, 999});
+    std::string formatted = dt.format("%Y-%m-%d %H:%M:%S.%f", true);
+    ASSUME_ITS_TRUE(formatted == "2024-12-31 23:59:59.999");
+    // Test formatting with single-digit month/day
+    fossil::sys::DateTime dt2({2024, 2, 3, 4, 5, 6, 7});
+    std::string formatted2 = dt2.format("%Y-%m-%d %H:%M:%S", true);
+    ASSUME_ITS_TRUE(formatted2 == "2024-02-03 04:05:06");
+}
+
+FOSSIL_TEST(cpp_test_time_is_leap_year_edge_cases) {
+    // Test century years
+    ASSUME_ITS_TRUE(fossil::sys::Calendar(2000, 1, 1).is_leap_year() == true); // 2000 is leap
+    ASSUME_ITS_TRUE(fossil::sys::Calendar(1900, 1, 1).is_leap_year() == false); // 1900 is not leap
+    ASSUME_ITS_TRUE(fossil::sys::Calendar(2400, 1, 1).is_leap_year() == true); // 2400 is leap
+}
+
+FOSSIL_TEST(cpp_test_time_days_in_month_edge_cases) {
+    // April, June, September, November have 30 days
+    ASSUME_ITS_TRUE(fossil::sys::Calendar(2024, 4, 1).days_in_month() == 30);
+    ASSUME_ITS_TRUE(fossil::sys::Calendar(2024, 6, 1).days_in_month() == 30);
+    ASSUME_ITS_TRUE(fossil::sys::Calendar(2024, 9, 1).days_in_month() == 30);
+    ASSUME_ITS_TRUE(fossil::sys::Calendar(2024, 11, 1).days_in_month() == 30);
+    // February in year 2100 (not leap)
+    ASSUME_ITS_TRUE(fossil::sys::Calendar(2100, 2, 1).days_in_month() == 28);
+}
+
+FOSSIL_TEST(cpp_test_datetime_constructor_edge_cases) {
+    // Construct with minimum valid date
+    fossil::sys::DateTime dt_min({1, 1, 1, 0, 0, 0, 0});
+    auto datetime_min = dt_min.get();
+    ASSUME_ITS_TRUE(datetime_min.year == 1);
+    ASSUME_ITS_TRUE(datetime_min.month == 1);
+    ASSUME_ITS_TRUE(datetime_min.day == 1);
+    // Construct with maximum valid date (example: year 9999)
+    fossil::sys::DateTime dt_max({9999, 12, 31, 23, 59, 59, 999});
+    auto datetime_max = dt_max.get();
+    ASSUME_ITS_TRUE(datetime_max.year == 9999);
+    ASSUME_ITS_TRUE(datetime_max.month == 12);
+    ASSUME_ITS_TRUE(datetime_max.day == 31);
+}
+
+FOSSIL_TEST(cpp_test_datetime_format_invalid_format) {
+    fossil::sys::DateTime dt({2024, 1, 1, 12, 0, 0, 0});
+    std::string formatted = dt.format("invalid_format_string", true);
+    ASSUME_ITS_TRUE(!formatted.empty()); // Should not crash, may return input or fallback
+}
+
+FOSSIL_TEST(cpp_test_datetime_add_seconds_edge_cases) {
+    fossil::sys::DateTime dt({2024, 12, 31, 23, 59, 59, 0});
+    dt.add_seconds(1); // Should roll over to next year
+    auto datetime = dt.get();
+    ASSUME_ITS_TRUE(datetime.year == 2025 && datetime.month == 1 && datetime.day == 1 && datetime.hour == 0 && datetime.minute == 0 && datetime.second == 0);
+    dt.add_seconds(-1); // Should roll back to previous year end
+    datetime = dt.get();
+    ASSUME_ITS_TRUE(datetime.year == 2024 && datetime.month == 12 && datetime.day == 31 && datetime.hour == 23 && datetime.minute == 59 && datetime.second == 59);
+}
+
+FOSSIL_TEST(cpp_test_datetime_diff_seconds_edge_cases) {
+    fossil::sys::DateTime dt1({2024, 1, 1, 0, 0, 0, 0});
+    fossil::sys::DateTime dt2({2023, 12, 31, 23, 59, 59, 0});
+    int64_t diff = dt1.diff_seconds(dt2);
+    ASSUME_ITS_TRUE(diff == 1); // 1 second difference
+    // Negative difference
+    int64_t diff_neg = dt2.diff_seconds(dt1);
+    ASSUME_ITS_TRUE(diff_neg == -1);
+}
+
 // * * * * * * * * * * * * * * * * * * * * * * * *
 // * Fossil Logic Test Pool
 // * * * * * * * * * * * * * * * * * * * * * * * *
@@ -177,6 +256,14 @@ FOSSIL_TEST_GROUP(cpp_time_tests) {
     FOSSIL_TEST_ADD(cpp_time_suite, cpp_test_datetime_add_span);
     FOSSIL_TEST_ADD(cpp_time_suite, cpp_test_timespan_constructors_and_conversion);
     FOSSIL_TEST_ADD(cpp_time_suite, cpp_test_monotonic_ns_and_sleep_ns);
+    FOSSIL_TEST_ADD(cpp_time_suite, cpp_test_time_now_edge_cases);
+    FOSSIL_TEST_ADD(cpp_time_suite, cpp_test_time_format_edge_cases);
+    FOSSIL_TEST_ADD(cpp_time_suite, cpp_test_time_is_leap_year_edge_cases);
+    FOSSIL_TEST_ADD(cpp_time_suite, cpp_test_time_days_in_month_edge_cases);
+    FOSSIL_TEST_ADD(cpp_time_suite, cpp_test_datetime_constructor_edge_cases);
+    FOSSIL_TEST_ADD(cpp_time_suite, cpp_test_datetime_format_invalid_format);
+    FOSSIL_TEST_ADD(cpp_time_suite, cpp_test_datetime_add_seconds_edge_cases);
+    FOSSIL_TEST_ADD(cpp_time_suite, cpp_test_datetime_diff_seconds_edge_cases);
 
     FOSSIL_TEST_REGISTER(cpp_time_suite);
 }
