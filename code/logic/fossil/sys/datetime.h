@@ -99,6 +99,135 @@ int fossil_sys_time_is_leap_year(int year);
  */
 int fossil_sys_time_days_in_month(int year, int month);
 
+/**
+ * @brief Add seconds to a datetime.
+ *
+ * Adds or subtracts a number of seconds to a datetime object.
+ * The datetime will be normalized so that overflow in seconds,
+ * minutes, hours, or days is properly carried forward or backward.
+ *
+ * @param dt Pointer to a datetime to modify.
+ * @param seconds Number of seconds to add (can be negative).
+ */
+void fossil_sys_time_add_seconds(fossil_sys_time_datetime_t *dt, int64_t seconds);
+
+/**
+ * @brief Compute the difference between two datetimes in seconds.
+ *
+ * Returns the signed difference (a - b) in seconds.
+ *
+ * @param a Pointer to the first datetime.
+ * @param b Pointer to the second datetime.
+ * @return int64_t Difference in seconds (positive if a > b).
+ */
+int64_t fossil_sys_time_diff_seconds(const fossil_sys_time_datetime_t *a,
+                                     const fossil_sys_time_datetime_t *b);
+
+/**
+ * @brief Normalize a datetime.
+ *
+ * Adjusts fields in a datetime object to ensure they are within
+ * valid ranges (e.g., 13th month becomes January of next year).
+ *
+ * @param dt Pointer to a datetime to normalize.
+ */
+void fossil_sys_time_normalize(fossil_sys_time_datetime_t *dt);
+
+/**
+ * @brief Validate a datetime.
+ *
+ * Checks whether a datetime object represents a valid date and time.
+ *
+ * @param dt Pointer to the datetime to validate.
+ * @return 1 if valid, 0 if invalid (e.g., month=13, day=32).
+ */
+int fossil_sys_time_validate(const fossil_sys_time_datetime_t *dt);
+
+/**
+ * @brief Convert a datetime to a Unix timestamp.
+ *
+ * Converts the datetime to a Unix timestamp (seconds since 1970-01-01 UTC).
+ * This function assumes the datetime is in UTC.
+ *
+ * @param dt Pointer to the datetime.
+ * @return int64_t Unix timestamp (may be negative for pre-1970 dates).
+ */
+int64_t fossil_sys_time_to_unix(const fossil_sys_time_datetime_t *dt);
+
+/**
+ * @brief Populate a datetime from a Unix timestamp.
+ *
+ * Converts a Unix timestamp (seconds since 1970-01-01 UTC)
+ * into a fossil_sys_time_datetime_t structure.
+ *
+ * @param timestamp Unix timestamp (seconds since 1970-01-01 UTC).
+ * @param dt Pointer to a datetime structure to fill.
+ */
+void fossil_sys_time_from_unix(int64_t timestamp, fossil_sys_time_datetime_t *dt);
+
+/**
+ * @brief Get a high-resolution monotonic timestamp.
+ *
+ * Returns a monotonic timestamp in nanoseconds. Unlike wall-clock
+ * time, this value will never jump backward or forward due to NTP
+ * adjustments. Suitable for measuring time intervals.
+ *
+ * @return uint64_t Monotonic timestamp in nanoseconds.
+ */
+uint64_t fossil_sys_time_monotonic_ns(void);
+
+/**
+ * @brief Sleep for a number of nanoseconds.
+ *
+ * Suspends execution for at least the specified duration.
+ *
+ * @param nanoseconds Number of nanoseconds to sleep.
+ */
+void fossil_sys_time_sleep_ns(uint64_t nanoseconds);
+
+/**
+ * @struct fossil_sys_time_span_t
+ * @brief Struct representing a duration of time.
+ *
+ * This structure holds components of a time span, allowing precise
+ * representation of durations and intervals.
+ */
+typedef struct {
+    int64_t days;        /**< Number of days */
+    int64_t hours;       /**< Number of hours */
+    int64_t minutes;     /**< Number of minutes */
+    int64_t seconds;     /**< Number of seconds */
+    int64_t nanoseconds; /**< Number of nanoseconds */
+} fossil_sys_time_span_t;
+
+/**
+ * @brief Create a time span from seconds.
+ *
+ * @param seconds Total number of seconds to convert into a time span.
+ * @return fossil_sys_time_span_t Time span with fields populated.
+ */
+fossil_sys_time_span_t fossil_sys_time_span_from_seconds(int64_t seconds);
+
+/**
+ * @brief Convert a time span into seconds.
+ *
+ * @param span Pointer to a time span.
+ * @return int64_t Total number of seconds represented by the span.
+ */
+int64_t fossil_sys_time_span_to_seconds(const fossil_sys_time_span_t *span);
+
+/**
+ * @brief Add a time span to a datetime.
+ *
+ * Adds (or subtracts, if fields are negative) the components
+ * of a time span to a datetime object.
+ *
+ * @param dt Pointer to a datetime to modify.
+ * @param span Pointer to a time span to add.
+ */
+void fossil_sys_time_add_span(fossil_sys_time_datetime_t *dt,
+                              const fossil_sys_time_span_t *span);
+
 #ifdef __cplusplus
 }
 
