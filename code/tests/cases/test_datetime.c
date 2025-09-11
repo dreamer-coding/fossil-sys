@@ -159,7 +159,7 @@ FOSSIL_TEST(c_test_time_format_edge_cases) {
     ASSUME_ITS_TRUE(len < (int)sizeof(buffer)); // Buffer too small, should truncate or error
     fossil_sys_time_datetime_t dt2 = {2024, 2, 29, 0, 0, 0, 0};
     char buffer2[100];
-    int len2 = fossil_sys_time_format(&dt2, buffer2, sizeof(buffer2), "%Y-%m-%d", 1);
+    fossil_sys_time_format(&dt2, buffer2, sizeof(buffer2), "%Y-%m-%d", 1);
     ASSUME_ITS_TRUE(strcmp(buffer2, "2024-02-29") == 0); // Leap day format
 }
 
