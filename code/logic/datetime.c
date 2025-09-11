@@ -12,7 +12,6 @@
  * -----------------------------------------------------------------------------
  */
 #include "fossil/sys/datetime.h"
-#include "fossil/sys/datetime.h"  // Your project header
 
 #include <errno.h>
 #include <stdint.h>
