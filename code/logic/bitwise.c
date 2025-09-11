@@ -73,3 +73,45 @@ int fossil_sys_bitwise_lookup(const char *name, const fossil_sys_bitwise_table_t
     }
     return -1; // Not found
 }
+
+uint64_t fossil_sys_bitwise_all(const fossil_sys_bitwise_table_t *table) {
+    if (!table || !table->entries) return 0;
+
+    uint64_t mask = 0;
+    for (size_t i = 0; i < table->count; i++) {
+        mask |= table->entries[i].bit;
+    }
+    return mask;
+}
+
+int fossil_sys_bitwise_validate(uint64_t bits, const fossil_sys_bitwise_table_t *table) {
+    if (!table) return -1; // invalid table pointer
+
+    uint64_t all = fossil_sys_bitwise_all(table);
+    return (bits & ~all) ? -1 : 0; // -1 if unknown bits are set
+}
+
+const char *fossil_sys_bitwise_name(uint64_t bit, const fossil_sys_bitwise_table_t *table) {
+    if (!table || !table->entries) return NULL;
+
+    for (size_t i = 0; i < table->count; i++) {
+        if (table->entries[i].bit == bit) {
+            return table->entries[i].name;
+        }
+    }
+    return NULL;
+}
+
+size_t fossil_sys_bitwise_count(uint64_t bits) {
+#if defined(__GNUC__) || defined(__clang__)
+    return (size_t)__builtin_popcountll(bits);
+#else
+    // Portable fallback (Brian Kernighan’s bit-counting algorithm)
+    size_t count = 0;
+    while (bits) {
+        bits &= (bits - 1); // clear the lowest set bit
+        count++;
+    }
+    return count;
+#endif
+}
