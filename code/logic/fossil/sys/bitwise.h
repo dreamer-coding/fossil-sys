@@ -70,6 +70,51 @@ int fossil_sys_bitwise_format(uint64_t bits, const fossil_sys_bitwise_table_t *t
  */
 int fossil_sys_bitwise_lookup(const char *name, const fossil_sys_bitwise_table_t *table, uint64_t *out_bit);
 
+/**
+ * Returns a bitmask containing all valid bits from the table.
+ *
+ * @param table The bitwise table.
+ * @return A uint64_t mask where all known bits are set.
+ */
+uint64_t fossil_sys_bitwise_all(const fossil_sys_bitwise_table_t *table);
+
+/**
+ * Validates that a bitmask contains only known bits.
+ *
+ * @param bits The bitmask to validate.
+ * @param table The bitwise table.
+ * @return 0 if valid, non-zero if unknown bits are present.
+ */
+int fossil_sys_bitwise_validate(uint64_t bits, const fossil_sys_bitwise_table_t *table);
+
+/**
+ * Finds the name corresponding to a single bit value.
+ *
+ * @param bit The bit value to look up (must be a single bit).
+ * @param table The bitwise table.
+ * @return Pointer to the name string, or NULL if not found.
+ */
+const char *fossil_sys_bitwise_name(uint64_t bit, const fossil_sys_bitwise_table_t *table);
+
+/**
+ * Counts how many bits are set in the bitmask.
+ *
+ * @param bits The bitmask to count.
+ * @return The number of bits set.
+ */
+size_t fossil_sys_bitwise_count(uint64_t bits);
+
+/**
+ * Checks whether a specific bit is set in a bitmask.
+ *
+ * @param bits The bitmask to check.
+ * @param bit The bit to test (e.g., 1 << 3).
+ * @return 1 if the bit is set, 0 otherwise.
+ */
+static inline int fossil_sys_bitwise_has(uint64_t bits, uint64_t bit) {
+    return (bits & bit) != 0;
+}
+
 #ifdef __cplusplus
 }
 
