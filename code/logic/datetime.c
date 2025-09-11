@@ -49,6 +49,44 @@ static int days_in_month_internal(int year, int month) {
     return DAYS_IN_MONTH[month - 1];
 }
 
+#if defined(_WIN32) || defined(_WIN64)
+/**
+ * Windows replacement for timegm() using _mkgmtime().
+ */
+static inline time_t fossil_sys_timegm(struct tm *tm) {
+    return _mkgmtime(tm);
+}
+#else
+/**
+ * Portable fallback for timegm().
+ *
+ * If timegm() is available (GNU, BSD, etc.), just use it.
+ * Otherwise, emulate it using mktime() after forcing UTC.
+ */
+static inline time_t fossil_sys_timegm(struct tm *tm) {
+    #if defined(__USE_BSD) || defined(__USE_GNU)
+    return timegm(tm);
+    #else
+    /* Fallback: Temporarily set TZ to UTC, call mktime, restore TZ. */
+    char *old_tz = getenv("TZ");
+    setenv("TZ", "", 1);     // Force UTC
+    tzset();
+
+    time_t result = mktime(tm);
+
+    if (old_tz)
+        setenv("TZ", old_tz, 1);
+    else
+        unsetenv("TZ");
+
+    tzset();
+    return result;
+    #endif
+}
+#endif
+
+
+
 // main source code
 
 void fossil_sys_time_now(fossil_sys_time_datetime_t *dt) {
@@ -212,7 +250,7 @@ int64_t fossil_sys_time_to_unix(const fossil_sys_time_datetime_t *dt) {
     t.tm_hour = dt->hour;
     t.tm_min  = dt->minute;
     t.tm_sec  = dt->second;
-    time_t result = timegm(&t); // UTC-safe variant of mktime
+    time_t result = fossil_sys_timegm(&t); // UTC-safe variant of mktime
     return (int64_t)result;
 }
 
