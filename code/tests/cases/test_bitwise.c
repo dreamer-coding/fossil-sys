@@ -110,6 +110,83 @@ FOSSIL_TEST(c_test_bitwise_lookup) {
     ASSUME_ITS_EQUAL_I32(bit, 0x4);
 }
 
+// ** Test fossil_sys_bitwise_all Function **
+FOSSIL_TEST(c_test_bitwise_all) {
+    fossil_sys_bitwise_entry_t entries[] = {
+        {"read", 0x1},
+        {"write", 0x2},
+        {"execute", 0x4},
+        {NULL, 0}
+    };
+    const fossil_sys_bitwise_table_t table = {entries, sizeof(entries) / sizeof(entries[0]) - 1};
+
+    uint64_t mask = fossil_sys_bitwise_all(&table);
+    ASSUME_ITS_EQUAL_I32(mask, 0x7); // 0x1 | 0x2 | 0x4
+}
+
+// ** Test fossil_sys_bitwise_validate Function **
+FOSSIL_TEST(c_test_bitwise_validate) {
+    fossil_sys_bitwise_entry_t entries[] = {
+        {"read", 0x1},
+        {"write", 0x2},
+        {"execute", 0x4},
+        {NULL, 0}
+    };
+    const fossil_sys_bitwise_table_t table = {entries, sizeof(entries) / sizeof(entries[0]) - 1};
+
+    // Known good mask
+    int status = fossil_sys_bitwise_validate(0x3, &table);
+    ASSUME_ITS_EQUAL_I32(status, 0);
+
+    // Mask with an unknown bit set (0x8)
+    status = fossil_sys_bitwise_validate(0x8, &table);
+    ASSUME_NOT_EQUAL_I32(status, 0); // Expect failure
+}
+
+// ** Test fossil_sys_bitwise_name Function **
+FOSSIL_TEST(c_test_bitwise_name) {
+    fossil_sys_bitwise_entry_t entries[] = {
+        {"read", 0x1},
+        {"write", 0x2},
+        {"execute", 0x4},
+        {NULL, 0}
+    };
+    const fossil_sys_bitwise_table_t table = {entries, sizeof(entries) / sizeof(entries[0]) - 1};
+
+    const char *name = fossil_sys_bitwise_name(0x1, &table);
+    ASSUME_ITS_EQUAL_CSTR(name, "read");
+
+    name = fossil_sys_bitwise_name(0x4, &table);
+    ASSUME_ITS_EQUAL_CSTR(name, "execute");
+
+    name = fossil_sys_bitwise_name(0x8, &table);
+    ASSUME_ITS_CNULL(name); // 0x8 is not in the table
+}
+
+// ** Test fossil_sys_bitwise_count Function **
+FOSSIL_TEST(c_test_bitwise_count) {
+    uint64_t mask = 0x7; // 3 bits set
+    size_t count = fossil_sys_bitwise_count(mask);
+    ASSUME_ITS_EQUAL_I32(count, 3);
+
+    mask = 0x0;
+    count = fossil_sys_bitwise_count(mask);
+    ASSUME_ITS_EQUAL_I32(count, 0);
+
+    mask = 0xFFFFFFFFFFFFFFFFULL;
+    count = fossil_sys_bitwise_count(mask);
+    ASSUME_ITS_EQUAL_I32(count, 64);
+}
+
+// ** Test fossil_sys_bitwise_has Function **
+FOSSIL_TEST(c_test_bitwise_has) {
+    uint64_t mask = 0x5; // bits 0 and 2 set
+
+    ASSUME_ITS_TRUE(fossil_sys_bitwise_has(mask, 0x1)); // bit 0 set
+    ASSUME_ITS_FALSE(fossil_sys_bitwise_has(mask, 0x2)); // bit 1 NOT set
+    ASSUME_ITS_TRUE(fossil_sys_bitwise_has(mask, 0x4)); // bit 2 set
+}
+
 // * * * * * * * * * * * * * * * * * * * * * * * *
 // * Fossil Logic Test Pool
 // * * * * * * * * * * * * * * * * * * * * * * * *
@@ -117,6 +194,11 @@ FOSSIL_TEST_GROUP(c_bitwise_tests) {
     FOSSIL_TEST_ADD(c_bitwise_suite, c_test_bitwise_parse);
     FOSSIL_TEST_ADD(c_bitwise_suite, c_test_bitwise_format);
     FOSSIL_TEST_ADD(c_bitwise_suite, c_test_bitwise_lookup);
+    FOSSIL_TEST_ADD(c_bitwise_suite, c_test_bitwise_all);
+    FOSSIL_TEST_ADD(c_bitwise_suite, c_test_bitwise_validate);
+    FOSSIL_TEST_ADD(c_bitwise_suite, c_test_bitwise_name);
+    FOSSIL_TEST_ADD(c_bitwise_suite, c_test_bitwise_count);
+    FOSSIL_TEST_ADD(c_bitwise_suite, c_test_bitwise_has);
 
     FOSSIL_TEST_REGISTER(c_bitwise_suite);
 }
