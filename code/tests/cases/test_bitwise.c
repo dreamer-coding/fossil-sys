@@ -140,7 +140,7 @@ FOSSIL_TEST(c_test_bitwise_validate) {
 
     // Mask with an unknown bit set (0x8)
     status = fossil_sys_bitwise_validate(0x8, &table);
-    ASSUME_ITS_NOTEQUAL_I32(status, 0); // Expect failure
+    ASSUME_NOT_EQUAL_I32(status, 0); // Expect failure
 }
 
 // ** Test fossil_sys_bitwise_name Function **
@@ -160,7 +160,7 @@ FOSSIL_TEST(c_test_bitwise_name) {
     ASSUME_ITS_EQUAL_CSTR(name, "execute");
 
     name = fossil_sys_bitwise_name(0x8, &table);
-    ASSUME_ITS_NULL(name); // 0x8 is not in the table
+    ASSUME_ITS_CNULL(name); // 0x8 is not in the table
 }
 
 // ** Test fossil_sys_bitwise_count Function **
