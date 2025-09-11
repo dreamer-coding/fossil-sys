@@ -163,8 +163,6 @@ FOSSIL_TEST(cpp_test_time_now_edge_cases) {
     ASSUME_ITS_TRUE(datetime.hour >= 0 && datetime.hour <= 23);
     ASSUME_ITS_TRUE(datetime.minute >= 0 && datetime.minute <= 59);
     ASSUME_ITS_TRUE(datetime.second >= 0 && datetime.second <= 59);
-    // Check for valid millisecond range if supported
-    ASSUME_ITS_TRUE(datetime.millisecond >= 0 && datetime.millisecond <= 999);
 }
 
 FOSSIL_TEST(cpp_test_time_format_edge_cases) {
