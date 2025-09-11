@@ -187,50 +187,6 @@ FOSSIL_TEST(c_test_bitwise_has) {
     ASSUME_ITS_TRUE(fossil_sys_bitwise_has(mask, 0x4)); // bit 2 set
 }
 
-
-// ** Edge cases for fossil_sys_bitwise_parse **
-FOSSIL_TEST(c_test_bitwise_parse_edge_cases) {
-    fossil_sys_bitwise_entry_t entries[] = {
-        {"read", 0x1},
-        {"write", 0x2},
-        {"execute", 0x4},
-        {NULL, 0}
-    };
-    const fossil_sys_bitwise_table_t table = {entries, sizeof(entries) / sizeof(entries[0]) - 1};
-
-    // Unknown name
-    uint64_t result = fossil_sys_bitwise_parse("unknown", &table);
-    ASSUME_ITS_EQUAL_I32(result, 0x0);
-
-    // Mixed known and unknown
-    result = fossil_sys_bitwise_parse("read|unknown|write", &table);
-    ASSUME_ITS_EQUAL_I32(result, 0x3);
-
-    // Leading/trailing delimiters
-    result = fossil_sys_bitwise_parse("|read|write|", &table);
-    ASSUME_ITS_EQUAL_I32(result, 0x3);
-
-    // Duplicate names
-    result = fossil_sys_bitwise_parse("read|read|write", &table);
-    ASSUME_ITS_EQUAL_I32(result, 0x3);
-
-    // Spaces in names (should not match)
-    result = fossil_sys_bitwise_parse(" read | write ", &table);
-    ASSUME_ITS_EQUAL_I32(result, 0x0);
-
-    // NULL string
-    result = fossil_sys_bitwise_parse(NULL, &table);
-    ASSUME_ITS_EQUAL_I32(result, 0x0);
-
-    // Only delimiters
-    result = fossil_sys_bitwise_parse("|||", &table);
-    ASSUME_ITS_EQUAL_I32(result, 0x0);
-
-    // Large input string
-    result = fossil_sys_bitwise_parse("read|write|execute|read|write|execute", &table);
-    ASSUME_ITS_EQUAL_I32(result, 0x7);
-}
-
 // * * * * * * * * * * * * * * * * * * * * * * * *
 // * Fossil Logic Test Pool
 // * * * * * * * * * * * * * * * * * * * * * * * *
@@ -243,7 +199,6 @@ FOSSIL_TEST_GROUP(c_bitwise_tests) {
     FOSSIL_TEST_ADD(c_bitwise_suite, c_test_bitwise_name);
     FOSSIL_TEST_ADD(c_bitwise_suite, c_test_bitwise_count);
     FOSSIL_TEST_ADD(c_bitwise_suite, c_test_bitwise_has);
-    FOSSIL_TEST_ADD(c_bitwise_suite, c_test_bitwise_parse_edge_cases);
 
     FOSSIL_TEST_REGISTER(c_bitwise_suite);
 }

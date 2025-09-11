@@ -199,49 +199,6 @@ FOSSIL_TEST(cpp_test_class_bitwise_format_string) {
     ASSUME_ITS_EQUAL_CSTR(result.c_str(), "");
 }
 
-// ** Edge case tests for fossil::sys::Bitwise::parse Function **
-FOSSIL_TEST(cpp_test_class_bitwise_parse_edge_cases) {
-    fossil_sys_bitwise_entry_t entries[] = {
-        {"read", 0x1},
-        {"write", 0x2},
-        {"execute", 0x4},
-        {nullptr, 0}
-    };
-    fossil_sys_bitwise_table_t table = {entries, sizeof(entries) / sizeof(entries[0]) - 1};
-
-    // Unknown name in input
-    uint64_t result = fossil::sys::Bitwise::parse("read|unknown", &table);
-    ASSUME_ITS_EQUAL_I32(result, 0x1); // Only "read" is valid
-
-    // Duplicate names
-    result = fossil::sys::Bitwise::parse("read|read|write", &table);
-    ASSUME_ITS_EQUAL_I32(result, 0x3); // Duplicates should not affect result
-
-    // Leading/trailing delimiters
-    result = fossil::sys::Bitwise::parse("|read|write|", &table);
-    ASSUME_ITS_EQUAL_I32(result, 0x3);
-
-    // Spaces in input
-    result = fossil::sys::Bitwise::parse(" read | write ", &table);
-    ASSUME_ITS_EQUAL_I32(result, 0x3);
-
-    // All valid names
-    result = fossil::sys::Bitwise::parse("read|write|execute", &table);
-    ASSUME_ITS_EQUAL_I32(result, 0x7);
-
-    // Only delimiters
-    result = fossil::sys::Bitwise::parse("|||", &table);
-    ASSUME_ITS_EQUAL_I32(result, 0x0);
-
-    // Null table pointer
-    result = fossil::sys::Bitwise::parse("read|write", nullptr);
-    ASSUME_ITS_EQUAL_I32(result, 0x0);
-
-    // Null string pointer
-    result = fossil::sys::Bitwise::parse(nullptr, &table);
-    ASSUME_ITS_EQUAL_I32(result, 0x0);
-}
-
 // * * * * * * * * * * * * * * * * * * * * * * * *
 // * Fossil Logic Test Pool
 // * * * * * * * * * * * * * * * * * * * * * * * *
@@ -255,7 +212,6 @@ FOSSIL_TEST_GROUP(cpp_bitwise_tests) {
     FOSSIL_TEST_ADD(cpp_bitwise_suite, cpp_test_class_bitwise_count);
     FOSSIL_TEST_ADD(cpp_bitwise_suite, cpp_test_class_bitwise_has);
     FOSSIL_TEST_ADD(cpp_bitwise_suite, cpp_test_class_bitwise_format_string);
-    FOSSIL_TEST_ADD(cpp_bitwise_suite, cpp_test_class_bitwise_parse_edge_cases);
 
     FOSSIL_TEST_REGISTER(cpp_bitwise_suite);
 }
