@@ -323,6 +323,96 @@ FOSSIL_TEST(cpp_test_memory_class_is_valid) {
     fossil::sys::Memory::free(ptr); // Cleanup
 }
 
+FOSSIL_TEST(cpp_test_memory_class_aligned_alloc_free) {
+    size_t size = 64;
+    size_t alignment = 32;
+    fossil_sys_memory_t ptr = fossil::sys::Memory::aligned_alloc(size, alignment);
+    ASSUME_NOT_CNULL(ptr);
+    ASSUME_ITS_TRUE(reinterpret_cast<uintptr_t>(ptr) % alignment == 0); // Check alignment
+    fossil::sys::Memory::aligned_free(ptr); // Cleanup
+}
+
+FOSSIL_TEST(cpp_test_memory_class_fill) {
+    size_t size = 16;
+    uint8_t pattern[2] = {0xAB, 0xCD};
+    fossil_sys_memory_t ptr = fossil::sys::Memory::alloc(size);
+    ASSUME_NOT_CNULL(ptr);
+
+    ptr = fossil::sys::Memory::fill(ptr, pattern, sizeof(pattern), size);
+    for (size_t i = 0; i < size; ++i) {
+        ASSUME_ITS_TRUE(((uint8_t*)ptr)[i] == pattern[i % 2]);
+    }
+
+    fossil::sys::Memory::free(ptr); // Cleanup
+}
+
+FOSSIL_TEST(cpp_test_memory_class_secure_zero) {
+    size_t size = 16;
+    fossil_sys_memory_t ptr = fossil::sys::Memory::alloc(size);
+    ASSUME_NOT_CNULL(ptr);
+
+    fossil::sys::Memory::set(ptr, 0xFF, size);
+    fossil::sys::Memory::secure_zero(ptr, size);
+    for (size_t i = 0; i < size; ++i) {
+        ASSUME_ITS_TRUE(((uint8_t*)ptr)[i] == 0);
+    }
+
+    fossil::sys::Memory::free(ptr); // Cleanup
+}
+
+FOSSIL_TEST(cpp_test_memory_class_swap) {
+    size_t size = 8;
+    fossil_sys_memory_t a = fossil::sys::Memory::alloc(size);
+    fossil_sys_memory_t b = fossil::sys::Memory::alloc(size);
+    ASSUME_NOT_CNULL(a);
+    ASSUME_NOT_CNULL(b);
+
+    fossil::sys::Memory::set(a, 0x11, size);
+    fossil::sys::Memory::set(b, 0x22, size);
+
+    fossil::sys::Memory::swap(a, b, size);
+
+    for (size_t i = 0; i < size; ++i) {
+        ASSUME_ITS_TRUE(((uint8_t*)a)[i] == 0x22);
+        ASSUME_ITS_TRUE(((uint8_t*)b)[i] == 0x11);
+    }
+
+    fossil::sys::Memory::free(a);
+    fossil::sys::Memory::free(b); // Cleanup
+}
+
+FOSSIL_TEST(cpp_test_memory_class_find) {
+    size_t size = 16;
+    fossil_sys_memory_t ptr = fossil::sys::Memory::alloc(size);
+    ASSUME_NOT_CNULL(ptr);
+
+    fossil::sys::Memory::set(ptr, 0x00, size);
+    ((uint8_t*)ptr)[7] = 0xAB;
+
+    void* found = fossil::sys::Memory::find(ptr, 0xAB, size);
+    ASSUME_ITS_TRUE(found == &((uint8_t*)ptr)[7]);
+
+    void* not_found = fossil::sys::Memory::find(ptr, 0xCD, size);
+    ASSUME_ITS_TRUE(not_found == nullptr);
+
+    fossil::sys::Memory::free(ptr); // Cleanup
+}
+
+FOSSIL_TEST(cpp_test_memory_class_strdup) {
+    const char* src = "fossil";
+    char* dup = fossil::sys::Memory::strdup(src);
+    ASSUME_NOT_CNULL(dup);
+    ASSUME_ITS_TRUE(strcmp(src, dup) == 0);
+    fossil::sys::Memory::free(dup); // Cleanup
+}
+
+FOSSIL_TEST(cpp_test_memory_class_stats) {
+    size_t allocs = 0, bytes = 0;
+    fossil::sys::Memory::stats(&allocs, &bytes);
+    // Just check that stats call does not crash and returns something
+    ASSUME_ITS_TRUE(allocs >= 0);
+    ASSUME_ITS_TRUE(bytes >= 0);
+}
 
 // * * * * * * * * * * * * * * * * * * * * * * * *
 // * Fossil Logic Test Pool
@@ -339,7 +429,6 @@ FOSSIL_TEST_GROUP(cpp_memory_tests) {
     FOSSIL_TEST_ADD(cpp_memory_suite, cpp_test_memory_is_valid);
     FOSSIL_TEST_ADD(cpp_memory_suite, cpp_test_memory_calloc);
     FOSSIL_TEST_ADD(cpp_memory_suite, cpp_test_memory_init);
-
     FOSSIL_TEST_ADD(cpp_memory_suite, cpp_test_memory_class_alloc);
     FOSSIL_TEST_ADD(cpp_memory_suite, cpp_test_memory_class_realloc);
     FOSSIL_TEST_ADD(cpp_memory_suite, cpp_test_memory_class_calloc);
@@ -352,6 +441,13 @@ FOSSIL_TEST_GROUP(cpp_memory_tests) {
     FOSSIL_TEST_ADD(cpp_memory_suite, cpp_test_memory_class_move);
     FOSSIL_TEST_ADD(cpp_memory_suite, cpp_test_memory_class_resize);
     FOSSIL_TEST_ADD(cpp_memory_suite, cpp_test_memory_class_is_valid);
+    FOSSIL_TEST_ADD(cpp_memory_suite, cpp_test_memory_class_aligned_alloc_free);
+    FOSSIL_TEST_ADD(cpp_memory_suite, cpp_test_memory_class_fill);
+    FOSSIL_TEST_ADD(cpp_memory_suite, cpp_test_memory_class_secure_zero);
+    FOSSIL_TEST_ADD(cpp_memory_suite, cpp_test_memory_class_swap);
+    FOSSIL_TEST_ADD(cpp_memory_suite, cpp_test_memory_class_find);
+    FOSSIL_TEST_ADD(cpp_memory_suite, cpp_test_memory_class_strdup);
+    FOSSIL_TEST_ADD(cpp_memory_suite, cpp_test_memory_class_stats);
 
     FOSSIL_TEST_REGISTER(cpp_memory_suite);
 }

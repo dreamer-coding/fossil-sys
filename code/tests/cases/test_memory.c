@@ -168,6 +168,82 @@ FOSSIL_TEST(c_test_memory_init) {
     fossil_sys_memory_free(ptr); // Cleanup
 }
 
+FOSSIL_TEST(c_test_memory_aligned_alloc_and_free) {
+    size_t size = 64;
+    size_t alignment = 16;
+    fossil_sys_memory_t ptr = fossil_sys_memory_aligned_alloc(size, alignment);
+    ASSUME_NOT_CNULL(ptr);
+    // Check alignment
+    ASSUME_ITS_TRUE(((uintptr_t)ptr % alignment) == 0);
+    fossil_sys_memory_aligned_free(ptr);
+}
+
+FOSSIL_TEST(c_test_memory_aligned_alloc_invalid_alignment) {
+    size_t size = 32;
+    size_t alignment = 20; // Not a power of two
+    fossil_sys_memory_t ptr = fossil_sys_memory_aligned_alloc(size, alignment);
+    ASSUME_ITS_TRUE(ptr == NULL);
+}
+
+FOSSIL_TEST(c_test_memory_fill_pattern) {
+    size_t size = 16;
+    uint8_t pattern[2] = {0xAB, 0xCD};
+    fossil_sys_memory_t ptr = fossil_sys_memory_alloc(size);
+    ASSUME_NOT_CNULL(ptr);
+
+    fossil_sys_memory_fill(ptr, pattern, sizeof(pattern), size);
+    for (size_t i = 0; i < size; i += 2) {
+        ASSUME_ITS_TRUE(((uint8_t*)ptr)[i] == 0xAB);
+        ASSUME_ITS_TRUE(((uint8_t*)ptr)[i+1] == 0xCD);
+    }
+    fossil_sys_memory_free(ptr);
+}
+
+FOSSIL_TEST(c_test_memory_secure_zero) {
+    size_t size = 8;
+    fossil_sys_memory_t ptr = fossil_sys_memory_alloc(size);
+    ASSUME_NOT_CNULL(ptr);
+    fossil_sys_memory_set(ptr, 0xFF, size);
+    fossil_sys_memory_secure_zero(ptr, size);
+    for (size_t i = 0; i < size; ++i) {
+        ASSUME_ITS_TRUE(((uint8_t*)ptr)[i] == 0);
+    }
+    fossil_sys_memory_free(ptr);
+}
+
+FOSSIL_TEST(c_test_memory_swap) {
+    size_t size = 4;
+    uint8_t a[4] = {1, 2, 3, 4};
+    uint8_t b[4] = {5, 6, 7, 8};
+    fossil_sys_memory_swap(a, b, size);
+    ASSUME_ITS_TRUE(a[0] == 5 && a[1] == 6 && a[2] == 7 && a[3] == 8);
+    ASSUME_ITS_TRUE(b[0] == 1 && b[1] == 2 && b[2] == 3 && b[3] == 4);
+}
+
+FOSSIL_TEST(c_test_memory_find) {
+    uint8_t buf[8] = {0, 1, 2, 3, 4, 5, 6, 7};
+    void *found = fossil_sys_memory_find(buf, 4, 8);
+    ASSUME_ITS_TRUE(found == &buf[4]);
+    found = fossil_sys_memory_find(buf, 9, 8);
+    ASSUME_ITS_TRUE(found == NULL);
+}
+
+FOSSIL_TEST(c_test_memory_strdup) {
+    const char *src = "fossil";
+    char *dup = fossil_sys_memory_strdup(src);
+    ASSUME_NOT_CNULL(dup);
+    ASSUME_ITS_TRUE(strcmp(src, dup) == 0);
+    fossil_sys_memory_free(dup);
+}
+
+FOSSIL_TEST(c_test_memory_stats) {
+    size_t allocs = 0, bytes = 0;
+    fossil_sys_memory_stats(&allocs, &bytes);
+    // Just check that the function runs and returns something
+    ASSUME_ITS_TRUE(allocs >= 0);
+    ASSUME_ITS_TRUE(bytes >= 0);
+}
+
 // * * * * * * * * * * * * * * * * * * * * * * * *
 // * Fossil Logic Test Pool
 // * * * * * * * * * * * * * * * * * * * * * * * *
@@ -183,6 +259,14 @@ FOSSIL_TEST_GROUP(c_memory_tests) {
     FOSSIL_TEST_ADD(c_memory_suite, c_test_memory_is_valid);
     FOSSIL_TEST_ADD(c_memory_suite, c_test_memory_calloc);
     FOSSIL_TEST_ADD(c_memory_suite, c_test_memory_init);
+    FOSSIL_TEST_ADD(c_memory_suite, c_test_memory_aligned_alloc_and_free);
+    FOSSIL_TEST_ADD(c_memory_suite, c_test_memory_aligned_alloc_invalid_alignment);
+    FOSSIL_TEST_ADD(c_memory_suite, c_test_memory_fill_pattern);
+    FOSSIL_TEST_ADD(c_memory_suite, c_test_memory_secure_zero);
+    FOSSIL_TEST_ADD(c_memory_suite, c_test_memory_swap);
+    FOSSIL_TEST_ADD(c_memory_suite, c_test_memory_find);
+    FOSSIL_TEST_ADD(c_memory_suite, c_test_memory_strdup);
+    FOSSIL_TEST_ADD(c_memory_suite, c_test_memory_stats);
 
     FOSSIL_TEST_REGISTER(c_memory_suite);
 }
