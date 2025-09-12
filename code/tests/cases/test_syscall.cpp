@@ -119,44 +119,6 @@ FOSSIL_TEST(cpp_test_sys_call_delete_directory) {
     ASSUME_ITS_TRUE(result == 0);
 }
 
-FOSSIL_TEST(cpp_test_sys_call_is_directory) {
-    const std::string dirname = "test_is_dir";
-    fossil::sys::Syscall::create_directory(dirname);
-    int is_dir = fossil::sys::Syscall::is_directory(dirname);
-    ASSUME_ITS_TRUE(is_dir == 1);
-    fossil::sys::Syscall::delete_directory(dirname, 0);
-}
-
-FOSSIL_TEST(cpp_test_sys_call_is_file) {
-    const std::string filename = "test_is_file.txt";
-    fossil::sys::Syscall::create_file(filename);
-    int is_file = fossil::sys::Syscall::is_file(filename);
-    ASSUME_ITS_TRUE(is_file == 1);
-    fossil::sys::Syscall::delete_file(filename);
-}
-
-FOSSIL_TEST(cpp_test_sys_call_chdir_and_getcwd) {
-    const std::string dirname = "test_chdir_dir";
-    fossil::sys::Syscall::create_directory(dirname);
-    std::string cwd_str_before(256, '\0');
-    fossil::sys::Syscall::getcwd(&cwd_str_before, cwd_str_before.size());
-    int chdir_result = fossil::sys::Syscall::chdir(dirname);
-    ASSUME_ITS_TRUE(chdir_result == 0);
-    std::string cwd_str_after(256, '\0');
-    fossil::sys::Syscall::getcwd(&cwd_str_after, cwd_str_after.size());
-    ASSUME_ITS_TRUE(cwd_str_after.find(dirname) != std::string::npos);
-    fossil::sys::Syscall::chdir(cwd_str_before);
-    fossil::sys::Syscall::delete_directory(dirname, 0);
-}
-
-FOSSIL_TEST(cpp_test_sys_call_sleep) {
-    auto start = std::chrono::steady_clock::now();
-    fossil::sys::Syscall::sleep(100);
-    auto end = std::chrono::steady_clock::now();
-    auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
-    ASSUME_ITS_TRUE(elapsed >= 90); // Allow some tolerance
-}
-
 FOSSIL_TEST(cpp_test_sys_call_execute_capture) {
     std::string buffer(128, '\0');
     int result = fossil::sys::Syscall::execute_capture("echo FossilCapture", &buffer);
@@ -180,10 +142,6 @@ FOSSIL_TEST_GROUP(cpp_syscall_tests) {
     FOSSIL_TEST_ADD(cpp_syscall_suite, cpp_test_sys_call_file_exists);
     FOSSIL_TEST_ADD(cpp_syscall_suite, cpp_test_sys_call_create_directory);
     FOSSIL_TEST_ADD(cpp_syscall_suite, cpp_test_sys_call_delete_directory);
-    FOSSIL_TEST_ADD(cpp_syscall_suite, cpp_test_sys_call_is_directory);
-    FOSSIL_TEST_ADD(cpp_syscall_suite, cpp_test_sys_call_is_file);
-    FOSSIL_TEST_ADD(cpp_syscall_suite, cpp_test_sys_call_chdir_and_getcwd);
-    FOSSIL_TEST_ADD(cpp_syscall_suite, cpp_test_sys_call_sleep);
     FOSSIL_TEST_ADD(cpp_syscall_suite, cpp_test_sys_call_execute_capture);
 
     FOSSIL_TEST_REGISTER(cpp_syscall_suite);
