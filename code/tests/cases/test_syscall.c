@@ -103,6 +103,7 @@ FOSSIL_TEST(c_test_sys_call_delete_directory_recursive) {
     snprintf(path, sizeof(path), "%s\\file.txt", dirname);
     f = fopen(path, "w");
 #else
+    const char *filename = "dir_recursive/file.txt";
     f = fopen(filename, "w");
 #endif
     if (f) fclose(f);
