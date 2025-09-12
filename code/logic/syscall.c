@@ -11,7 +11,7 @@
  * Copyright (C) 2024 Fossil Logic. All rights reserved.
  * -----------------------------------------------------------------------------
  */
-#include "fossil/sys/datetime.h"
+#include "fossil/sys/syscall.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -359,16 +359,4 @@ int fossil_sys_call_execute_capture(const char *command, char *buffer, size_t si
     pclose(pipe);
 #endif
     return 0;
-}
-
-// ----------------------------------------------------
-// Get parent PID
-// ----------------------------------------------------
-int fossil_sys_call_getppid(void) {
-#if defined(_WIN32)
-    // Windows does not have getppid(), but we can approximate using Toolhelp API if needed
-    return 0; // Not implemented (would require Windows-specific snapshot API)
-#else
-    return getppid();
-#endif
 }
