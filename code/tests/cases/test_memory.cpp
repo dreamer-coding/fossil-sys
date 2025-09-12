@@ -317,8 +317,8 @@ FOSSIL_TEST(cpp_test_memory_class_resize) {
 
 FOSSIL_TEST(cpp_test_memory_class_is_valid) {
     fossil_sys_memory_t ptr = fossil::sys::Memory::alloc(10);
-    ASSUME_ITS_TRUE(fossil::sys::Memory::isValid(ptr)); // Should be valid
-    ASSUME_ITS_TRUE(!fossil::sys::Memory::isValid(nullptr)); // nullptr should not be valid
+    ASSUME_ITS_TRUE(fossil::sys::Memory::is_valid(ptr)); // Should be valid
+    ASSUME_ITS_TRUE(!fossil::sys::Memory::is_valid(nullptr)); // nullptr should not be valid
 
     fossil::sys::Memory::free(ptr); // Cleanup
 }
