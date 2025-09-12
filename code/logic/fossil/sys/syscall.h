@@ -14,6 +14,9 @@
 #ifndef FOSSIL_SYS_CALL_H
 #define FOSSIL_SYS_CALL_H
 
+#include <stdint.h>
+#include <stddef.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
