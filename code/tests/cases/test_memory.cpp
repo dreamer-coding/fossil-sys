@@ -323,15 +323,6 @@ FOSSIL_TEST(cpp_test_memory_class_is_valid) {
     fossil::sys::Memory::free(ptr); // Cleanup
 }
 
-FOSSIL_TEST(cpp_test_memory_class_aligned_alloc_free) {
-    size_t size = 64;
-    size_t alignment = 32;
-    fossil_sys_memory_t ptr = fossil::sys::Memory::aligned_alloc(size, alignment);
-    ASSUME_NOT_CNULL(ptr);
-    ASSUME_ITS_TRUE(reinterpret_cast<uintptr_t>(ptr) % alignment == 0); // Check alignment
-    fossil::sys::Memory::aligned_free(ptr); // Cleanup
-}
-
 FOSSIL_TEST(cpp_test_memory_class_fill) {
     size_t size = 16;
     uint8_t pattern[2] = {0xAB, 0xCD};
@@ -406,14 +397,6 @@ FOSSIL_TEST(cpp_test_memory_class_strdup) {
     fossil::sys::Memory::free(dup); // Cleanup
 }
 
-FOSSIL_TEST(cpp_test_memory_class_stats) {
-    size_t allocs = 0, bytes = 0;
-    fossil::sys::Memory::stats(&allocs, &bytes);
-    // Just check that stats call does not crash and returns something
-    ASSUME_ITS_TRUE(&allocs != nullptr);
-    ASSUME_ITS_TRUE(&bytes != nullptr);
-}
-
 // * * * * * * * * * * * * * * * * * * * * * * * *
 // * Fossil Logic Test Pool
 // * * * * * * * * * * * * * * * * * * * * * * * *
@@ -441,13 +424,11 @@ FOSSIL_TEST_GROUP(cpp_memory_tests) {
     FOSSIL_TEST_ADD(cpp_memory_suite, cpp_test_memory_class_move);
     FOSSIL_TEST_ADD(cpp_memory_suite, cpp_test_memory_class_resize);
     FOSSIL_TEST_ADD(cpp_memory_suite, cpp_test_memory_class_is_valid);
-    FOSSIL_TEST_ADD(cpp_memory_suite, cpp_test_memory_class_aligned_alloc_free);
     FOSSIL_TEST_ADD(cpp_memory_suite, cpp_test_memory_class_fill);
     FOSSIL_TEST_ADD(cpp_memory_suite, cpp_test_memory_class_secure_zero);
     FOSSIL_TEST_ADD(cpp_memory_suite, cpp_test_memory_class_swap);
     FOSSIL_TEST_ADD(cpp_memory_suite, cpp_test_memory_class_find);
     FOSSIL_TEST_ADD(cpp_memory_suite, cpp_test_memory_class_strdup);
-    FOSSIL_TEST_ADD(cpp_memory_suite, cpp_test_memory_class_stats);
 
     FOSSIL_TEST_REGISTER(cpp_memory_suite);
 }

@@ -192,44 +192,6 @@ bool fossil_sys_memory_is_valid(const fossil_sys_memory_t ptr) {
     return true;
 }
 
-// ----------------------- Aligned Memory -----------------------
-
-fossil_sys_memory_t fossil_sys_memory_aligned_alloc(size_t size, size_t alignment) {
-    if (alignment == 0 || (alignment & (alignment - 1)) != 0) {
-        fprintf(stderr, "Error: fossil_sys_memory_aligned_alloc() - Alignment must be a power of two.\n");
-        return NULL;
-    }
-
-    void *ptr = NULL;
-#if defined(_MSC_VER)
-    ptr = _aligned_malloc(size, alignment);
-    if (!ptr) {
-        fprintf(stderr, "Error: fossil_sys_memory_aligned_alloc() - Aligned allocation failed.\n");
-        return NULL;
-    }
-#else
-    if (posix_memalign(&ptr, alignment, size) != 0) {
-        fprintf(stderr, "Error: fossil_sys_memory_aligned_alloc() - Aligned allocation failed.\n");
-        return NULL;
-    }
-#endif
-
-    g_alloc_count++;
-    g_alloc_bytes += size;
-    return ptr;
-}
-
-void fossil_sys_memory_aligned_free(fossil_sys_memory_t ptr) {
-    if (!ptr) return;
-
-#if defined(_MSC_VER)
-    _aligned_free(ptr);
-#else
-    free(ptr);
-#endif
-    // Note: g_alloc_count and g_alloc_bytes tracking could be refined with actual size bookkeeping
-}
-
 // ----------------------- Memory Fill -----------------------
 
 fossil_sys_memory_t fossil_sys_memory_fill(fossil_sys_memory_t ptr,

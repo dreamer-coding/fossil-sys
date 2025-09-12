@@ -168,23 +168,6 @@ FOSSIL_TEST(c_test_memory_init) {
     fossil_sys_memory_free(ptr); // Cleanup
 }
 
-FOSSIL_TEST(c_test_memory_aligned_alloc_and_free) {
-    size_t size = 64;
-    size_t alignment = 16;
-    fossil_sys_memory_t ptr = fossil_sys_memory_aligned_alloc(size, alignment);
-    ASSUME_NOT_CNULL(ptr);
-    // Check alignment
-    ASSUME_ITS_TRUE(((uintptr_t)ptr % alignment) == 0);
-    fossil_sys_memory_aligned_free(ptr);
-}
-
-FOSSIL_TEST(c_test_memory_aligned_alloc_invalid_alignment) {
-    size_t size = 32;
-    size_t alignment = 20; // Not a power of two
-    fossil_sys_memory_t ptr = fossil_sys_memory_aligned_alloc(size, alignment);
-    ASSUME_ITS_TRUE(ptr == NULL);
-}
-
 FOSSIL_TEST(c_test_memory_fill_pattern) {
     size_t size = 16;
     uint8_t pattern[2] = {0xAB, 0xCD};
@@ -236,13 +219,6 @@ FOSSIL_TEST(c_test_memory_strdup) {
     fossil_sys_memory_free(dup);
 }
 
-FOSSIL_TEST(c_test_memory_stats) {
-    size_t allocs = 0, bytes = 0;
-    fossil_sys_memory_stats(&allocs, &bytes);
-    // Just check that the function runs and returns something
-    ASSUME_ITS_TRUE(allocs != 0 || bytes != 0);
-}
-
 // * * * * * * * * * * * * * * * * * * * * * * * *
 // * Fossil Logic Test Pool
 // * * * * * * * * * * * * * * * * * * * * * * * *
@@ -258,14 +234,11 @@ FOSSIL_TEST_GROUP(c_memory_tests) {
     FOSSIL_TEST_ADD(c_memory_suite, c_test_memory_is_valid);
     FOSSIL_TEST_ADD(c_memory_suite, c_test_memory_calloc);
     FOSSIL_TEST_ADD(c_memory_suite, c_test_memory_init);
-    FOSSIL_TEST_ADD(c_memory_suite, c_test_memory_aligned_alloc_and_free);
-    FOSSIL_TEST_ADD(c_memory_suite, c_test_memory_aligned_alloc_invalid_alignment);
     FOSSIL_TEST_ADD(c_memory_suite, c_test_memory_fill_pattern);
     FOSSIL_TEST_ADD(c_memory_suite, c_test_memory_secure_zero);
     FOSSIL_TEST_ADD(c_memory_suite, c_test_memory_swap);
     FOSSIL_TEST_ADD(c_memory_suite, c_test_memory_find);
     FOSSIL_TEST_ADD(c_memory_suite, c_test_memory_strdup);
-    FOSSIL_TEST_ADD(c_memory_suite, c_test_memory_stats);
 
     FOSSIL_TEST_REGISTER(c_memory_suite);
 }

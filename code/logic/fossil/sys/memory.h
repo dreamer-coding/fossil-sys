@@ -155,28 +155,6 @@ fossil_sys_memory_t fossil_sys_memory_resize(fossil_sys_memory_t ptr, size_t old
 bool fossil_sys_memory_is_valid(const fossil_sys_memory_t ptr);
 
 /**
- * @brief Align memory to a specific boundary.
- *
- * Allocates memory aligned to the specified alignment boundary.
- * Alignment must be a power of two (e.g., 8, 16, 32).
- *
- * @param size The size of the memory to allocate.
- * @param alignment The alignment boundary.
- * @return A pointer to the aligned memory.
- * @throws Error message and exits if allocation fails or alignment is invalid.
- */
-fossil_sys_memory_t fossil_sys_memory_aligned_alloc(size_t size, size_t alignment);
-
-/**
- * @brief Free aligned memory.
- *
- * Frees memory that was allocated with fossil_sys_memory_aligned_alloc.
- *
- * @param ptr A pointer to the aligned memory to free.
- */
-void fossil_sys_memory_aligned_free(fossil_sys_memory_t ptr);
-
-/**
  * @brief Fill memory with a repeating pattern.
  *
  * Useful for debugging or initializing buffers to known patterns.
@@ -410,26 +388,6 @@ namespace fossil {
              */
             static bool is_valid(const fossil_sys_memory_t ptr) {
                 return fossil_sys_memory_is_valid(ptr);
-            }
-
-            /**
-             * Allocate memory aligned to a specific boundary.
-             *
-             * @param size The size of the memory to allocate.
-             * @param alignment The alignment boundary.
-             * @return A pointer to the aligned memory.
-             */
-            static fossil_sys_memory_t aligned_alloc(size_t size, size_t alignment) {
-                return fossil_sys_memory_aligned_alloc(size, alignment);
-            }
-
-            /**
-             * Free aligned memory.
-             *
-             * @param ptr A pointer to the aligned memory to free.
-             */
-            static void aligned_free(fossil_sys_memory_t ptr) {
-                fossil_sys_memory_aligned_free(ptr);
             }
 
             /**
