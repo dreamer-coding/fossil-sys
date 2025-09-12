@@ -12,7 +12,7 @@
  * -----------------------------------------------------------------------------
  */
 #include "fossil/sys/memory.h"
-#include <stdlib.h>
+#include <stdlib.h> // Needed for posix_memalign
 #include <string.h>
 #include <stdio.h>
 
