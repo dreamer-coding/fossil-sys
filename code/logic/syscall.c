@@ -25,8 +25,8 @@
 #define PATH_SEP '\\'
 #else
 #include <unistd.h>
-#include <sys/stat.h>
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <dirent.h>
 #include <limits.h>
 #include <sys/wait.h>
@@ -300,14 +300,24 @@ int fossil_sys_call_list_directory(const char *dirname, char ***out_list, size_t
 // ----------------------------------------------------
 int fossil_sys_call_is_directory(const char *path) {
     if (!path) return 0;
+#if defined(_WIN32)
+    DWORD attrs = GetFileAttributesA(path);
+    return (attrs != INVALID_FILE_ATTRIBUTES && (attrs & FILE_ATTRIBUTE_DIRECTORY));
+#else
     struct stat st;
     return (stat(path, &st) == 0 && S_ISDIR(st.st_mode));
+#endif
 }
 
 int fossil_sys_call_is_file(const char *path) {
     if (!path) return 0;
+#if defined(_WIN32)
+    DWORD attrs = GetFileAttributesA(path);
+    return (attrs != INVALID_FILE_ATTRIBUTES && !(attrs & FILE_ATTRIBUTE_DIRECTORY));
+#else
     struct stat st;
     return (stat(path, &st) == 0 && S_ISREG(st.st_mode));
+#endif
 }
 
 // ----------------------------------------------------
