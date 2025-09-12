@@ -96,7 +96,6 @@ FOSSIL_TEST(c_test_sys_call_delete_directory_non_recursive) {
 
 FOSSIL_TEST(c_test_sys_call_delete_directory_recursive) {
     const char *dirname = "dir_recursive";
-    const char *filename = "dir_recursive/file.txt";
     fossil_sys_call_create_directory(dirname);
     FILE *f;
 #if defined(_WIN32)

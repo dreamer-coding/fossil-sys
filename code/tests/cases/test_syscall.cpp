@@ -14,6 +14,7 @@
 #include <fossil/pizza/framework.h>
 
 #include "fossil/sys/framework.h"
+#include <chrono>
 
 // * * * * * * * * * * * * * * * * * * * * * * * *
 // * Fossil Logic Test Utilities
