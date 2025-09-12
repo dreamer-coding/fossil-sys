@@ -241,7 +241,7 @@ FOSSIL_TEST(c_test_memory_stats) {
     fossil_sys_memory_stats(&allocs, &bytes);
     // Just check that the function runs and returns something
     ASSUME_ITS_TRUE(allocs >= (size_t)0);
-    ASSUME_ITS_TRUE(bytes >= 0);
+    ASSUME_ITS_TRUE(bytes >= (size_t)0);
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * *
