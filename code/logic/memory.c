@@ -15,6 +15,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#if !defined(_MSC_VER)
+#include <malloc.h> // For posix_memalign on some platforms
+#endif
 
 // Internal counters for memory stats (optional, for debug)
 static size_t g_alloc_count = 0;
