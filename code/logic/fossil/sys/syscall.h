@@ -47,6 +47,113 @@ void fossil_sys_call_sleep(int milliseconds);
  */
 int fossil_sys_call_create_file(const char *filename);
 
+/**
+ * @brief Delete a file.
+ *
+ * Removes a file from the filesystem.
+ *
+ * @param filename Path to the file to delete.
+ * @return 0 on success, negative error code on failure.
+ */
+int fossil_sys_call_delete_file(const char *filename);
+
+/**
+ * @brief Check if a file exists.
+ *
+ * @param filename Path to the file.
+ * @return 1 if the file exists, 0 if not.
+ */
+int fossil_sys_call_file_exists(const char *filename);
+
+/**
+ * @brief Create a directory.
+ *
+ * @param dirname Path of the directory to create.
+ * @return 0 on success, negative error code on failure.
+ */
+int fossil_sys_call_create_directory(const char *dirname);
+
+/**
+ * @brief Delete a directory (optionally recursive).
+ *
+ * @param dirname Path of the directory to delete.
+ * @param recursive If non-zero, delete all contents recursively.
+ * @return 0 on success, negative error code on failure.
+ */
+int fossil_sys_call_delete_directory(const char *dirname, int recursive);
+
+/**
+ * @brief Get the current working directory.
+ *
+ * @param buffer Buffer to receive the current path.
+ * @param size Size of the buffer.
+ * @return 0 on success, negative error code on failure.
+ */
+int fossil_sys_call_getcwd(char *buffer, size_t size);
+
+/**
+ * @brief Change the current working directory.
+ *
+ * @param path Path to set as current working directory.
+ * @return 0 on success, negative error code on failure.
+ */
+int fossil_sys_call_chdir(const char *path);
+
+/**
+ * @brief List files in a directory.
+ *
+ * Returns a list of filenames in a given directory.
+ * (Could return a dynamically allocated array of strings, or take a callback function.)
+ *
+ * @param dirname Path to the directory.
+ * @param out_list Pointer to array of strings (allocated by function).
+ * @param out_count Pointer to receive the number of entries.
+ * @return 0 on success, negative error code on failure.
+ */
+int fossil_sys_call_list_directory(const char *dirname, char ***out_list, size_t *out_count);
+
+/**
+ * @brief Check if a path is a directory.
+ *
+ * @param path Path to check.
+ * @return 1 if directory, 0 if not.
+ */
+int fossil_sys_call_is_directory(const char *path);
+
+/**
+ * @brief Check if a path is a regular file.
+ *
+ * @param path Path to check.
+ * @return 1 if regular file, 0 if not.
+ */
+int fossil_sys_call_is_file(const char *path);
+
+/**
+ * @brief Terminate the current process.
+ *
+ * @param exit_code Exit code to return to the operating system.
+ */
+void fossil_sys_call_exit(int exit_code);
+
+/**
+ * @brief Execute a command and capture output.
+ *
+ * Runs a command and stores stdout in a buffer (similar to popen).
+ *
+ * @param command Command string to execute.
+ * @param buffer Buffer to store output.
+ * @param size Size of the buffer.
+ * @return 0 on success, negative error code on failure.
+ */
+int fossil_sys_call_execute_capture(const char *command, char *buffer, size_t size);
+
+/**
+ * @brief Get the parent process ID.
+ *
+ * @return PID of the parent process.
+ */
+int fossil_sys_call_getppid(void);
+
 #ifdef __cplusplus
 }
 #include <string>
