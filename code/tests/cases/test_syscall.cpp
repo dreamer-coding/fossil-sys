@@ -137,7 +137,6 @@ FOSSIL_TEST(cpp_test_sys_call_is_file) {
 FOSSIL_TEST(cpp_test_sys_call_chdir_and_getcwd) {
     const std::string dirname = "test_chdir_dir";
     fossil::sys::Syscall::create_directory(dirname);
-    char cwd_before[256];
     std::string cwd_str_before(256, '\0');
     fossil::sys::Syscall::getcwd(&cwd_str_before, cwd_str_before.size());
     int chdir_result = fossil::sys::Syscall::chdir(dirname);
