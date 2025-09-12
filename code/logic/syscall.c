@@ -34,6 +34,15 @@
 #define PATH_SEP '/'
 #endif
 
+static char *custom_strdup(const char *s) {
+    if (!s) return NULL;
+    size_t len = strlen(s) + 1;
+    char *copy = (char *)malloc(len);
+    if (copy) {
+        memcpy(copy, s, len);
+    }
+    return copy;
+}
 
 /* 
  * Function to execute a system command.
@@ -256,7 +265,7 @@ int fossil_sys_call_list_directory(const char *dirname, char ***out_list, size_t
                 }
                 *out_list = tmp;
             }
-            (*out_list)[*out_count] = _strdup(find_data.cFileName);
+            (*out_list)[*out_count] = custom_strdup(find_data.cFileName);
             (*out_count)++;
         }
     } while (FindNextFile(hFind, &find_data));
@@ -286,7 +295,7 @@ int fossil_sys_call_list_directory(const char *dirname, char ***out_list, size_t
                 }
                 *out_list = tmp;
             }
-            (*out_list)[*out_count] = strdup(entry->d_name);
+            (*out_list)[*out_count] = custom_strdup(entry->d_name);
             (*out_count)++;
         }
     }
