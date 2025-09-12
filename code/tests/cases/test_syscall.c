@@ -60,6 +60,75 @@ FOSSIL_TEST(c_test_sys_call_create_file) {
     remove(filename); // Clean up the test file
 }
 
+FOSSIL_TEST(c_test_sys_call_delete_file) {
+    const char *filename = "delete_me.txt";
+    FILE *f = fopen(filename, "w");
+    if (f) fclose(f);
+    int result = fossil_sys_call_delete_file(filename);
+    ASSUME_ITS_TRUE(result == 0);
+    ASSUME_ITS_TRUE(!fossil_sys_call_file_exists(filename));
+}
+
+FOSSIL_TEST(c_test_sys_call_file_exists) {
+    const char *filename = "exists.txt";
+    FILE *f = fopen(filename, "w");
+    if (f) fclose(f);
+    ASSUME_ITS_TRUE(fossil_sys_call_file_exists(filename) == 1);
+    remove(filename);
+    ASSUME_ITS_TRUE(fossil_sys_call_file_exists(filename) == 0);
+}
+
+FOSSIL_TEST(c_test_sys_call_create_directory) {
+    const char *dirname = "test_dir";
+    int result = fossil_sys_call_create_directory(dirname);
+    ASSUME_ITS_TRUE(result == 0);
+    ASSUME_ITS_TRUE(fossil_sys_call_is_directory(dirname) == 1);
+    fossil_sys_call_delete_directory(dirname, 0);
+}
+
+FOSSIL_TEST(c_test_sys_call_delete_directory_non_recursive) {
+    const char *dirname = "dir_non_recursive";
+    fossil_sys_call_create_directory(dirname);
+    int result = fossil_sys_call_delete_directory(dirname, 0);
+    ASSUME_ITS_TRUE(result == 0);
+    ASSUME_ITS_TRUE(fossil_sys_call_is_directory(dirname) == 0);
+}
+
+FOSSIL_TEST(c_test_sys_call_delete_directory_recursive) {
+    const char *dirname = "dir_recursive";
+    fossil_sys_call_create_directory(dirname);
+    FILE *f;
+#if defined(_WIN32)
+    char path[256];
+    snprintf(path, sizeof(path), "%s\\file.txt", dirname);
+    f = fopen(path, "w");
+#else
+    const char *filename = "dir_recursive/file.txt";
+    f = fopen(filename, "w");
+#endif
+    if (f) fclose(f);
+    int result = fossil_sys_call_delete_directory(dirname, 1);
+    ASSUME_ITS_TRUE(result == 0);
+    ASSUME_ITS_TRUE(fossil_sys_call_is_directory(dirname) == 0);
+}
+
+FOSSIL_TEST(c_test_sys_call_getcwd_and_chdir) {
+    char orig[256], temp[256];
+    fossil_sys_call_getcwd(orig, sizeof(orig));
+    fossil_sys_call_create_directory("cwd_test");
+    fossil_sys_call_chdir("cwd_test");
+    fossil_sys_call_getcwd(temp, sizeof(temp));
+    ASSUME_ITS_TRUE(strstr(temp, "cwd_test") != NULL);
+    fossil_sys_call_chdir(orig);
+    fossil_sys_call_delete_directory("cwd_test", 0);
+}
+
+FOSSIL_TEST(c_test_sys_call_execute_capture) {
+    char buffer[128];
+    int result = fossil_sys_call_execute_capture("echo HelloWorld", buffer, sizeof(buffer));
+    ASSUME_ITS_TRUE(result == 0);
+    ASSUME_ITS_TRUE(strstr(buffer, "HelloWorld") != NULL);
+}
 
 // * * * * * * * * * * * * * * * * * * * * * * * *
 // * Fossil Logic Test Pool
@@ -69,6 +138,13 @@ FOSSIL_TEST_GROUP(c_syscall_tests) {
     FOSSIL_TEST_ADD(c_syscall_suite, c_test_sys_call_execute);
     FOSSIL_TEST_ADD(c_syscall_suite, c_test_sys_call_getpid);
     FOSSIL_TEST_ADD(c_syscall_suite, c_test_sys_call_create_file);
+    FOSSIL_TEST_ADD(c_syscall_suite, c_test_sys_call_delete_file);
+    FOSSIL_TEST_ADD(c_syscall_suite, c_test_sys_call_file_exists);
+    FOSSIL_TEST_ADD(c_syscall_suite, c_test_sys_call_create_directory);
+    FOSSIL_TEST_ADD(c_syscall_suite, c_test_sys_call_delete_directory_non_recursive);
+    FOSSIL_TEST_ADD(c_syscall_suite, c_test_sys_call_delete_directory_recursive);
+    FOSSIL_TEST_ADD(c_syscall_suite, c_test_sys_call_getcwd_and_chdir);
+    FOSSIL_TEST_ADD(c_syscall_suite, c_test_sys_call_execute_capture);
 
     FOSSIL_TEST_REGISTER(c_syscall_suite);
 }

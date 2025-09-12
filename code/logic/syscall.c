@@ -11,20 +11,38 @@
  * Copyright (C) 2024 Fossil Logic. All rights reserved.
  * -----------------------------------------------------------------------------
  */
-#include "fossil/sys/datetime.h"
+#include "fossil/sys/syscall.h"
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <errno.h>
 
-#ifdef _WIN32
+#if defined(_WIN32)
 #include <windows.h>
+#include <direct.h>
+#include <io.h>
+#define PATH_SEP '\\'
 #else
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <dirent.h>
+#include <limits.h>
+#include <sys/wait.h>
 #include <fcntl.h>
+#define PATH_SEP '/'
 #endif
 
-#include <stdio.h>
-#include <stdlib.h>
+static char *custom_strdup(const char *s) {
+    if (!s) return NULL;
+    size_t len = strlen(s) + 1;
+    char *copy = (char *)malloc(len);
+    if (copy) {
+        memcpy(copy, s, len);
+    }
+    return copy;
+}
 
 /* 
  * Function to execute a system command.
@@ -83,4 +101,262 @@ int fossil_sys_call_create_file(const char *filename) {
     close(fd); // Close the file descriptor.
     return 0; // Return success.
 #endif
+}
+
+// ----------------------------------------------------
+// Delete a file
+// ----------------------------------------------------
+int fossil_sys_call_delete_file(const char *filename) {
+    if (!filename) return -1;
+    return remove(filename) == 0 ? 0 : -errno;
+}
+
+// ----------------------------------------------------
+// Check if a file exists
+// ----------------------------------------------------
+int fossil_sys_call_file_exists(const char *filename) {
+    if (!filename) return 0;
+#if defined(_WIN32)
+    return _access(filename, 0) == 0;
+#else
+    return access(filename, F_OK) == 0;
+#endif
+}
+
+// ----------------------------------------------------
+// Create a directory
+// ----------------------------------------------------
+int fossil_sys_call_create_directory(const char *dirname) {
+    if (!dirname) return -1;
+#if defined(_WIN32)
+    return _mkdir(dirname) == 0 ? 0 : -errno;
+#else
+    return mkdir(dirname, 0755) == 0 ? 0 : -errno;
+#endif
+}
+
+// ----------------------------------------------------
+// Helper: delete directory recursively (POSIX & Windows)
+// ----------------------------------------------------
+static int fossil_sys_call_delete_directory_recursive(const char *dirname) {
+#if defined(_WIN32)
+    WIN32_FIND_DATA find_data;
+    char search_path[MAX_PATH];
+    snprintf(search_path, sizeof(search_path), "%s\\*", dirname);
+
+    HANDLE hFind = FindFirstFile(search_path, &find_data);
+    if (hFind == INVALID_HANDLE_VALUE) return -errno;
+
+    do {
+        if (strcmp(find_data.cFileName, ".") == 0 ||
+            strcmp(find_data.cFileName, "..") == 0)
+            continue;
+
+        char full_path[MAX_PATH];
+        snprintf(full_path, sizeof(full_path), "%s\\%s", dirname, find_data.cFileName);
+
+        if (find_data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
+            fossil_sys_call_delete_directory_recursive(full_path);
+        } else {
+            DeleteFile(full_path);
+        }
+    } while (FindNextFile(hFind, &find_data));
+
+    FindClose(hFind);
+    return RemoveDirectory(dirname) ? 0 : -errno;
+#else
+    DIR *dir = opendir(dirname);
+    if (!dir) return -errno;
+
+    struct dirent *entry;
+    char path[PATH_MAX];
+
+    while ((entry = readdir(dir))) {
+        if (strcmp(entry->d_name, ".") == 0 ||
+            strcmp(entry->d_name, "..") == 0)
+            continue;
+
+        snprintf(path, sizeof(path), "%s/%s", dirname, entry->d_name);
+
+        struct stat st;
+        if (stat(path, &st) == 0) {
+            if (S_ISDIR(st.st_mode)) {
+                fossil_sys_call_delete_directory_recursive(path);
+            } else {
+                unlink(path);
+            }
+        }
+    }
+    closedir(dir);
+    return rmdir(dirname) == 0 ? 0 : -errno;
+#endif
+}
+
+// ----------------------------------------------------
+// Delete a directory (optionally recursive)
+// ----------------------------------------------------
+int fossil_sys_call_delete_directory(const char *dirname, int recursive) {
+    if (!dirname) return -1;
+    if (recursive) return fossil_sys_call_delete_directory_recursive(dirname);
+#if defined(_WIN32)
+    return RemoveDirectory(dirname) ? 0 : -errno;
+#else
+    return rmdir(dirname) == 0 ? 0 : -errno;
+#endif
+}
+
+// ----------------------------------------------------
+// Get current working directory
+// ----------------------------------------------------
+int fossil_sys_call_getcwd(char *buffer, size_t size) {
+    if (!buffer || size == 0) return -1;
+#if defined(_WIN32)
+    return _getcwd(buffer, (int)size) ? 0 : -errno;
+#else
+    return getcwd(buffer, size) ? 0 : -errno;
+#endif
+}
+
+// ----------------------------------------------------
+// Change working directory
+// ----------------------------------------------------
+int fossil_sys_call_chdir(const char *path) {
+    if (!path) return -1;
+#if defined(_WIN32)
+    return _chdir(path) == 0 ? 0 : -errno;
+#else
+    return chdir(path) == 0 ? 0 : -errno;
+#endif
+}
+
+// ----------------------------------------------------
+// List files in directory
+// ----------------------------------------------------
+int fossil_sys_call_list_directory(const char *dirname, char ***out_list, size_t *out_count) {
+    if (!dirname || !out_list || !out_count) return -1;
+
+    *out_list = NULL;
+    *out_count = 0;
+
+#if defined(_WIN32)
+    WIN32_FIND_DATA find_data;
+    char search_path[MAX_PATH];
+    snprintf(search_path, sizeof(search_path), "%s\\*", dirname);
+
+    HANDLE hFind = FindFirstFile(search_path, &find_data);
+    if (hFind == INVALID_HANDLE_VALUE) return -errno;
+
+    size_t capacity = 10;
+    *out_list = malloc(capacity * sizeof(char *));
+    if (!*out_list) {
+        FindClose(hFind);
+        return -ENOMEM;
+    }
+
+    do {
+        if (strcmp(find_data.cFileName, ".") != 0 &&
+            strcmp(find_data.cFileName, "..") != 0) {
+            if (*out_count >= capacity) {
+                capacity *= 2;
+                char **tmp = realloc(*out_list, capacity * sizeof(char *));
+                if (!tmp) {
+                    FindClose(hFind);
+                    return -ENOMEM;
+                }
+                *out_list = tmp;
+            }
+            (*out_list)[*out_count] = custom_strdup(find_data.cFileName);
+            (*out_count)++;
+        }
+    } while (FindNextFile(hFind, &find_data));
+
+    FindClose(hFind);
+#else
+    DIR *dir = opendir(dirname);
+    if (!dir) return -errno;
+
+    size_t capacity = 10;
+    *out_list = malloc(capacity * sizeof(char *));
+    if (!*out_list) {
+        closedir(dir);
+        return -ENOMEM;
+    }
+
+    struct dirent *entry;
+    while ((entry = readdir(dir))) {
+        if (strcmp(entry->d_name, ".") != 0 &&
+            strcmp(entry->d_name, "..") != 0) {
+            if (*out_count >= capacity) {
+                capacity *= 2;
+                char **tmp = realloc(*out_list, capacity * sizeof(char *));
+                if (!tmp) {
+                    closedir(dir);
+                    return -ENOMEM;
+                }
+                *out_list = tmp;
+            }
+            (*out_list)[*out_count] = custom_strdup(entry->d_name);
+            (*out_count)++;
+        }
+    }
+    closedir(dir);
+#endif
+    return 0;
+}
+
+// ----------------------------------------------------
+// Path type checks
+// ----------------------------------------------------
+int fossil_sys_call_is_directory(const char *path) {
+    if (!path) return 0;
+#if defined(_WIN32)
+    DWORD attrs = GetFileAttributesA(path);
+    return (attrs != INVALID_FILE_ATTRIBUTES && (attrs & FILE_ATTRIBUTE_DIRECTORY));
+#else
+    struct stat st;
+    return (stat(path, &st) == 0 && S_ISDIR(st.st_mode));
+#endif
+}
+
+int fossil_sys_call_is_file(const char *path) {
+    if (!path) return 0;
+#if defined(_WIN32)
+    DWORD attrs = GetFileAttributesA(path);
+    return (attrs != INVALID_FILE_ATTRIBUTES && !(attrs & FILE_ATTRIBUTE_DIRECTORY));
+#else
+    struct stat st;
+    return (stat(path, &st) == 0 && S_ISREG(st.st_mode));
+#endif
+}
+
+// ----------------------------------------------------
+// Process termination
+// ----------------------------------------------------
+void fossil_sys_call_exit(int exit_code) {
+    exit(exit_code);
+}
+
+// ----------------------------------------------------
+// Execute a command and capture output
+// ----------------------------------------------------
+int fossil_sys_call_execute_capture(const char *command, char *buffer, size_t size) {
+    if (!command || !buffer || size == 0) return -1;
+    buffer[0] = '\0';
+
+#if defined(_WIN32)
+    FILE *pipe = _popen(command, "r");
+#else
+    FILE *pipe = popen(command, "r");
+#endif
+    if (!pipe) return -errno;
+
+    size_t read_bytes = fread(buffer, 1, size - 1, pipe);
+    buffer[read_bytes] = '\0';
+
+#if defined(_WIN32)
+    _pclose(pipe);
+#else
+    pclose(pipe);
+#endif
+    return 0;
 }
