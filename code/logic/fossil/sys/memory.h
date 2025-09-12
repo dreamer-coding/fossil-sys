@@ -154,6 +154,79 @@ fossil_sys_memory_t fossil_sys_memory_resize(fossil_sys_memory_t ptr, size_t old
  */
 bool fossil_sys_memory_is_valid(const fossil_sys_memory_t ptr);
 
+/**
+ * @brief Fill memory with a repeating pattern.
+ *
+ * Useful for debugging or initializing buffers to known patterns.
+ *
+ * @param ptr A pointer to the memory to fill.
+ * @param pattern Pointer to the pattern to repeat.
+ * @param pattern_size Size of the pattern in bytes.
+ * @param total_size Total number of bytes to fill.
+ * @return A pointer to the memory.
+ */
+fossil_sys_memory_t fossil_sys_memory_fill(fossil_sys_memory_t ptr,
+                                           const void *pattern,
+                                           size_t pattern_size,
+                                           size_t total_size);
+
+/**
+ * @brief Securely zero memory.
+ *
+ * Unlike fossil_sys_memory_zero, this function prevents
+ * the compiler from optimizing out the zeroing operation.
+ *
+ * @param ptr A pointer to the memory to zero.
+ * @param size The size of the memory to zero.
+ */
+void fossil_sys_memory_secure_zero(fossil_sys_memory_t ptr, size_t size);
+
+/**
+ * @brief Swap contents of two memory regions.
+ *
+ * Swaps memory between two buffers of the same size.
+ *
+ * @param a Pointer to the first buffer.
+ * @param b Pointer to the second buffer.
+ * @param size Number of bytes to swap.
+ * @throws Error message and exits if pointers are NULL or sizes are zero.
+ */
+void fossil_sys_memory_swap(fossil_sys_memory_t a, fossil_sys_memory_t b, size_t size);
+
+/**
+ * @brief Search memory for a byte value.
+ *
+ * Scans memory for the first occurrence of the given byte.
+ *
+ * @param ptr Pointer to the memory to search.
+ * @param value Byte value to search for.
+ * @param size Size of the memory to search.
+ * @return Pointer to the first occurrence of the value, or NULL if not found.
+ */
+void *fossil_sys_memory_find(const fossil_sys_memory_t ptr, uint8_t value, size_t size);
+
+/**
+ * @brief Duplicate a NULL-terminated string using memory API.
+ *
+ * Similar to strdup, but uses fossil_sys_memory_alloc under the hood.
+ *
+ * @param str The string to duplicate.
+ * @return A pointer to the duplicated string.
+ * @throws Error message and exits if allocation fails or str is NULL.
+ */
+char *fossil_sys_memory_strdup(const char *str);
+
+/**
+ * @brief Get memory usage statistics.
+ *
+ * Returns current allocation count and optionally total allocated bytes.
+ * (Useful for leak detection in debug builds.)
+ *
+ * @param out_allocs Pointer to receive allocation count (can be NULL).
+ * @param out_bytes Pointer to receive total allocated bytes (can be NULL).
+ */
+void fossil_sys_memory_stats(size_t *out_allocs, size_t *out_bytes);
+
 #ifdef __cplusplus
 }
 
@@ -313,9 +386,76 @@ namespace fossil {
              * @param ptr A pointer to the memory.
              * @return true if the memory is valid, false otherwise.
              */
-            static bool isValid(const fossil_sys_memory_t ptr) {
+            static bool is_valid(const fossil_sys_memory_t ptr) {
                 return fossil_sys_memory_is_valid(ptr);
             }
+
+            /**
+             * Fill memory with a repeating pattern.
+             *
+             * @param ptr A pointer to the memory to fill.
+             * @param pattern Pointer to the pattern to repeat.
+             * @param pattern_size Size of the pattern in bytes.
+             * @param total_size Total number of bytes to fill.
+             * @return A pointer to the memory.
+             */
+            static fossil_sys_memory_t fill(fossil_sys_memory_t ptr, const void *pattern, size_t pattern_size, size_t total_size) {
+                return fossil_sys_memory_fill(ptr, pattern, pattern_size, total_size);
+            }
+
+            /**
+             * Securely zero memory.
+             *
+             * @param ptr A pointer to the memory to zero.
+             * @param size The size of the memory to zero.
+             */
+            static void secure_zero(fossil_sys_memory_t ptr, size_t size) {
+                fossil_sys_memory_secure_zero(ptr, size);
+            }
+
+            /**
+             * Swap contents of two memory regions.
+             *
+             * @param a Pointer to the first buffer.
+             * @param b Pointer to the second buffer.
+             * @param size Number of bytes to swap.
+             */
+            static void swap(fossil_sys_memory_t a, fossil_sys_memory_t b, size_t size) {
+                fossil_sys_memory_swap(a, b, size);
+            }
+
+            /**
+             * Search memory for a byte value.
+             *
+             * @param ptr Pointer to the memory to search.
+             * @param value Byte value to search for.
+             * @param size Size of the memory to search.
+             * @return Pointer to the first occurrence of the value, or NULL if not found.
+             */
+            static void *find(const fossil_sys_memory_t ptr, uint8_t value, size_t size) {
+                return fossil_sys_memory_find(ptr, value, size);
+            }
+
+            /**
+             * Duplicate a NULL-terminated string using memory API.
+             *
+             * @param str The string to duplicate.
+             * @return A pointer to the duplicated string.
+             */
+            static char *strdup(const char *str) {
+                return fossil_sys_memory_strdup(str);
+            }
+
+            /**
+             * Get memory usage statistics.
+             *
+             * @param out_allocs Pointer to receive allocation count (can be NULL).
+             * @param out_bytes Pointer to receive total allocated bytes (can be NULL).
+             */
+            static void stats(size_t *out_allocs, size_t *out_bytes) {
+                fossil_sys_memory_stats(out_allocs, out_bytes);
+            }
+
         };
 
     }
