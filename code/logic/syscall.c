@@ -149,22 +149,33 @@ int fossil_sys_call_create_directory(const char *dirname) {
 // ----------------------------------------------------
 // Helper: delete directory recursively (POSIX & Windows)
 // ----------------------------------------------------
+
+#define FOSSIL_MAX_PATH (MAX_PATH * 2)  // Allow longer paths safely
+
 static int fossil_sys_call_delete_directory_recursive(const char *dirname) {
 #if defined(_WIN32)
     WIN32_FIND_DATA find_data;
-    char search_path[MAX_PATH];
-    snprintf(search_path, sizeof(search_path), "%s\\*", dirname);
+    char search_path[FOSSIL_MAX_PATH];
+    int ret = snprintf(search_path, sizeof(search_path), "%s\\*", dirname);
+    if (ret < 0 || ret >= (int)sizeof(search_path)) {
+        return -ENAMETOOLONG;
+    }
 
     HANDLE hFind = FindFirstFile(search_path, &find_data);
-    if (hFind == INVALID_HANDLE_VALUE) return -errno;
+    if (hFind == INVALID_HANDLE_VALUE) {
+        return -errno;
+    }
 
     do {
         if (strcmp(find_data.cFileName, ".") == 0 ||
             strcmp(find_data.cFileName, "..") == 0)
             continue;
 
-        char full_path[MAX_PATH];
-        snprintf(full_path, sizeof(full_path), "%s\\%s", dirname, find_data.cFileName);
+        char full_path[FOSSIL_MAX_PATH];
+        ret = snprintf(full_path, sizeof(full_path), "%s\\%s", dirname, find_data.cFileName);
+        if (ret < 0 || ret >= (int)sizeof(full_path)) {
+            continue; // skip too-long paths safely
+        }
 
         if (find_data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
             fossil_sys_call_delete_directory_recursive(full_path);
@@ -176,6 +187,7 @@ static int fossil_sys_call_delete_directory_recursive(const char *dirname) {
     FindClose(hFind);
     return RemoveDirectory(dirname) ? 0 : -errno;
 #else
+    // POSIX side unchanged
     DIR *dir = opendir(dirname);
     if (!dir) return -errno;
 
