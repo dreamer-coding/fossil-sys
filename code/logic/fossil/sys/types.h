@@ -74,9 +74,10 @@
 extern "C" {
 #endif
 
-/* Signed and unsigned integer types */
+/* =======================
+   Signed and unsigned integer types
+   ======================= */
 #ifdef _MSC_VER
-    /* Windows */
     typedef __int8  i8;   /* 8-bit signed integer */
     typedef __int16 i16;  /* 16-bit signed integer */
     typedef __int32 i32;  /* 32-bit signed integer */
@@ -87,7 +88,6 @@ extern "C" {
     typedef unsigned __int32 u32;  /* 32-bit unsigned integer */
     typedef unsigned __int64 u64;  /* 64-bit unsigned integer */
 #else
-    /* POSIX / Linux / macOS */
     typedef int8_t  i8;   /* 8-bit signed integer */
     typedef int16_t i16;  /* 16-bit signed integer */
     typedef int32_t i32;  /* 32-bit signed integer */
@@ -99,7 +99,30 @@ extern "C" {
     typedef uint64_t u64;  /* 64-bit unsigned integer */
 #endif
 
-/* Floating point types (optional for precision) */
+/* =======================
+   Hex, Binary, Octal integer types
+   ======================= */
+/* Unsigned hex types (h8, h16, h32, h64) */
+typedef u8  h8;
+typedef u16 h16;
+typedef u32 h32;
+typedef u64 h64;
+
+/* Unsigned binary types (b8, b16, b32, b64) */
+typedef u8  b8;
+typedef u16 b16;
+typedef u32 b32;
+typedef u64 b64;
+
+/* Unsigned octal types (o8, o16, o32, o64) */
+typedef u8  o8;
+typedef u16 o16;
+typedef u32 o32;
+typedef u64 o64;
+
+/* =======================
+   Floating point types
+   ======================= */
 typedef float  f32;   /* 32-bit float */
 typedef double f64;   /* 64-bit double */
 
