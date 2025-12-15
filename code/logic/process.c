@@ -213,11 +213,8 @@ fossil_sys_process_wait(
         if (timeout_ms != 0 && elapsed_ms >= timeout_ms)
             return false;
 
-        struct timespec ts;
-        ts.tv_sec  = 0;
-        ts.tv_nsec = poll_interval_ms * 1000000UL;
-        nanosleep(&ts, NULL);
-
+        /* POSIX-safe sleep (no timespec, no nanosleep) */
+        usleep(poll_interval_ms * 1000);
         elapsed_ms += poll_interval_ms;
     }
 
