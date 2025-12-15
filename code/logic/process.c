@@ -159,8 +159,11 @@ fossil_sys_process_wait(
 
 #if defined(_WIN32)
 
-    DWORD wait = (timeout_ms == 0) ? INFINITE : timeout_ms;
-    DWORD res  = WaitForSingleObject(process->pi.hProcess, wait);
+    DWORD wait_ms = (timeout_ms == 0) ? INFINITE : (DWORD)timeout_ms;
+    DWORD res = WaitForSingleObject(process->pi.hProcess, wait_ms);
+
+    if (res == WAIT_TIMEOUT)
+        return false;
 
     if (res != WAIT_OBJECT_0)
         return false;
@@ -175,31 +178,49 @@ fossil_sys_process_wait(
     }
 
     process->state = FOSSIL_PROCESS_EXITED;
+    return true;
 
 #else /* POSIX */
 
-    int status = 0;
-    pid_t r = waitpid(process->child_pid, &status, 0);
-    if (r <= 0)
-        return false;
+    const uint32_t poll_interval_ms = 10;
+    uint32_t elapsed_ms = 0;
 
-    if (exit_info) {
-        if (WIFEXITED(status)) {
-            exit_info->exit_code = WEXITSTATUS(status);
-            exit_info->signaled  = false;
-            exit_info->signal    = 0;
-        } else if (WIFSIGNALED(status)) {
-            exit_info->exit_code = -1;
-            exit_info->signaled  = true;
-            exit_info->signal    = WTERMSIG(status);
+    for (;;) {
+        int status = 0;
+        pid_t r = waitpid(process->child_pid, &status, WNOHANG);
+
+        if (r == process->child_pid) {
+            if (exit_info) {
+                if (WIFEXITED(status)) {
+                    exit_info->exit_code = WEXITSTATUS(status);
+                    exit_info->signaled  = false;
+                    exit_info->signal    = 0;
+                } else if (WIFSIGNALED(status)) {
+                    exit_info->exit_code = -1;
+                    exit_info->signaled  = true;
+                    exit_info->signal    = WTERMSIG(status);
+                }
+            }
+
+            process->state = FOSSIL_PROCESS_EXITED;
+            return true;
         }
+
+        if (r < 0)
+            return false;
+
+        if (timeout_ms != 0 && elapsed_ms >= timeout_ms)
+            return false;
+
+        struct timespec ts;
+        ts.tv_sec  = 0;
+        ts.tv_nsec = poll_interval_ms * 1000000UL;
+        nanosleep(&ts, NULL);
+
+        elapsed_ms += poll_interval_ms;
     }
 
-    process->state = FOSSIL_PROCESS_EXITED;
-
 #endif
-
-    return true;
 }
 
 bool
