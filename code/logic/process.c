@@ -129,8 +129,11 @@ fossil_sys_process_start(fossil_sys_process_t *process)
     }
 
     if (pid == 0) {
-        if (process->config.workdir)
-            chdir(process->config.workdir);
+        if (process->config.workdir) {
+            if (chdir(process->config.workdir) != 0) {
+                _exit(127);
+            }
+        }
 
         execve(
             process->config.path,
