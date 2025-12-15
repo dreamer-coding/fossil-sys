@@ -214,7 +214,7 @@ fossil_sys_process_wait(
             return false;
 
         /* POSIX-safe sleep (no timespec, no nanosleep) */
-        usleep(poll_interval_ms * 1000);
+        sleep(poll_interval_ms * 1000);
         elapsed_ms += poll_interval_ms;
     }
 
