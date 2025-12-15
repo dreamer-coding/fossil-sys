@@ -28,6 +28,7 @@
 #include "cnullptr.h"
 #include "datetime.h"
 #include "hostinfo.h"
+#include "process.h"
 #include "syscall.h"
 #include "bitwise.h"
 #include "memory.h"
