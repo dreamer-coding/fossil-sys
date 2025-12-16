@@ -243,8 +243,7 @@ int fossil_sys_process_get_environment(uint32_t pid, char *buffer, size_t buf_le
     if (!hProc) return -4;
 
     PROCESS_BASIC_INFORMATION pbi;
-    NTSTATUS status = PFN_NtQueryInformationProcess NtQueryInformationProcess =
-    (PFN_NtQueryInformationProcess)(void*)GetProcAddress(ntdll, "NtQueryInformationProcess");
+    NTSTATUS status = NtQueryInformationProcess(hProc, ProcessBasicInformation, &pbi, sizeof(pbi), NULL);
     if (status != 0) {
         CloseHandle(hProc);
         return -5;
