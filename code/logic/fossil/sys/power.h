@@ -70,17 +70,38 @@ typedef struct fossil_sys_power_info {
  * ============================================================ */
 
 /**
- * @brief Query current power state.
+ * @brief Query the current power state of the system.
+ *
+ * This function fills the provided fossil_sys_power_info_t structure
+ * with the current power source, battery state, battery percentage,
+ * and low power mode status. Returns true if the query was successful,
+ * false otherwise.
+ *
+ * @param info Pointer to a fossil_sys_power_info_t structure to be filled.
+ * @return true if the power state was successfully queried, false otherwise.
  */
 bool
 fossil_sys_power_query(fossil_sys_power_info_t *info);
 
 /**
- * @brief Convenience helpers.
+ * @brief Check if the system is currently running on battery power.
+ *
+ * This function returns true if the system is powered by a battery,
+ * and false if it is powered by AC or if the power source is unknown.
+ *
+ * @return true if running on battery, false otherwise.
  */
 bool
 fossil_sys_power_on_battery(void);
 
+/**
+ * @brief Check if the system is currently in low power mode.
+ *
+ * This function returns true if the system is operating in a low power
+ * or energy-saving mode, and false otherwise.
+ *
+ * @return true if low power mode is active, false otherwise.
+ */
 bool
 fossil_sys_power_low_power_mode(void);
 
@@ -97,7 +118,43 @@ namespace fossil {
      */
     namespace sys {
 
+        //
+        /**
+         * @brief Power information class.
+         *
+         * Provides a C++ interface for querying system power state.
+         */
+        class power
+        {
+        public:
+            /**
+             * Query the current power state of the system.
+             * @param info Reference to a fossil_sys_power_info_t to fill.
+             * @return true if the power state was successfully queried, false otherwise.
+             */
+            static bool query(fossil_sys_power_info_t &info)
+            {
+                return fossil_sys_power_query(&info);
+            }
 
+            /**
+             * Check if the system is currently running on battery power.
+             * @return true if running on battery, false otherwise.
+             */
+            static bool on_battery()
+            {
+                return fossil_sys_power_on_battery();
+            }
+
+            /**
+             * Check if the system is currently in low power mode.
+             * @return true if low power mode is active, false otherwise.
+             */
+            static bool low_power_mode()
+            {
+                return fossil_sys_power_low_power_mode();
+            }
+        };
 
     }
 

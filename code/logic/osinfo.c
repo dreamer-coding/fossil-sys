@@ -117,18 +117,6 @@ fossil_sys_osinfo_query(fossil_sys_osinfo_t *info)
 
     return true;
 
-#elif defined(FOSSIL_TARGET_RTOS)
-
-    info->family       = FOSSIL_OS_FAMILY_RTOS;
-    info->type         = FOSSIL_OS_TYPE_RTOS;
-    info->is_embedded  = true;
-
-    strncpy(info->name, "RTOS", sizeof(info->name) - 1);
-    strncpy(info->version_string, "unknown",
-            sizeof(info->version_string) - 1);
-
-    return true;
-
 #else /* Bare metal */
 
     info->family      = FOSSIL_OS_FAMILY_BAREMETAL;
