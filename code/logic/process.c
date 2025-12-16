@@ -207,14 +207,6 @@ int fossil_sys_process_terminate(uint32_t pid, int force) {
     return ok ? 0 : -1;
 }
 
-typedef struct _PROCESS_BASIC_INFORMATION {
-    PVOID Reserved1;
-    PVOID PebBaseAddress;
-    PVOID Reserved2[2];
-    ULONG_PTR UniqueProcessId;
-    PVOID Reserved3;
-} PROCESS_BASIC_INFORMATION;
-
 typedef NTSTATUS (NTAPI *PFN_NtQueryInformationProcess)(
     HANDLE, PROCESSINFOCLASS, PVOID, ULONG, PULONG
 );
@@ -251,7 +243,8 @@ int fossil_sys_process_get_environment(uint32_t pid, char *buffer, size_t buf_le
     if (!hProc) return -4;
 
     PROCESS_BASIC_INFORMATION pbi;
-    NTSTATUS status = NtQueryInformationProcess(hProc, ProcessBasicInformation, &pbi, sizeof(pbi), NULL);
+    NTSTATUS status = PFN_NtQueryInformationProcess NtQueryInformationProcess =
+    (PFN_NtQueryInformationProcess)(void*)GetProcAddress(ntdll, "NtQueryInformationProcess");
     if (status != 0) {
         CloseHandle(hProc);
         return -5;
