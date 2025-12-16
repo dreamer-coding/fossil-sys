@@ -294,9 +294,24 @@ int fossil_sys_process_get_environment(uint32_t pid, char *buffer, size_t buf_le
 #else
 // stubs for unsupported platforms
 uint32_t fossil_sys_process_get_pid(void) { return 0; }
-int fossil_sys_process_get_name(uint32_t pid, char *name, size_t name_len) { return -1; }
-int fossil_sys_process_get_info(uint32_t pid, fossil_sys_process_info_t *info) { return -1; }
-int fossil_sys_process_list(fossil_sys_process_list_t *plist) { return -1; }
-int fossil_sys_process_terminate(uint32_t pid, int force) { return -1; }
-int fossil_sys_process_get_environment(uint32_t pid, char *buffer, size_t buf_len) { return -1; }
+
+int fossil_sys_process_get_name(uint32_t pid, char *name, size_t name_len) {
+    (void)pid; (void)name; (void)name_len; return -1;
+}
+
+int fossil_sys_process_get_info(uint32_t pid, fossil_sys_process_info_t *info) {
+    (void)pid; (void)info; return -1;
+}
+
+int fossil_sys_process_list(fossil_sys_process_list_t *plist) {
+    (void)plist; return -1;
+}
+
+int fossil_sys_process_terminate(uint32_t pid, int force) {
+    (void)pid; (void)force; return -1;
+}
+
+int fossil_sys_process_get_environment(uint32_t pid, char *buffer, size_t buf_len) {
+    (void)pid; (void)buffer; (void)buf_len; return -1;
+}
 #endif
