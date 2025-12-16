@@ -23,312 +23,280 @@
  * -----------------------------------------------------------------------------
  */
 #include "fossil/sys/process.h"
-
-#include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+#if defined(__linux__)
 #include <unistd.h>
+#include <dirent.h>
+#include <signal.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <fcntl.h>
+#include <errno.h>
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
 
-#if defined(_WIN32)
-    #include <windows.h>
-#else
-    #include <unistd.h>
-    #include <sys/types.h>
-    #include <sys/wait.h>
-    #include <signal.h>
-    #include <errno.h>
-#endif
-
-/* ============================================================
- * Internal Structure
- * ============================================================ */
-
-struct fossil_sys_process {
-    fossil_sys_process_config_t config;
-    fossil_sys_process_state_t  state;
-    fossil_pid_t                pid;
-
-#if defined(_WIN32)
-    PROCESS_INFORMATION         pi;
-#else
-    pid_t                       child_pid;
-#endif
-};
-
-/* ============================================================
- * Helpers
- * ============================================================ */
-
-static void
-fossil_sys_process_init(
-    fossil_sys_process_t *p,
-    const fossil_sys_process_config_t *cfg)
-{
-    memset(p, 0, sizeof(*p));
-    p->config = *cfg;
-    p->state  = FOSSIL_PROCESS_CREATED;
+static void fossil_sys_zero(void *ptr, size_t size) {
+    if (ptr) memset(ptr, 0, size);
 }
 
-/* ============================================================
- * Lifecycle
- * ============================================================ */
-
-fossil_sys_process_t *
-fossil_sys_process_create(const fossil_sys_process_config_t *config)
-{
-    if (!config || !config->path)
-        return NULL;
-
-    fossil_sys_process_t *p =
-        (fossil_sys_process_t *)calloc(1, sizeof(*p));
-    if (!p)
-        return NULL;
-
-    fossil_sys_process_init(p, config);
-    return p;
+uint32_t fossil_sys_process_get_pid(void) {
+    return (uint32_t)getpid();
 }
 
-bool
-fossil_sys_process_start(fossil_sys_process_t *process)
-{
-    if (!process || process->state != FOSSIL_PROCESS_CREATED)
-        return false;
+int fossil_sys_process_get_name(uint32_t pid, char *name, size_t name_len) {
+    if (!name || name_len == 0) return -1;
 
-#if defined(_WIN32)
+    char path[256];
+    snprintf(path, sizeof(path), "/proc/%u/comm", pid);
+    FILE *fp = fopen(path, "r");
+    if (!fp) return -2;
 
-    STARTUPINFOA si;
-    ZeroMemory(&si, sizeof(si));
-    si.cb = sizeof(si);
+    if (!fgets(name, name_len, fp)) {
+        fclose(fp);
+        return -3;
+    }
+    fclose(fp);
 
-    BOOL ok = CreateProcessA(
-        NULL,
-        (LPSTR)process->config.path,
-        NULL,
-        NULL,
-        FALSE,
-        process->config.detached ? DETACHED_PROCESS : 0,
-        NULL,
-        process->config.workdir,
-        &si,
-        &process->pi
-    );
+    size_t len = strlen(name);
+    if (len > 0 && name[len-1] == '\n') name[len-1] = '\0';
+    return 0;
+}
 
-    if (!ok) {
-        process->state = FOSSIL_PROCESS_FAILED;
-        return false;
+int fossil_sys_process_get_info(uint32_t pid, fossil_sys_process_info_t *info) {
+    if (!info) return -1;
+    fossil_sys_zero(info, sizeof(*info));
+    info->pid = pid;
+
+    // Name
+    if (fossil_sys_process_get_name(pid, info->name, sizeof(info->name)) != 0)
+        strncpy(info->name, "unknown", sizeof(info->name));
+
+    // Parent PID
+    char path[256];
+    snprintf(path, sizeof(path), "/proc/%u/stat", pid);
+    FILE *fp = fopen(path, "r");
+    if (fp) {
+        int scanned = fscanf(fp, "%*d %*s %*c %u", &info->ppid);
+        fclose(fp);
+        if (scanned != 1) info->ppid = 0;
     }
 
-    process->pid   = (fossil_pid_t)process->pi.dwProcessId;
-    process->state = FOSSIL_PROCESS_RUNNING;
-
-#else /* POSIX */
-
-    pid_t pid = fork();
-    if (pid < 0) {
-        process->state = FOSSIL_PROCESS_FAILED;
-        return false;
-    }
-
-    if (pid == 0) {
-        if (process->config.workdir) {
-            if (chdir(process->config.workdir) != 0) {
-                _exit(127);
-            }
+    // Memory usage
+    snprintf(path, sizeof(path), "/proc/%u/statm", pid);
+    fp = fopen(path, "r");
+    if (fp) {
+        unsigned long size = 0, resident = 0;
+        if (fscanf(fp, "%lu %lu", &size, &resident) == 2) {
+            long page_size = sysconf(_SC_PAGESIZE);
+            info->virtual_memory_bytes = (uint64_t)size * page_size;
+            info->memory_bytes = (uint64_t)resident * page_size;
         }
-
-        execve(
-            process->config.path,
-            process->config.argv,
-            process->config.envp
-        );
-        _exit(127);
+        fclose(fp);
     }
 
-    process->child_pid = pid;
-    process->pid       = (fossil_pid_t)pid;
-    process->state     = FOSSIL_PROCESS_RUNNING;
-
-#endif
-
-    return true;
-}
-
-bool
-fossil_sys_process_wait(
-    fossil_sys_process_t *process,
-    uint32_t timeout_ms,
-    fossil_sys_process_exit_t *exit_info)
-{
-    if (!process || process->state != FOSSIL_PROCESS_RUNNING)
-        return false;
-
-#if defined(_WIN32)
-
-    DWORD wait_ms = (timeout_ms == 0) ? INFINITE : (DWORD)timeout_ms;
-    DWORD res = WaitForSingleObject(process->pi.hProcess, wait_ms);
-
-    if (res == WAIT_TIMEOUT)
-        return false;
-
-    if (res != WAIT_OBJECT_0)
-        return false;
-
-    DWORD code = 0;
-    GetExitCodeProcess(process->pi.hProcess, &code);
-
-    if (exit_info) {
-        exit_info->exit_code = (int)code;
-        exit_info->signaled  = false;
-        exit_info->signal    = 0;
-    }
-
-    process->state = FOSSIL_PROCESS_EXITED;
-    return true;
-
-#else /* POSIX */
-
-    const uint32_t poll_interval_ms = 10;
-    uint32_t elapsed_ms = 0;
-
-    for (;;) {
-        int status = 0;
-        pid_t r = waitpid(process->child_pid, &status, WNOHANG);
-
-        if (r == process->child_pid) {
-            if (exit_info) {
-                if (WIFEXITED(status)) {
-                    exit_info->exit_code = WEXITSTATUS(status);
-                    exit_info->signaled  = false;
-                    exit_info->signal    = 0;
-                } else if (WIFSIGNALED(status)) {
-                    exit_info->exit_code = -1;
-                    exit_info->signaled  = true;
-                    exit_info->signal    = WTERMSIG(status);
-                }
-            }
-
-            process->state = FOSSIL_PROCESS_EXITED;
-            return true;
+    // Thread count
+    snprintf(path, sizeof(path), "/proc/%u/status", pid);
+    fp = fopen(path, "r");
+    if (fp) {
+        char line[512]; // increased size for safety
+        while (fgets(line, sizeof(line), fp)) {
+            if (sscanf(line, "Threads: %u", &info->thread_count) == 1) break;
         }
-
-        if (r < 0)
-            return false;
-
-        if (timeout_ms != 0 && elapsed_ms >= timeout_ms)
-            return false;
-
-        /* POSIX-safe sleep (no timespec, no nanosleep) */
-        sleep(poll_interval_ms * 1000);
-        elapsed_ms += poll_interval_ms;
+        fclose(fp);
     }
 
-#endif
+    // CPU usage placeholder
+    info->cpu_percent = 0.0f;
+
+    return 0;
 }
 
-bool
-fossil_sys_process_terminate(fossil_sys_process_t *process)
-{
-    if (!process || process->state != FOSSIL_PROCESS_RUNNING)
-        return false;
+int fossil_sys_process_list(fossil_sys_process_list_t *plist) {
+    if (!plist) return -1;
+    plist->count = 0;
 
-#if defined(_WIN32)
-    TerminateProcess(process->pi.hProcess, 1);
+    DIR *dir = opendir("/proc");
+    if (!dir) return -2;
+
+    struct dirent *entry;
+    while ((entry = readdir(dir))) {
+        char *endptr;
+        uint32_t pid = strtoul(entry->d_name, &endptr, 10);
+        if (*endptr != '\0') continue;
+
+        if (plist->count >= FOSSIL_SYS_PROCESS_MAX) break;
+        fossil_sys_process_get_info(pid, &plist->list[plist->count++]);
+    }
+
+    closedir(dir);
+    return 0;
+}
+
+int fossil_sys_process_terminate(uint32_t pid, int force) {
+    int sig = force ? SIGKILL : SIGTERM;
+    return (kill(pid, sig) == 0) ? 0 : -1;
+}
+
+int fossil_sys_process_get_environment(uint32_t pid, char *buffer, size_t buf_len) {
+    if (!buffer || buf_len == 0) return -1;
+    fossil_sys_zero(buffer, buf_len);
+
+    char path[256];
+    snprintf(path, sizeof(path), "/proc/%u/environ", pid);
+    FILE *fp = fopen(path, "r");
+    if (!fp) return -2;
+
+    size_t total_read = fread(buffer, 1, buf_len - 1, fp);
+    fclose(fp);
+
+    for (size_t i = 0; i < total_read; i++)
+        if (buffer[i] == '\0') buffer[i] = ';';
+
+    buffer[total_read] = '\0';
+    return (int)total_read;
+}
+
+#elif defined(_WIN32)
+#include <windows.h>
+#include <winternl.h>
+#include <string.h>
+#include <wchar.h>
+#include <tlhelp32.h>
+#include <psapi.h>
+
+uint32_t fossil_sys_process_get_pid(void) {
+    return (uint32_t)GetCurrentProcessId();
+}
+
+int fossil_sys_process_get_name(uint32_t pid, char *name, size_t name_len) {
+    if (!name || name_len == 0) return -1;
+    HANDLE h = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, pid);
+    if (!h) return -2;
+    DWORD sz = (DWORD)name_len;
+    if (!QueryFullProcessImageNameA(h, 0, name, &sz)) {
+        CloseHandle(h);
+        return -3;
+    }
+    CloseHandle(h);
+    return 0;
+}
+
+// stubs for Windows
+int fossil_sys_process_get_info(uint32_t pid, fossil_sys_process_info_t *info) {
+    if (!info) return -1;
+    memset(info, 0, sizeof(*info));
+    info->pid = pid;
+    return 0;
+}
+
+int fossil_sys_process_list(fossil_sys_process_list_t *plist) {
+    if (!plist) return -1;
+    plist->count = 0;
+    return 0;
+}
+
+int fossil_sys_process_terminate(uint32_t pid, int force) {
+    HANDLE h = OpenProcess(PROCESS_TERMINATE, FALSE, pid);
+    if (!h) return -1;
+    BOOL ok = TerminateProcess(h, force ? 1 : 0);
+    CloseHandle(h);
+    return ok ? 0 : -1;
+}
+
+typedef struct _PROCESS_BASIC_INFORMATION {
+    PVOID Reserved1;
+    PVOID PebBaseAddress;
+    PVOID Reserved2[2];
+    ULONG_PTR UniqueProcessId;
+    PVOID Reserved3;
+} PROCESS_BASIC_INFORMATION;
+
+typedef NTSTATUS (NTAPI *PFN_NtQueryInformationProcess)(
+    HANDLE, PROCESSINFOCLASS, PVOID, ULONG, PULONG
+);
+
+// Convert UTF-16 environment block to UTF-8
+static int utf16_env_to_utf8(WCHAR *env, char *buffer, size_t buf_len) {
+    if (!env || !buffer || buf_len == 0) return -1;
+    size_t total = 0;
+    while (*env) {
+        int len = WideCharToMultiByte(
+            CP_UTF8, 0, env, -1, buffer + total, (int)(buf_len - total), NULL, NULL);
+        if (len == 0) break;
+        total += len - 1; // exclude null terminator
+        buffer[total++] = ';'; // separate variables
+        env += wcslen(env) + 1;
+        if (total >= buf_len - 1) break;
+    }
+    buffer[total] = '\0';
+    return (int)total;
+}
+
+int fossil_sys_process_get_environment(uint32_t pid, char *buffer, size_t buf_len) {
+    if (!buffer || buf_len == 0) return -1;
+    memset(buffer, 0, buf_len);
+
+    HMODULE ntdll = GetModuleHandleA("ntdll.dll");
+    if (!ntdll) return -2;
+
+    PFN_NtQueryInformationProcess NtQueryInformationProcess =
+        (PFN_NtQueryInformationProcess)GetProcAddress(ntdll, "NtQueryInformationProcess");
+    if (!NtQueryInformationProcess) return -3;
+
+    HANDLE hProc = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, pid);
+    if (!hProc) return -4;
+
+    PROCESS_BASIC_INFORMATION pbi;
+    NTSTATUS status = NtQueryInformationProcess(hProc, ProcessBasicInformation, &pbi, sizeof(pbi), NULL);
+    if (status != 0) {
+        CloseHandle(hProc);
+        return -5;
+    }
+
+    // Read PEB -> ProcessParameters -> Environment
+    PEB peb;
+    if (!ReadProcessMemory(hProc, pbi.PebBaseAddress, &peb, sizeof(peb), NULL)) {
+        CloseHandle(hProc);
+        return -6;
+    }
+
+    RTL_USER_PROCESS_PARAMETERS procParams;
+    if (!ReadProcessMemory(hProc, peb.ProcessParameters, &procParams, sizeof(procParams), NULL)) {
+        CloseHandle(hProc);
+        return -7;
+    }
+
+    // Allocate buffer for environment block
+    WCHAR *envBlock = (WCHAR *)malloc(procParams.EnvironmentSize);
+    if (!envBlock) {
+        CloseHandle(hProc);
+        return -8;
+    }
+
+    if (!ReadProcessMemory(hProc, procParams.Environment, envBlock, procParams.EnvironmentSize, NULL)) {
+        free(envBlock);
+        CloseHandle(hProc);
+        return -9;
+    }
+
+    // Convert UTF-16 to UTF-8
+    int written = utf16_env_to_utf8(envBlock, buffer, buf_len);
+
+    free(envBlock);
+    CloseHandle(hProc);
+    return written;
+}
+
 #else
-    kill(process->child_pid, SIGTERM);
+// stubs for unsupported platforms
+uint32_t fossil_sys_process_get_pid(void) { return 0; }
+int fossil_sys_process_get_name(uint32_t pid, char *name, size_t name_len) { return -1; }
+int fossil_sys_process_get_info(uint32_t pid, fossil_sys_process_info_t *info) { return -1; }
+int fossil_sys_process_list(fossil_sys_process_list_t *plist) { return -1; }
+int fossil_sys_process_terminate(uint32_t pid, int force) { return -1; }
+int fossil_sys_process_get_environment(uint32_t pid, char *buffer, size_t buf_len) { return -1; }
 #endif
-
-    process->state = FOSSIL_PROCESS_STOPPED;
-    return true;
-}
-
-bool
-fossil_sys_process_kill(fossil_sys_process_t *process)
-{
-    if (!process || process->state != FOSSIL_PROCESS_RUNNING)
-        return false;
-
-#if defined(_WIN32)
-    TerminateProcess(process->pi.hProcess, 9);
-#else
-    kill(process->child_pid, SIGKILL);
-#endif
-
-    process->state = FOSSIL_PROCESS_STOPPED;
-    return true;
-}
-
-void
-fossil_sys_process_destroy(fossil_sys_process_t *process)
-{
-    if (!process)
-        return;
-
-#if defined(_WIN32)
-    CloseHandle(process->pi.hProcess);
-    CloseHandle(process->pi.hThread);
-#endif
-
-    free(process);
-}
-
-/* ============================================================
- * Information
- * ============================================================ */
-
-fossil_pid_t
-fossil_sys_process_pid(const fossil_sys_process_t *process)
-{
-    return process ? process->pid : 0;
-}
-
-fossil_sys_process_state_t
-fossil_sys_process_state(const fossil_sys_process_t *process)
-{
-    return process ? process->state : FOSSIL_PROCESS_INVALID;
-}
-
-bool
-fossil_sys_process_is_alive(const fossil_sys_process_t *process)
-{
-    if (!process)
-        return false;
-
-    return process->state == FOSSIL_PROCESS_RUNNING;
-}
-
-/* ============================================================
- * Task Helpers
- * ============================================================ */
-
-bool
-fossil_sys_process_run_task(
-    const fossil_sys_process_config_t *config,
-    fossil_sys_process_exit_t *exit_info)
-{
-    fossil_sys_process_t *p = fossil_sys_process_create(config);
-    if (!p)
-        return false;
-
-    if (!fossil_sys_process_start(p)) {
-        fossil_sys_process_destroy(p);
-        return false;
-    }
-
-    bool ok = fossil_sys_process_wait(p, 0, exit_info);
-    fossil_sys_process_destroy(p);
-    return ok;
-}
-
-fossil_sys_process_t *
-fossil_sys_process_spawn_task(const fossil_sys_process_config_t *config)
-{
-    fossil_sys_process_t *p = fossil_sys_process_create(config);
-    if (!p)
-        return NULL;
-
-    if (!fossil_sys_process_start(p)) {
-        fossil_sys_process_destroy(p);
-        return NULL;
-    }
-
-    return p;
-}
