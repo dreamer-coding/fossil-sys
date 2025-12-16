@@ -28,13 +28,9 @@
 #include "cnullptr.h"
 #include "datetime.h"
 #include "hostinfo.h"
-#include "process.h"
 #include "syscall.h"
 #include "bitwise.h"
 #include "memory.h"
-#include "osinfo.h"
-#include "power.h"
 #include "types.h"
-#include "cpu.h"
 
 #endif /* FOSSIL_SYS_FRAMEWORK_H */

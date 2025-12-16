@@ -90,6 +90,67 @@ FOSSIL_TEST(c_test_hostinfo_get_endianness) {
     ASSUME_ITS_TRUE(info.is_little_endian == 0 || info.is_little_endian == 1);
 }
 
+FOSSIL_TEST(c_test_hostinfo_get_storage) {
+    fossil_sys_hostinfo_storage_t info;
+    int result = fossil_sys_hostinfo_get_storage(&info);
+    ASSUME_ITS_TRUE(result == 0);
+    ASSUME_ITS_TRUE(strlen(info.device_name) > 0);
+    ASSUME_ITS_TRUE(strlen(info.mount_point) > 0);
+    ASSUME_ITS_TRUE(info.total_space >= info.used_space);
+    ASSUME_ITS_TRUE(info.total_space >= info.free_space);
+    ASSUME_ITS_TRUE(strlen(info.filesystem_type) > 0);
+}
+
+FOSSIL_TEST(c_test_hostinfo_get_environment) {
+    fossil_sys_hostinfo_environment_t info;
+    int result = fossil_sys_hostinfo_get_environment(&info);
+    ASSUME_ITS_TRUE(result == 0);
+    ASSUME_ITS_TRUE(strlen(info.shell) > 0);
+    ASSUME_ITS_TRUE(strlen(info.home_dir) > 0);
+    ASSUME_ITS_TRUE(strlen(info.lang) > 0);
+    ASSUME_ITS_TRUE(strlen(info.path) > 0);
+    ASSUME_ITS_TRUE(strlen(info._term) > 0);
+    ASSUME_ITS_TRUE(strlen(info.user) > 0);
+}
+
+FOSSIL_TEST(c_test_hostinfo_get_cpu) {
+    fossil_sys_hostinfo_cpu_t info;
+    int result = fossil_sys_hostinfo_get_cpu(&info);
+    ASSUME_ITS_TRUE(result == 0);
+    ASSUME_ITS_TRUE(info.cores > 0);
+    ASSUME_ITS_TRUE(info.threads > 0);
+    ASSUME_ITS_TRUE(strlen(info.model) > 0);
+    ASSUME_ITS_TRUE(strlen(info.vendor) > 0);
+    ASSUME_ITS_TRUE(strlen(info.features) > 0);
+}
+
+FOSSIL_TEST(c_test_hostinfo_get_gpu) {
+    fossil_sys_hostinfo_gpu_t info;
+    int result = fossil_sys_hostinfo_get_gpu(&info);
+    ASSUME_ITS_TRUE(result == 0);
+    ASSUME_ITS_TRUE(strlen(info.name) > 0);
+    ASSUME_ITS_TRUE(strlen(info.vendor) > 0);
+    ASSUME_ITS_TRUE(strlen(info.driver_version) > 0);
+    // Memory fields may be zero, but should not be negative
+    ASSUME_ITS_TRUE(info.memory_total >= 0);
+    ASSUME_ITS_TRUE(info.memory_free >= 0);
+}
+
+FOSSIL_TEST(c_test_hostinfo_get_power) {
+    fossil_sys_hostinfo_power_t info;
+    int result = fossil_sys_hostinfo_get_power(&info);
+    ASSUME_ITS_TRUE(result == 0);
+    // on_ac_power: -1 (unknown) or 0/1
+    ASSUME_ITS_TRUE(info.on_ac_power == -1 || info.on_ac_power == 0 || info.on_ac_power == 1);
+    // battery_present: -1 (unknown) or 0/1
+    ASSUME_ITS_TRUE(info.battery_present == -1 || info.battery_present == 0 || info.battery_present == 1);
+    // battery_charging: -1 (unknown) or 0/1
+    ASSUME_ITS_TRUE(info.battery_charging == -1 || info.battery_charging == 0 || info.battery_charging == 1);
+    // battery_percentage: -1 (unknown) or 0-100
+    ASSUME_ITS_TRUE(info.battery_percentage == -1 || (info.battery_percentage >= 0 && info.battery_percentage <= 100));
+    // battery_seconds_left: -1 (unknown) or >= 0
+    ASSUME_ITS_TRUE(info.battery_seconds_left == -1 || info.battery_seconds_left >= 0);
+}
 
 // * * * * * * * * * * * * * * * * * * * * * * * *
 // * Fossil Logic Test Pool
@@ -100,6 +161,11 @@ FOSSIL_TEST_GROUP(c_hostinfo_tests) {
     FOSSIL_TEST_ADD(c_hostinfo_suite, c_test_hostinfo_get_memory);
     FOSSIL_TEST_ADD(c_hostinfo_suite, c_test_hostinfo_get_architecture);
     FOSSIL_TEST_ADD(c_hostinfo_suite, c_test_hostinfo_get_endianness);
+    FOSSIL_TEST_ADD(c_hostinfo_suite, c_test_hostinfo_get_storage);
+    FOSSIL_TEST_ADD(c_hostinfo_suite, c_test_hostinfo_get_environment);
+    FOSSIL_TEST_ADD(c_hostinfo_suite, c_test_hostinfo_get_cpu);
+    FOSSIL_TEST_ADD(c_hostinfo_suite, c_test_hostinfo_get_gpu);
+    FOSSIL_TEST_ADD(c_hostinfo_suite, c_test_hostinfo_get_power);
 
     FOSSIL_TEST_REGISTER(c_hostinfo_suite);
 }

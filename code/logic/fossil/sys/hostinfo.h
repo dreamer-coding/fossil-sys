@@ -74,6 +74,104 @@ typedef struct {
 } fossil_sys_hostinfo_endianness_t;
 
 /**
+ * Power information structure
+ */
+typedef struct {
+    int on_ac_power;         // 1 if on AC power, 0 otherwise
+    int battery_present;     // 1 if battery is present, 0 otherwise
+    int battery_charging;    // 1 if battery is charging, 0 otherwise
+    int battery_percentage;  // Battery charge percentage (0-100), -1 if unknown
+    int battery_seconds_left;// Estimated seconds left, -1 if unknown
+} fossil_sys_hostinfo_power_t;
+
+/**
+ * CPU information structure
+ */
+typedef struct {
+    char model[128];
+    char vendor[128];
+    int cores;
+    int threads;
+    float frequency_ghz;
+    char features[256];
+} fossil_sys_hostinfo_cpu_t;
+
+/**
+ * GPU information structure
+ */
+typedef struct {
+    char name[128];
+    char vendor[128];
+    char driver_version[64];
+    uint64_t memory_total; // in bytes
+    uint64_t memory_free;  // in bytes
+} fossil_sys_hostinfo_gpu_t;
+
+/**
+ * Storage information structure
+ */
+typedef struct {
+    char device_name[128];
+    char mount_point[128];
+    uint64_t total_space;    // in bytes
+    uint64_t free_space;     // in bytes
+    uint64_t used_space;     // in bytes
+    char filesystem_type[64];
+} fossil_sys_hostinfo_storage_t;
+
+/**
+ * Environment information structure
+ */
+typedef struct {
+    char shell[128];
+    char home_dir[256];
+    char lang[64];
+    char path[1024];
+    char _term[64];
+    char user[128];
+} fossil_sys_hostinfo_environment_t;
+
+/**
+ * Retrieve storage information.
+ *
+ * @param info A pointer to a structure that will be filled with storage information.
+ * @return 0 on success, or a negative error code on failure.
+ */
+int fossil_sys_hostinfo_get_storage(fossil_sys_hostinfo_storage_t *info);
+
+/**
+ * Retrieve environment information.
+ *
+ * @param info A pointer to a structure that will be filled with environment information.
+ * @return 0 on success, or a negative error code on failure.
+ */
+int fossil_sys_hostinfo_get_environment(fossil_sys_hostinfo_environment_t *info);
+
+/**
+ * Retrieve CPU information.
+ *
+ * @param info A pointer to a structure that will be filled with CPU information.
+ * @return 0 on success, or a negative error code on failure.
+ */
+int fossil_sys_hostinfo_get_cpu(fossil_sys_hostinfo_cpu_t *info);
+
+/**
+ * Retrieve GPU information.
+ *
+ * @param info A pointer to a structure that will be filled with GPU information.
+ * @return 0 on success, or a negative error code on failure.
+ */
+int fossil_sys_hostinfo_get_gpu(fossil_sys_hostinfo_gpu_t *info);
+
+/**
+ * Retrieve power information.
+ *
+ * @param info A pointer to a structure that will be filled with power information.
+ * @return 0 on success, or a negative error code on failure.
+ */
+int fossil_sys_hostinfo_get_power(fossil_sys_hostinfo_power_t *info);
+
+/**
  * Retrieve system information.
  *
  * @param info A pointer to a structure that will be filled with system information.
@@ -119,7 +217,7 @@ namespace fossil {
     namespace sys {
 
         /**
-         * Memory management class.
+         * Hostinfo management class.
          */
         class Hostinfo {
         public:
@@ -165,6 +263,61 @@ namespace fossil {
             static fossil_sys_hostinfo_endianness_t get_endianness() {
                 fossil_sys_hostinfo_endianness_t info;
                 fossil_sys_hostinfo_get_endianness(&info);
+                return info;
+            }
+
+            /**
+             * Get CPU information.
+             *
+             * @return A structure containing CPU information.
+             */
+            static fossil_sys_hostinfo_cpu_t get_cpu() {
+                fossil_sys_hostinfo_cpu_t info;
+                fossil_sys_hostinfo_get_cpu(&info);
+                return info;
+            }
+
+            /**
+             * Get GPU information.
+             *
+             * @return A structure containing GPU information.
+             */
+            static fossil_sys_hostinfo_gpu_t get_gpu() {
+                fossil_sys_hostinfo_gpu_t info;
+                fossil_sys_hostinfo_get_gpu(&info);
+                return info;
+            }
+
+            /**
+             * Get power information.
+             *
+             * @return A structure containing power information.
+             */
+            static fossil_sys_hostinfo_power_t get_power() {
+                fossil_sys_hostinfo_power_t info;
+                fossil_sys_hostinfo_get_power(&info);
+                return info;
+            }
+
+            /**
+             * Get storage information.
+             *
+             * @return A structure containing storage information.
+             */
+            static fossil_sys_hostinfo_storage_t get_storage() {
+                fossil_sys_hostinfo_storage_t info;
+                fossil_sys_hostinfo_get_storage(&info);
+                return info;
+            }
+
+            /**
+             * Get environment information.
+             *
+             * @return A structure containing environment information.
+             */
+            static fossil_sys_hostinfo_environment_t get_environment() {
+                fossil_sys_hostinfo_environment_t info;
+                fossil_sys_hostinfo_get_environment(&info);
                 return info;
             }
 
