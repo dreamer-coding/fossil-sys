@@ -747,3 +747,189 @@ int fossil_sys_hostinfo_get_endianness(fossil_sys_hostinfo_endianness_t *info) {
     info->is_little_endian = (*(uint8_t*)&test) ? 1 : 0;
     return 0;
 }
+
+int fossil_sys_hostinfo_get_uptime(fossil_sys_hostinfo_uptime_t *info) {
+    if (!info) return -1;
+    fossil_sys_zero(info, sizeof(*info));
+
+#if defined(__linux__)
+    FILE *fp = fopen("/proc/uptime", "r");
+    if (!fp) return -2;
+
+    double uptime = 0.0;
+    if (fscanf(fp, "%lf", &uptime) != 1) {
+        fclose(fp);
+        return -3;
+    }
+    fclose(fp);
+
+    info->uptime_seconds = (uint64_t)uptime;
+    info->boot_time_epoch = (uint64_t)(time(NULL) - info->uptime_seconds);
+    return 0;
+
+#elif defined(__APPLE__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)
+    #include <sys/types.h>
+    #include <sys/sysctl.h>
+
+    struct timeval boottime;
+    size_t len = sizeof(boottime);
+    int mib[2] = { CTL_KERN, KERN_BOOTTIME };
+
+    if (sysctl(mib, 2, &boottime, &len, NULL, 0) != 0) {
+        return -2;
+    }
+
+    time_t now = time(NULL);
+    info->boot_time_epoch = (uint64_t)boottime.tv_sec;
+    info->uptime_seconds = (uint64_t)(now - boottime.tv_sec);
+    return 0;
+
+#elif defined(_WIN32)
+    #include <windows.h>
+
+    uint64_t ms = GetTickCount64();
+    info->uptime_seconds = ms / 1000;
+    info->boot_time_epoch = (uint64_t)(time(NULL) - info->uptime_seconds);
+    return 0;
+
+#else
+    return -4; // unsupported platform
+#endif
+}
+
+#if defined(__linux__)
+#include <unistd.h>
+#endif
+
+#if defined(__x86_64__) || defined(__i386__)
+#include <cpuid.h>
+#endif
+
+static void fossil_sys_zero(void *ptr, size_t size) {
+    if (ptr) {
+        memset(ptr, 0, size);
+    }
+}
+
+static void fossil_sys_strcpy(char *dst, size_t dst_sz, const char *src) {
+    if (!dst || dst_sz == 0) return;
+    if (!src) {
+        dst[0] = '\0';
+        return;
+    }
+    strncpy(dst, src, dst_sz - 1);
+    dst[dst_sz - 1] = '\0';
+}
+
+static int fossil_detect_container_linux(char *type, size_t type_sz) {
+#if defined(__linux__)
+    FILE *fp = fopen("/proc/1/cgroup", "r");
+    if (!fp) return 0;
+
+    char line[256];
+    while (fgets(line, sizeof(line), fp)) {
+        if (strstr(line, "docker")) {
+            fossil_sys_strcpy(type, type_sz, "docker");
+            fclose(fp);
+            return 1;
+        }
+        if (strstr(line, "podman")) {
+            fossil_sys_strcpy(type, type_sz, "podman");
+            fclose(fp);
+            return 1;
+        }
+        if (strstr(line, "lxc")) {
+            fossil_sys_strcpy(type, type_sz, "lxc");
+            fclose(fp);
+            return 1;
+        }
+        if (strstr(line, "kubepods")) {
+            fossil_sys_strcpy(type, type_sz, "kubernetes");
+            fclose(fp);
+            return 1;
+        }
+    }
+    fclose(fp);
+
+    if (access("/.dockerenv", F_OK) == 0) {
+        fossil_sys_strcpy(type, type_sz, "docker");
+        return 1;
+    }
+    if (access("/run/.containerenv", F_OK) == 0) {
+        fossil_sys_strcpy(type, type_sz, "podman");
+        return 1;
+    }
+#endif
+    return 0;
+}
+
+static int fossil_detect_vm_cpuid(char *hypervisor, size_t hv_sz) {
+#if defined(__x86_64__) || defined(__i386__)
+    unsigned int eax, ebx, ecx, edx;
+
+    if (!__get_cpuid(1, &eax, &ebx, &ecx, &edx))
+        return 0;
+
+    if (!(ecx & (1U << 31)))
+        return 0; // no hypervisor bit
+
+    __get_cpuid(0x40000000, &eax, &ebx, &ecx, &edx);
+
+    char hv[13];
+    memcpy(hv + 0, &ebx, 4);
+    memcpy(hv + 4, &ecx, 4);
+    memcpy(hv + 8, &edx, 4);
+    hv[12] = '\0';
+
+    fossil_sys_strcpy(hypervisor, hv_sz, hv);
+    return 1;
+#else
+    (void)hypervisor;
+    (void)hv_sz;
+    return 0;
+#endif
+}
+
+int fossil_sys_hostinfo_get_virtualization(
+    fossil_sys_hostinfo_virtualization_t *info
+) {
+    if (!info) return -1;
+    fossil_sys_zero(info, sizeof(*info));
+
+    /* --- Container detection --- */
+    if (fossil_detect_container_linux(
+            info->container_type,
+            sizeof(info->container_type))) {
+        info->is_container = 1;
+    }
+
+    /* --- VM detection --- */
+    if (fossil_detect_vm_cpuid(
+            info->hypervisor,
+            sizeof(info->hypervisor))) {
+        info->is_virtual_machine = 1;
+    }
+
+#if defined(__linux__)
+    /* Fallback DMI check */
+    if (!info->is_virtual_machine) {
+        FILE *fp = fopen("/sys/class/dmi/id/product_name", "r");
+        if (fp) {
+            char buf[128];
+            if (fgets(buf, sizeof(buf), fp)) {
+                if (strstr(buf, "KVM") ||
+                    strstr(buf, "VMware") ||
+                    strstr(buf, "VirtualBox") ||
+                    strstr(buf, "Hyper-V")) {
+                    info->is_virtual_machine = 1;
+                    fossil_sys_strcpy(info->hypervisor,
+                        sizeof(info->hypervisor), buf);
+                }
+            }
+            fclose(fp);
+        }
+    }
+#endif
+
+    return 0;
+}
