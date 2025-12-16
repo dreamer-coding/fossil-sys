@@ -26,6 +26,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <time.h>
 
 #ifdef _WIN32
     #include <windows.h>
@@ -805,12 +806,6 @@ int fossil_sys_hostinfo_get_uptime(fossil_sys_hostinfo_uptime_t *info) {
 #include <cpuid.h>
 #endif
 
-static void fossil_sys_zero(void *ptr, size_t size) {
-    if (ptr) {
-        memset(ptr, 0, size);
-    }
-}
-
 static void fossil_sys_strcpy(char *dst, size_t dst_sz, const char *src) {
     if (!dst || dst_sz == 0) return;
     if (!src) {
@@ -859,8 +854,15 @@ static int fossil_detect_container_linux(char *type, size_t type_sz) {
         fossil_sys_strcpy(type, type_sz, "podman");
         return 1;
     }
-#endif
+
     return 0;
+
+#else
+    /* Silence unused parameter warnings on non-Linux */
+    (void)type;
+    (void)type_sz;
+    return 0;
+#endif
 }
 
 static int fossil_detect_vm_cpuid(char *hypervisor, size_t hv_sz) {
