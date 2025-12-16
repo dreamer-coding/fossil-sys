@@ -103,8 +103,10 @@ typedef struct {
     char name[128];
     char vendor[128];
     char driver_version[64];
-    uint64_t memory_total; // in bytes
-    uint64_t memory_free;  // in bytes
+    uint64_t memory_total;
+    uint64_t memory_free;
+    int compute_capability_major;
+    int compute_capability_minor;
 } fossil_sys_hostinfo_gpu_t;
 
 /**
@@ -130,6 +132,24 @@ typedef struct {
     char _term[64];
     char user[128];
 } fossil_sys_hostinfo_environment_t;
+
+typedef struct {
+    int is_virtual_machine;     // 1 if VM detected
+    int is_container;           // 1 if running in container
+    char hypervisor[128];       // e.g. "KVM", "VMware", "Hyper-V"
+    char container_type[64];    // e.g. "docker", "podman", "lxc"
+} fossil_sys_hostinfo_virtualization_t;
+
+typedef struct {
+    uint64_t uptime_seconds;
+    uint64_t boot_time_epoch; // seconds since Unix epoch, 0 if unknown
+} fossil_sys_hostinfo_uptime_t;
+
+int fossil_sys_hostinfo_get_uptime(fossil_sys_hostinfo_uptime_t *info);
+
+int fossil_sys_hostinfo_get_virtualization(
+    fossil_sys_hostinfo_virtualization_t *info
+);
 
 /**
  * Retrieve storage information.
