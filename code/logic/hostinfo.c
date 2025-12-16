@@ -811,7 +811,7 @@ int fossil_sys_hostinfo_get_uptime(fossil_sys_hostinfo_uptime_t *info) {
 #include <cpuid.h>
 #endif
 
-static void fossil_sys_strcpy(char *dst, size_t dst_sz, const char *src) {
+void fossil_sys_strcpy(char *dst, size_t dst_sz, const char *src) {
     if (!dst || dst_sz == 0) return;
     if (!src) {
         dst[0] = '\0';
