@@ -85,7 +85,7 @@ int fossil_sys_hostinfo_get_storage(fossil_sys_hostinfo_storage_t *info) {
                 char dev[128], mnt[128], fstype[64];
                 if (sscanf(line, "%127s %127s %63s", dev, mnt, fstype) == 3) {
                     if (strcmp(mnt, "/") == 0) {
-                        strncpy(info->filesystem_type, fstype, sizeof(info->filesystem_type) - 1);
+                        snprintf(info->filesystem_type, sizeof(info->filesystem_type), "%s", fstype);
                         break;
                     }
                 }
