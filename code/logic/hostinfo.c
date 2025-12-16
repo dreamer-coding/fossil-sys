@@ -44,7 +44,12 @@
     #include <netdb.h> // for gethostname
 #endif
 
-//
+static void fossil_sys_zero(void *ptr, size_t size) {
+    if (ptr) {
+        memset(ptr, 0, size);
+    }
+}
+
 int fossil_sys_hostinfo_get_storage(fossil_sys_hostinfo_storage_t *info) {
     if (!info) return -1;
     memset(info, 0, sizeof(*info));
