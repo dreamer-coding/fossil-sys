@@ -131,9 +131,7 @@ FOSSIL_TEST(c_test_hostinfo_get_gpu) {
     ASSUME_ITS_TRUE(strlen(info.name) > 0);
     ASSUME_ITS_TRUE(strlen(info.vendor) > 0);
     ASSUME_ITS_TRUE(strlen(info.driver_version) > 0);
-    // Memory fields may be zero, but should not be negative
-    ASSUME_ITS_TRUE(info.memory_total >= 0);
-    ASSUME_ITS_TRUE(info.memory_free >= 0);
+    // Memory fields may be zero, but should not be negative (unsigned, so always >= 0)
 }
 
 FOSSIL_TEST(c_test_hostinfo_get_power) {
