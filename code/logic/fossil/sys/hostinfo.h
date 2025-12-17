@@ -105,8 +105,6 @@ typedef struct {
     char driver_version[64];
     uint64_t memory_total;
     uint64_t memory_free;
-    int compute_capability_major;
-    int compute_capability_minor;
 } fossil_sys_hostinfo_gpu_t;
 
 /**
@@ -145,80 +143,149 @@ typedef struct {
     uint64_t boot_time_epoch; // seconds since Unix epoch, 0 if unknown
 } fossil_sys_hostinfo_uptime_t;
 
+/**
+ * @brief Retrieves the system uptime information.
+ *
+ * This function fills the provided fossil_sys_hostinfo_uptime_t structure
+ * with the current uptime details of the host system. The uptime typically
+ * represents the amount of time (in seconds or other units) that the system
+ * has been running since its last boot.
+ *
+ * @param[out] info Pointer to a fossil_sys_hostinfo_uptime_t structure that
+ *                  will be populated with the uptime information.
+ *
+ * @return 0 on success, or a negative error code on failure.
+ */
 int fossil_sys_hostinfo_get_uptime(fossil_sys_hostinfo_uptime_t *info);
 
+/**
+ * @brief Retrieves virtualization information about the host system.
+ *
+ * This function populates the given fossil_sys_hostinfo_virtualization_t
+ * structure with details regarding the virtualization environment, if any,
+ * in which the host system is running. This may include information such as
+ * the type of hypervisor detected or whether the system is running on bare metal.
+ *
+ * @param[out] info Pointer to a fossil_sys_hostinfo_virtualization_t structure
+ *                  that will be filled with virtualization details.
+ *
+ * @return 0 on success, or a negative error code on failure.
+ */
 int fossil_sys_hostinfo_get_virtualization(
     fossil_sys_hostinfo_virtualization_t *info
 );
 
 /**
- * Retrieve storage information.
+ * @brief Retrieves storage information about the host system.
  *
- * @param info A pointer to a structure that will be filled with storage information.
+ * This function fills the provided fossil_sys_hostinfo_storage_t structure
+ * with details about the system's storage device, such as device name,
+ * mount point, total space, free space, used space, and filesystem type.
+ *
+ * @param[out] info Pointer to a fossil_sys_hostinfo_storage_t structure that
+ *                  will be populated with storage information.
  * @return 0 on success, or a negative error code on failure.
  */
 int fossil_sys_hostinfo_get_storage(fossil_sys_hostinfo_storage_t *info);
 
 /**
- * Retrieve environment information.
+ * @brief Retrieves environment information for the current user session.
  *
- * @param info A pointer to a structure that will be filled with environment information.
+ * This function populates the fossil_sys_hostinfo_environment_t structure
+ * with details such as the user's shell, home directory, language, PATH,
+ * terminal type, and username.
+ *
+ * @param[out] info Pointer to a fossil_sys_hostinfo_environment_t structure
+ *                  that will be filled with environment information.
  * @return 0 on success, or a negative error code on failure.
  */
 int fossil_sys_hostinfo_get_environment(fossil_sys_hostinfo_environment_t *info);
 
 /**
- * Retrieve CPU information.
+ * @brief Retrieves CPU information about the host system.
  *
- * @param info A pointer to a structure that will be filled with CPU information.
+ * This function fills the fossil_sys_hostinfo_cpu_t structure with details
+ * about the CPU, including model, vendor, number of cores, threads,
+ * frequency, and supported features.
+ *
+ * @param[out] info Pointer to a fossil_sys_hostinfo_cpu_t structure that
+ *                  will be populated with CPU information.
  * @return 0 on success, or a negative error code on failure.
  */
 int fossil_sys_hostinfo_get_cpu(fossil_sys_hostinfo_cpu_t *info);
 
 /**
- * Retrieve GPU information.
+ * @brief Retrieves GPU information about the host system.
  *
- * @param info A pointer to a structure that will be filled with GPU information.
+ * This function fills the fossil_sys_hostinfo_gpu_t structure with details
+ * about the GPU, such as name, vendor, driver version, and memory statistics.
+ *
+ * @param[out] info Pointer to a fossil_sys_hostinfo_gpu_t structure that
+ *                  will be populated with GPU information.
  * @return 0 on success, or a negative error code on failure.
  */
 int fossil_sys_hostinfo_get_gpu(fossil_sys_hostinfo_gpu_t *info);
 
 /**
- * Retrieve power information.
+ * @brief Retrieves power information about the host system.
  *
- * @param info A pointer to a structure that will be filled with power information.
+ * This function fills the fossil_sys_hostinfo_power_t structure with details
+ * about the system's power state, including AC power status, battery presence,
+ * charging state, battery percentage, and estimated time remaining.
+ *
+ * @param[out] info Pointer to a fossil_sys_hostinfo_power_t structure that
+ *                  will be populated with power information.
  * @return 0 on success, or a negative error code on failure.
  */
 int fossil_sys_hostinfo_get_power(fossil_sys_hostinfo_power_t *info);
 
 /**
- * Retrieve system information.
+ * @brief Retrieves general system information.
  *
- * @param info A pointer to a structure that will be filled with system information.
+ * This function fills the fossil_sys_hostinfo_system_t structure with
+ * information about the operating system, kernel version, hostname,
+ * username, domain name, machine type, and platform.
+ *
+ * @param[out] info Pointer to a fossil_sys_hostinfo_system_t structure that
+ *                  will be populated with system information.
  * @return 0 on success, or a negative error code on failure.
  */
 int fossil_sys_hostinfo_get_system(fossil_sys_hostinfo_system_t *info);
 
 /**
- * Retrieve architecture information.
+ * @brief Retrieves architecture information about the host system.
  *
- * @param info A pointer to a structure that will be filled with architecture information.
+ * This function fills the fossil_sys_hostinfo_architecture_t structure with
+ * details about the system's architecture, such as architecture name, CPU,
+ * number of cores and threads, frequency, and CPU architecture.
+ *
+ * @param[out] info Pointer to a fossil_sys_hostinfo_architecture_t structure
+ *                  that will be populated with architecture information.
  * @return 0 on success, or a negative error code on failure.
  */
 int fossil_sys_hostinfo_get_architecture(fossil_sys_hostinfo_architecture_t *info);
 
 /**
- * Retrieve memory information.
+ * @brief Retrieves memory information about the host system.
  *
- * @param info A pointer to a structure that will be filled with memory information.
+ * This function fills the fossil_sys_hostinfo_memory_t structure with
+ * details about the system's memory, including total, free, used, and
+ * available memory, as well as swap statistics.
+ *
+ * @param[out] info Pointer to a fossil_sys_hostinfo_memory_t structure that
+ *                  will be populated with memory information.
  * @return 0 on success, or a negative error code on failure.
  */
 int fossil_sys_hostinfo_get_memory(fossil_sys_hostinfo_memory_t *info);
 
 /**
- * Retrieve endianness information.
+ * @brief Retrieves endianness information about the host system.
  *
- * @param info A pointer to a structure that will be filled with endianness information.
+ * This function fills the fossil_sys_hostinfo_endianness_t structure with
+ * information indicating whether the system is little-endian or big-endian.
+ *
+ * @param[out] info Pointer to a fossil_sys_hostinfo_endianness_t structure
+ *                  that will be populated with endianness information.
  * @return 0 on success, or a negative error code on failure.
  */
 int fossil_sys_hostinfo_get_endianness(fossil_sys_hostinfo_endianness_t *info);
@@ -243,7 +310,11 @@ namespace fossil {
         public:
 
             /**
-             * Get system information.
+             * @brief Retrieves general system information.
+             *
+             * This function returns a structure containing details about the
+             * operating system, kernel version, hostname, username, domain name,
+             * machine type, and platform of the host system.
              *
              * @return A structure containing system information.
              */
@@ -254,7 +325,11 @@ namespace fossil {
             }
 
             /**
-             * Get architecture information.
+             * @brief Retrieves architecture information about the host system.
+             *
+             * This function returns a structure with details about the system's
+             * architecture, such as architecture name, CPU, number of cores and
+             * threads, frequency, and CPU architecture.
              *
              * @return A structure containing architecture information.
              */
@@ -265,7 +340,11 @@ namespace fossil {
             }
 
             /**
-             * Get memory information.
+             * @brief Retrieves memory information about the host system.
+             *
+             * This function returns a structure with details about the system's
+             * memory, including total, free, used, and available memory, as well
+             * as swap statistics.
              *
              * @return A structure containing memory information.
              */
@@ -276,7 +355,10 @@ namespace fossil {
             }
 
             /**
-             * Get endianness information.
+             * @brief Retrieves endianness information about the host system.
+             *
+             * This function returns a structure indicating whether the system is
+             * little-endian or big-endian.
              *
              * @return A structure containing endianness information.
              */
@@ -287,7 +369,11 @@ namespace fossil {
             }
 
             /**
-             * Get CPU information.
+             * @brief Retrieves CPU information about the host system.
+             *
+             * This function returns a structure with details about the CPU,
+             * including model, vendor, number of cores, threads, frequency, and
+             * supported features.
              *
              * @return A structure containing CPU information.
              */
@@ -298,7 +384,10 @@ namespace fossil {
             }
 
             /**
-             * Get GPU information.
+             * @brief Retrieves GPU information about the host system.
+             *
+             * This function returns a structure with details about the GPU,
+             * such as name, vendor, driver version, and memory statistics.
              *
              * @return A structure containing GPU information.
              */
@@ -309,7 +398,11 @@ namespace fossil {
             }
 
             /**
-             * Get power information.
+             * @brief Retrieves power information about the host system.
+             *
+             * This function returns a structure with details about the system's
+             * power state, including AC power status, battery presence, charging
+             * state, battery percentage, and estimated time remaining.
              *
              * @return A structure containing power information.
              */
@@ -320,7 +413,11 @@ namespace fossil {
             }
 
             /**
-             * Get storage information.
+             * @brief Retrieves storage information about the host system.
+             *
+             * This function returns a structure with details about the system's
+             * storage device, such as device name, mount point, total space,
+             * free space, used space, and filesystem type.
              *
              * @return A structure containing storage information.
              */
@@ -331,13 +428,49 @@ namespace fossil {
             }
 
             /**
-             * Get environment information.
+             * @brief Retrieves environment information for the current user session.
+             *
+             * This function returns a structure with details such as the user's
+             * shell, home directory, language, PATH, terminal type, and username.
              *
              * @return A structure containing environment information.
              */
             static fossil_sys_hostinfo_environment_t get_environment() {
                 fossil_sys_hostinfo_environment_t info;
                 fossil_sys_hostinfo_get_environment(&info);
+                return info;
+            }
+
+            /**
+             * @brief Retrieves the system uptime information.
+             *
+             * This function returns a structure with the current uptime details
+             * of the host system, including the amount of time (in seconds) that
+             * the system has been running since its last boot and the boot time
+             * in epoch seconds.
+             *
+             * @return A structure containing uptime information.
+             */
+            static fossil_sys_hostinfo_uptime_t get_uptime() {
+                fossil_sys_hostinfo_uptime_t info;
+                fossil_sys_hostinfo_get_uptime(&info);
+                return info;
+            }
+
+            /**
+             * @brief Retrieves virtualization information about the host system.
+             *
+             * This function returns a structure with details regarding the
+             * virtualization environment, if any, in which the host system is
+             * running. This may include information such as the type of hypervisor
+             * detected or whether the system is running on bare metal or in a
+             * container.
+             *
+             * @return A structure containing virtualization information.
+             */
+            static fossil_sys_hostinfo_virtualization_t get_virtualization() {
+                fossil_sys_hostinfo_virtualization_t info;
+                fossil_sys_hostinfo_get_virtualization(&info);
                 return info;
             }
 
