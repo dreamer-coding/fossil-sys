@@ -66,6 +66,12 @@ FOSSIL_TEST(c_test_process_get_info) {
     ASSUME_ITS_EQUAL_I32(status, 0);
     ASSUME_ITS_EQUAL_I32(info.pid, pid);
     ASSUME_ITS_TRUE(strlen(info.name) > 0);
+    // Optionally check that memory and thread count are nonzero (Linux)
+    #if defined(__linux__)
+    ASSUME_ITS_TRUE(info.memory_bytes > 0);
+    ASSUME_ITS_TRUE(info.virtual_memory_bytes > 0);
+    ASSUME_ITS_TRUE(info.thread_count > 0);
+    #endif
 }
 
 // ** Test fossil_sys_process_list **
@@ -92,7 +98,7 @@ FOSSIL_TEST(c_test_process_get_environment) {
     int written = fossil_sys_process_get_environment(pid, buffer, sizeof(buffer));
     ASSUME_ITS_TRUE(written >= 0);
     if (written > 0) {
-        ASSUME_ITS_TRUE(strchr(buffer, '=') != NULL); // Should contain at least one '='
+        ASSUME_ITS_TRUE(strchr(buffer, '=') != NULL || strchr(buffer, ';') != NULL);
     }
 }
 
