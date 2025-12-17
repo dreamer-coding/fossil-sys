@@ -228,6 +228,22 @@ static int utf16_env_to_utf8(WCHAR *env, char *buffer, size_t buf_len) {
     return (int)total;
 }
 
+typedef struct _RTL_USER_PROCESS_PARAMETERS_PARTIAL {
+    BYTE           Reserved1[16];
+    PVOID          Reserved2[10];
+#if defined(_WIN64)
+    UNICODE_STRING ImagePathName;
+    UNICODE_STRING CommandLine;
+    BYTE           Reserved3[96];
+    PVOID          Environment;
+#else
+    UNICODE_STRING ImagePathName;
+    UNICODE_STRING CommandLine;
+    BYTE           Reserved3[48];
+    PVOID          Environment;
+#endif
+} RTL_USER_PROCESS_PARAMETERS_PARTIAL;
+
 int fossil_sys_process_get_environment(uint32_t pid, char *buffer, size_t buf_len) {
     if (!buffer || buf_len == 0) return -1;
     memset(buffer, 0, buf_len);
@@ -256,20 +272,22 @@ int fossil_sys_process_get_environment(uint32_t pid, char *buffer, size_t buf_le
         return -6;
     }
 
-    RTL_USER_PROCESS_PARAMETERS procParams;
+    RTL_USER_PROCESS_PARAMETERS_PARTIAL procParams;
     if (!ReadProcessMemory(hProc, peb.ProcessParameters, &procParams, sizeof(procParams), NULL)) {
         CloseHandle(hProc);
         return -7;
     }
 
-    // Allocate buffer for environment block
-    WCHAR *envBlock = (WCHAR *)malloc(procParams.EnvironmentLength);
+    // The environment block is a double-null-terminated UTF-16 string.
+    // We'll read up to 64KB, which should be enough for most cases.
+    SIZE_T envBlockSize = 65536;
+    WCHAR *envBlock = (WCHAR *)malloc(envBlockSize);
     if (!envBlock) {
         CloseHandle(hProc);
         return -8;
     }
 
-    if (!ReadProcessMemory(hProc, procParams.Environment, envBlock, procParams.EnvironmentLength, NULL)) {
+    if (!ReadProcessMemory(hProc, procParams.Environment, envBlock, envBlockSize, NULL)) {
         free(envBlock);
         CloseHandle(hProc);
         return -9;
