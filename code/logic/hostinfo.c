@@ -600,8 +600,7 @@ int fossil_sys_hostinfo_get_architecture(fossil_sys_hostinfo_architecture_t *inf
     info->cpu[sizeof(info->cpu) - 1] = '\0';
 
     snprintf(info->cpu_cores, sizeof(info->cpu_cores), "%lu", sysinfo.dwNumberOfProcessors);
-    strncpy(info->cpu_threads, "Unknown", sizeof(info->cpu_threads) - 1);
-    info->cpu_threads[sizeof(info->cpu_threads) - 1] = '\0';
+    snprintf(info->cpu_threads, sizeof(info->cpu_threads), "%lu", sysinfo.dwNumberOfProcessors);
     strncpy(info->cpu_frequency, "Unknown", sizeof(info->cpu_frequency) - 1);
     info->cpu_frequency[sizeof(info->cpu_frequency) - 1] = '\0';
     strncpy(info->cpu_architecture, info->architecture, sizeof(info->cpu_architecture) - 1);
@@ -653,6 +652,7 @@ int fossil_sys_hostinfo_get_architecture(fossil_sys_hostinfo_architecture_t *inf
     info->architecture[sizeof(info->architecture) - 1] = '\0';
 
     FILE *fp = fopen("/proc/cpuinfo", "r");
+    int found_cores = 0, found_threads = 0;
     if (fp) {
         char line[256];
         while (fgets(line, sizeof(line), fp)) {
@@ -671,6 +671,7 @@ int fossil_sys_hostinfo_get_architecture(fossil_sys_hostinfo_architecture_t *inf
                     while (*colon == ' ') colon++;
                     strncpy(info->cpu_cores, colon, sizeof(info->cpu_cores) - 1);
                     info->cpu_cores[sizeof(info->cpu_cores) - 1] = '\0';
+                    found_cores = 1;
                 }
             } else if (strncmp(line, "siblings", 8) == 0) {
                 char *colon = strchr(line, ':');
@@ -679,6 +680,7 @@ int fossil_sys_hostinfo_get_architecture(fossil_sys_hostinfo_architecture_t *inf
                     while (*colon == ' ') colon++;
                     strncpy(info->cpu_threads, colon, sizeof(info->cpu_threads) - 1);
                     info->cpu_threads[sizeof(info->cpu_threads) - 1] = '\0';
+                    found_threads = 1;
                 }
             } else if (strncmp(line, "cpu MHz", 7) == 0) {
                 char *colon = strchr(line, ':');
@@ -691,13 +693,35 @@ int fossil_sys_hostinfo_get_architecture(fossil_sys_hostinfo_architecture_t *inf
             }
         }
         fclose(fp);
-    } else {
+    }
+    if (info->cpu[0] == '\0') {
         strncpy(info->cpu, "Unknown", sizeof(info->cpu) - 1);
         info->cpu[sizeof(info->cpu) - 1] = '\0';
+    }
+    if (!found_cores) {
         strncpy(info->cpu_cores, "Unknown", sizeof(info->cpu_cores) - 1);
         info->cpu_cores[sizeof(info->cpu_cores) - 1] = '\0';
-        strncpy(info->cpu_threads, "Unknown", sizeof(info->cpu_threads) - 1);
-        info->cpu_threads[sizeof(info->cpu_threads) - 1] = '\0';
+    }
+    if (!found_threads) {
+        // Try to count "processor" lines as threads
+        int threads = 0;
+        fp = fopen("/proc/cpuinfo", "r");
+        if (fp) {
+            char line[256];
+            while (fgets(line, sizeof(line), fp)) {
+                if (strncmp(line, "processor", 9) == 0)
+                    threads++;
+            }
+            fclose(fp);
+        }
+        if (threads > 0)
+            snprintf(info->cpu_threads, sizeof(info->cpu_threads), "%d", threads);
+        else {
+            strncpy(info->cpu_threads, "Unknown", sizeof(info->cpu_threads) - 1);
+            info->cpu_threads[sizeof(info->cpu_threads) - 1] = '\0';
+        }
+    }
+    if (info->cpu_frequency[0] == '\0') {
         strncpy(info->cpu_frequency, "Unknown", sizeof(info->cpu_frequency) - 1);
         info->cpu_frequency[sizeof(info->cpu_frequency) - 1] = '\0';
     }
