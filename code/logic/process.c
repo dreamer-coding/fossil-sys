@@ -137,6 +137,8 @@ int fossil_sys_process_list(fossil_sys_process_list_t *plist) {
 }
 
 int fossil_sys_process_terminate(uint32_t pid, int force) {
+    if (pid == (uint32_t)getpid())
+        return -1; // Do not allow terminating self
     int sig = force ? SIGKILL : SIGTERM;
     return (kill(pid, sig) == 0) ? 0 : -1;
 }
@@ -200,6 +202,8 @@ int fossil_sys_process_list(fossil_sys_process_list_t *plist) {
 }
 
 int fossil_sys_process_terminate(uint32_t pid, int force) {
+    if (pid == GetCurrentProcessId())
+        return -1; // Do not allow terminating self
     HANDLE h = OpenProcess(PROCESS_TERMINATE, FALSE, pid);
     if (!h) return -1;
     BOOL ok = TerminateProcess(h, force ? 1 : 0);
