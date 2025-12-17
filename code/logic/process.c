@@ -235,8 +235,8 @@ int fossil_sys_process_get_environment(uint32_t pid, char *buffer, size_t buf_le
     HMODULE ntdll = GetModuleHandleA("ntdll.dll");
     if (!ntdll) return -2;
 
-    PFN_NtQueryInformationProcess NtQueryInformationProcess =
-        (PFN_NtQueryInformationProcess)GetProcAddress(ntdll, "NtQueryInformationProcess");
+    PFN_NtQueryInformationProcess NtQueryInformationProcess = NULL;
+    NtQueryInformationProcess = (PFN_NtQueryInformationProcess)(uintptr_t)GetProcAddress(ntdll, "NtQueryInformationProcess");
     if (!NtQueryInformationProcess) return -3;
 
     HANDLE hProc = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, pid);
@@ -263,13 +263,13 @@ int fossil_sys_process_get_environment(uint32_t pid, char *buffer, size_t buf_le
     }
 
     // Allocate buffer for environment block
-    WCHAR *envBlock = (WCHAR *)malloc(procParams.EnvironmentSize);
+    WCHAR *envBlock = (WCHAR *)malloc(procParams.EnvironmentLength);
     if (!envBlock) {
         CloseHandle(hProc);
         return -8;
     }
 
-    if (!ReadProcessMemory(hProc, procParams.Environment, envBlock, procParams.EnvironmentSize, NULL)) {
+    if (!ReadProcessMemory(hProc, procParams.Environment, envBlock, procParams.EnvironmentLength, NULL)) {
         free(envBlock);
         CloseHandle(hProc);
         return -9;
