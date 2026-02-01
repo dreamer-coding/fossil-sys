@@ -39,6 +39,9 @@
 #define FOSSIL_SYS_TIME_MILLISEC 1000000000000000000000ULL
 #define FOSSIL_SYS_TIME_SEC      60000000000000000000000ULL
 #define FOSSIL_SYS_TIME_MIN      3600000000000000000000000ULL
+#define FOSSIL_SYS_TIME_HOUR  (60 * FOSSIL_SYS_TIME_MIN)
+#define FOSSIL_SYS_TIME_DAY   (24 * FOSSIL_SYS_TIME_HOUR)
+#define FOSSIL_SYS_TIME_WEEK  (7 * FOSSIL_SYS_TIME_DAY)
 
 #ifdef __cplusplus
 extern "C" {
@@ -238,6 +241,68 @@ int64_t fossil_sys_time_span_to_seconds(const fossil_sys_time_span_t *span);
  */
 void fossil_sys_time_add_span(fossil_sys_time_datetime_t *dt,
                               const fossil_sys_time_span_t *span);
+
+typedef enum {
+    FOSSIL_SYS_SEASON_WINTER,
+    FOSSIL_SYS_SEASON_SPRING,
+    FOSSIL_SYS_SEASON_SUMMER,
+    FOSSIL_SYS_SEASON_AUTUMN,
+    FOSSIL_SYS_SEASON_UNKNOWN
+} fossil_sys_season_t;
+
+/**
+ * @brief Get the season for a given datetime.
+ *
+ * @param dt Pointer to a datetime.
+ * @param northern_hemisphere If nonzero, uses Northern Hemisphere seasons; otherwise, Southern Hemisphere.
+ * @return fossil_sys_season_t The season.
+ */
+fossil_sys_season_t fossil_sys_time_get_season(const fossil_sys_time_datetime_t *dt, int northern_hemisphere);
+
+typedef struct {
+    int month;
+    int day;
+    const char *name;
+} fossil_sys_holiday_fixed_t;
+
+typedef enum {
+    FOSSIL_SYS_HOLIDAY_NONE = 0,      // Not a holiday
+    FOSSIL_SYS_HOLIDAY_NEW_YEAR,      // January 1
+    FOSSIL_SYS_HOLIDAY_ML_KING_DAY,   // Third Monday in January
+    FOSSIL_SYS_HOLIDAY_VALENTINES,    // February 14
+    FOSSIL_SYS_HOLIDAY_PRESIDENTS_DAY,// Third Monday in February
+    FOSSIL_SYS_HOLIDAY_ST_PATRICKS,   // March 17
+    FOSSIL_SYS_HOLIDAY_EASTER,        // Variable date
+    FOSSIL_SYS_HOLIDAY_MEMORIAL_DAY,  // Last Monday in May
+    FOSSIL_SYS_HOLIDAY_INDEPENDENCE,  // July 4
+    FOSSIL_SYS_HOLIDAY_LABOR_DAY,     // First Monday in September
+    FOSSIL_SYS_HOLIDAY_HALLOWEEN,     // October 31
+    FOSSIL_SYS_HOLIDAY_VETERANS_DAY,  // November 11
+    FOSSIL_SYS_HOLIDAY_THANKSGIVING,  // Fourth Thursday in November
+    FOSSIL_SYS_HOLIDAY_CHRISTMAS,     // December 25
+    FOSSIL_SYS_HOLIDAY_BLACK_FRIDAY,  // Day after Thanksgiving
+    FOSSIL_SYS_HOLIDAY_SUPER_BOWL,    // First Sunday in February (optional fun)
+    FOSSIL_SYS_HOLIDAY_MOTHERS_DAY,   // Second Sunday in May
+    FOSSIL_SYS_HOLIDAY_FATHERS_DAY,   // Third Sunday in June
+} fossil_sys_holiday_id_t;
+
+/**
+ * @brief Check if a given date is a fixed holiday.
+ *
+ * @param dt Pointer to a datetime.
+ * @return fossil_sys_holiday_id_t ID of holiday, or FOSSIL_SYS_HOLIDAY_NONE if none.
+ */
+fossil_sys_holiday_id_t fossil_sys_time_get_holiday(const fossil_sys_time_datetime_t *dt);
+
+/**
+ * @brief Returns true if the date is a weekend.
+ */
+int fossil_sys_time_is_weekend(const fossil_sys_time_datetime_t *dt);
+
+/**
+ * @brief Returns the quarter (1-4) of the year.
+ */
+int fossil_sys_time_get_quarter(const fossil_sys_time_datetime_t *dt);
 
 #ifdef __cplusplus
 }
