@@ -335,3 +335,106 @@ void fossil_sys_time_add_span(fossil_sys_time_datetime_t *dt,
     dt->nanosecond += span->nanoseconds;
     fossil_sys_time_normalize(dt);
 }
+
+fossil_sys_season_t fossil_sys_time_get_season(const fossil_sys_time_datetime_t *dt, int northern_hemisphere) {
+    if (!dt) return FOSSIL_SYS_SEASON_UNKNOWN;
+    int month = dt->month;
+    if (!northern_hemisphere) {
+        // Swap NH seasons for SH
+        if (month == 12 || month <= 2) return FOSSIL_SYS_SEASON_SUMMER;
+        if (month >= 3 && month <= 5) return FOSSIL_SYS_SEASON_AUTUMN;
+        if (month >= 6 && month <= 8) return FOSSIL_SYS_SEASON_WINTER;
+        if (month >= 9 && month <= 11) return FOSSIL_SYS_SEASON_SPRING;
+    } else {
+        if (month == 12 || month <= 2) return FOSSIL_SYS_SEASON_WINTER;
+        if (month >= 3 && month <= 5) return FOSSIL_SYS_SEASON_SPRING;
+        if (month >= 6 && month <= 8) return FOSSIL_SYS_SEASON_SUMMER;
+        if (month >= 9 && month <= 11) return FOSSIL_SYS_SEASON_AUTUMN;
+    }
+    return FOSSIL_SYS_SEASON_UNKNOWN;
+}
+
+int fossil_sys_time_is_weekend(const fossil_sys_time_datetime_t *dt) {
+    // Zeller's Congruence to calculate day of week (0 = Saturday, 1 = Sunday, ... 6 = Friday)
+    int y = dt->year;
+    int m = dt->month;
+    int d = dt->day;
+    if (m < 3) { m += 12; y -= 1; }
+    int K = y % 100;
+    int J = y / 100;
+    int f = d + 13*(m + 1)/5 + K + K/4 + J/4 + 5*J;
+    int dow = f % 7;
+    return (dow == 0 || dow == 1); // Saturday or Sunday
+}
+
+int fossil_sys_time_get_quarter(const fossil_sys_time_datetime_t *dt) {
+    if (!dt) return 0;
+    return (dt->month - 1) / 3 + 1;
+}
+
+// Helper: nth weekday of month (1-based)
+static int nth_weekday_of_month(int year, int month, int weekday, int n) {
+    // weekday: 0=Sunday ... 6=Saturday
+    // n: 1=first, 2=second, etc.
+    fossil_sys_time_datetime_t dt = {year, month, 1, 0,0,0,0};
+    int dow;
+    // Compute day of week for the 1st
+    int y = dt.year;
+    int m = dt.month;
+    int d = dt.day;
+    if (m < 3) { m += 12; y -= 1; }
+    int K = y % 100;
+    int J = y / 100;
+    int f = d + 13*(m + 1)/5 + K + K/4 + J/4 + 5*J;
+    dow = f % 7; // 0=Saturday, 1=Sunday, ..., 6=Friday
+    int diff = (weekday - ((dow + 6) % 7) + 7) % 7; // shift so 0=Sunday
+    return 1 + diff + (n-1)*7;
+}
+
+// Last weekday of month
+static int last_weekday_of_month(int year, int month, int weekday) {
+    int days = fossil_sys_time_days_in_month(year, month);
+    for (int d = days; d >= 1; d--) {
+        fossil_sys_time_datetime_t dt = {year, month, d, 0,0,0,0};
+        if (fossil_sys_time_is_weekend(&dt) && weekday == 0) continue; // optional
+        // Calculate day of week
+        int y = dt.year;
+        int m = dt.month;
+        int f_d = dt.day;
+        if (m < 3) { m += 12; y -= 1; }
+        int K = y % 100;
+        int J = y / 100;
+        int f = f_d + 13*(m + 1)/5 + K + K/4 + J/4 + 5*J;
+        int dow = f % 7; // 0=Saturday ... 6=Friday
+        if (((dow + 6) % 7) == weekday) return d; // 0=Sunday
+    }
+    return 1;
+}
+
+fossil_sys_holiday_id_t fossil_sys_time_get_holiday(const fossil_sys_time_datetime_t *dt) {
+    if (!dt) return FOSSIL_SYS_HOLIDAY_NONE;
+
+    int m = dt->month, d = dt->day;
+    int y = dt->year;
+
+    // Fixed-date holidays
+    if (m == 1 && d == 1) return FOSSIL_SYS_HOLIDAY_NEW_YEAR;
+    if (m == 2 && d == 14) return FOSSIL_SYS_HOLIDAY_VALENTINES;
+    if (m == 3 && d == 17) return FOSSIL_SYS_HOLIDAY_ST_PATRICKS;
+    if (m == 7 && d == 4) return FOSSIL_SYS_HOLIDAY_INDEPENDENCE;
+    if (m == 10 && d == 31) return FOSSIL_SYS_HOLIDAY_HALLOWEEN;
+    if (m == 11 && d == 11) return FOSSIL_SYS_HOLIDAY_VETERANS_DAY;
+    if (m == 12 && d == 25) return FOSSIL_SYS_HOLIDAY_CHRISTMAS;
+
+    // Variable-date holidays
+    if (m == 1 && d == nth_weekday_of_month(y,1,1,3)) return FOSSIL_SYS_HOLIDAY_ML_KING_DAY; // 3rd Monday Jan
+    if (m == 2 && d == nth_weekday_of_month(y,2,1,3)) return FOSSIL_SYS_HOLIDAY_PRESIDENTS_DAY; // 3rd Monday Feb
+    if (m == 5 && d == last_weekday_of_month(y,5,1)) return FOSSIL_SYS_HOLIDAY_MEMORIAL_DAY; // Last Monday May
+    if (m == 9 && d == nth_weekday_of_month(y,9,1,1)) return FOSSIL_SYS_HOLIDAY_LABOR_DAY; // 1st Monday Sep
+    if (m == 11 && d == nth_weekday_of_month(y,11,4,4)) return FOSSIL_SYS_HOLIDAY_THANKSGIVING; // 4th Thu Nov
+    if (m == 2 && d == nth_weekday_of_month(y,2,0,1)) return FOSSIL_SYS_HOLIDAY_SUPER_BOWL; // first Sunday Feb
+    if (m == 5 && d == nth_weekday_of_month(y,5,0,2)) return FOSSIL_SYS_HOLIDAY_MOTHERS_DAY; // 2nd Sun May
+    if (m == 6 && d == nth_weekday_of_month(y,6,0,3)) return FOSSIL_SYS_HOLIDAY_FATHERS_DAY; // 3rd Sun June
+
+    return FOSSIL_SYS_HOLIDAY_NONE;
+}
