@@ -85,16 +85,20 @@ typedef struct {
 void fossil_sys_time_now(fossil_sys_time_datetime_t *dt);
 
 /**
- * @brief Format datetime into a string.
- * 
- * @param dt Pointer to the fossil_sys_time_datetime_t structure to be formatted.
- * @param buffer Pointer to the buffer where the formatted string will be stored.
- * @param buffer_size Size of the buffer.
- * @param format Format string specifying the desired output format.
- * @param military_time If nonzero, uses 24-hour format; otherwise, uses 12-hour format.
- * @return int Returns the number of characters written to the buffer, excluding the null terminator.
+ * @brief Format datetime into a string using a named format.
+ *
+ * @param dt Pointer to the fossil_sys_time_datetime_t structure.
+ * @param buffer Output buffer.
+ * @param buffer_size Size of output buffer.
+ * @param format_id String ID of the format (NULL or "human" for default).
+ * @return int Number of characters written, excluding null terminator, or -1 on error.
  */
-int fossil_sys_time_format(const fossil_sys_time_datetime_t *dt, char *buffer, size_t buffer_size, const char *format, int military_time);
+int fossil_sys_time_format(
+    const fossil_sys_time_datetime_t *dt,
+    char *buffer,
+    size_t buffer_size,
+    const char *format_id
+);
 
 /**
  * @brief Determine if a given year is a leap year.
@@ -356,9 +360,9 @@ namespace fossil
              * @param military_time If true, uses 24-hour format; otherwise, 12-hour format.
              * @return Formatted date/time string.
              */
-            std::string format(const std::string& format, bool military_time = true) const {
+            std::string format(const std::string& format, const std::string& format_id = "human") const {
                 char buffer[256];
-                fossil_sys_time_format(&dt, buffer, sizeof(buffer), format.c_str(), military_time);
+                fossil_sys_time_format(&dt, buffer, sizeof(buffer), format.c_str(), format_id.c_str());
                 return std::string(buffer);
             }
 
