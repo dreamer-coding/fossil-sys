@@ -139,27 +139,69 @@ void fossil_sys_time_now(fossil_sys_time_datetime_t *dt) {
     dt->nanosecond = ts.tv_nsec;
 }
 
-int fossil_sys_time_format(const fossil_sys_time_datetime_t *dt, char *buffer, size_t buffer_size, const char *format, int military_time) {
-    if (!dt || !buffer || !format) return -1;
-    
-    struct tm t = {
-        .tm_year = dt->year - 1900,
-        .tm_mon = dt->month - 1,
-        .tm_mday = dt->day,
-        .tm_hour = dt->hour,
-        .tm_min = dt->minute,
-        .tm_sec = dt->second
-    };
-    
-    if (!military_time && t.tm_hour > 12) {
-        t.tm_hour -= 12;
+// formatting time
+
+typedef struct {
+    const char *id;
+    const char *strftime_fmt;
+} fossil_time_format_t;
+
+static const fossil_time_format_t fossil_time_formats[] = {
+    { "human",      "%B %d, %Y %I:%M %p" },   // January 31, 2026 03:45 PM
+    { "short",      "%m/%d/%Y %I:%M %p" },   // 01/31/2026 03:45 PM
+    { "date",       "%m/%d/%Y" },             // 01/31/2026
+    { "time",       "%I:%M %p" },              // 03:45 PM
+    { "time-sec",  "%I:%M:%S %p" },           // 03:45:12 PM
+    { "military",  "%H:%M" },                  // 15:45
+    { "iso",       "%Y-%m-%dT%H:%M:%S" },      // 2026-01-31T15:45:12
+    { "rfc2822",   "%a, %d %b %Y %H:%M:%S" },  // Sat, 31 Jan 2026 15:45:12
+};
+
+static const char *lookup_time_format(const char *id) {
+    if (!id || strcmp(id, "human") == 0) {
+        return "%B %d, %Y %I:%M %p";
     }
-    
-    size_t result = strftime(buffer, buffer_size, format, &t);
-    if (result == 0) {
-        fprintf(stderr, "Error formatting time\n");
+
+    for (size_t i = 0; i < sizeof(fossil_time_formats) / sizeof(fossil_time_formats[0]); i++) {
+        if (strcmp(fossil_time_formats[i].id, id) == 0) {
+            return fossil_time_formats[i].strftime_fmt;
+        }
+    }
+
+    return NULL;
+}
+
+int fossil_sys_time_format(
+    const fossil_sys_time_datetime_t *dt,
+    char *buffer,
+    size_t buffer_size,
+    const char *format_id
+) {
+    if (!dt || !buffer || buffer_size == 0) {
         return -1;
     }
+
+    struct tm t = {
+        .tm_year = dt->year - 1900,
+        .tm_mon  = dt->month - 1,
+        .tm_mday = dt->day,
+        .tm_hour = dt->hour,
+        .tm_min  = dt->minute,
+        .tm_sec  = dt->second
+    };
+
+    const char *fmt = lookup_time_format(format_id);
+
+    /* If format_id is not a known ID, treat it as a raw strftime format */
+    if (!fmt) {
+        fmt = format_id;
+    }
+
+    size_t result = strftime(buffer, buffer_size, fmt, &t);
+    if (result == 0) {
+        return -1;
+    }
+
     return (int)result;
 }
 
