@@ -480,3 +480,168 @@ fossil_sys_holiday_id_t fossil_sys_time_get_holiday(const fossil_sys_time_dateti
 
     return FOSSIL_SYS_HOLIDAY_NONE;
 }
+
+static const char *weekday_name(const fossil_sys_time_datetime_t *dt) {
+    static const char *names[] = {
+        "Sunday","Monday","Tuesday","Wednesday",
+        "Thursday","Friday","Saturday"
+    };
+
+    int y = dt->year;
+    int m = dt->month;
+    int d = dt->day;
+    if (m < 3) { m += 12; y--; }
+    int K = y % 100;
+    int J = y / 100;
+    int f = d + 13*(m + 1)/5 + K + K/4 + J/4 + 5*J;
+    int dow = (f + 6) % 7; // 0 = Sunday
+    return names[dow];
+}
+
+int fossil_sys_time_format_smart(
+    const fossil_sys_time_datetime_t *dt,
+    const fossil_sys_time_datetime_t *now,
+    char *buffer,
+    size_t buffer_size
+) {
+    if (!dt || !now || !buffer) return -1;
+
+    int64_t diff = fossil_sys_time_diff_seconds(dt, now);
+    int same_year = (dt->year == now->year);
+    int same_day =
+        dt->year  == now->year &&
+        dt->month == now->month &&
+        dt->day   == now->day;
+
+    if (same_day) {
+        return fossil_sys_time_format(dt, buffer, buffer_size, "time");
+    }
+
+    if (diff >= -86400 && diff < 0) {
+        return snprintf(buffer, buffer_size,
+            "Yesterday at %02d:%02d %s",
+            (dt->hour % 12) ? (dt->hour % 12) : 12,
+            dt->minute,
+            dt->hour >= 12 ? "PM" : "AM"
+        );
+    }
+
+    if (diff > 0 && diff <= 86400) {
+        return snprintf(buffer, buffer_size,
+            "Tomorrow at %02d:%02d %s",
+            (dt->hour % 12) ? (dt->hour % 12) : 12,
+            dt->minute,
+            dt->hour >= 12 ? "PM" : "AM"
+        );
+    }
+
+    if (llabs(diff) < 7 * 86400) {
+        return snprintf(buffer, buffer_size,
+            "%s at %02d:%02d %s",
+            weekday_name(dt),
+            (dt->hour % 12) ? (dt->hour % 12) : 12,
+            dt->minute,
+            dt->hour >= 12 ? "PM" : "AM"
+        );
+    }
+
+    if (same_year) {
+        return fossil_sys_time_format(dt, buffer, buffer_size, "%b %d");
+    }
+
+    return fossil_sys_time_format(dt, buffer, buffer_size, "date");
+}
+
+static void format_ampm(
+    int hour, int minute,
+    char *out, size_t out_size
+) {
+    int h = hour % 12;
+    if (h == 0) h = 12;
+    snprintf(out, out_size, "%d:%02d %s",
+        h, minute, hour >= 12 ? "PM" : "AM");
+}
+
+static const char *weekday_name(const fossil_sys_time_datetime_t *dt) {
+    static const char *names[] = {
+        "Sunday","Monday","Tuesday","Wednesday",
+        "Thursday","Friday","Saturday"
+    };
+
+    int y = dt->year;
+    int m = dt->month;
+    int d = dt->day;
+    if (m < 3) { m += 12; y--; }
+    int K = y % 100;
+    int J = y / 100;
+    int f = d + 13*(m + 1)/5 + K + K/4 + J/4 + 5*J;
+    int dow = (f + 6) % 7; // 0=Sunday
+    return names[dow];
+}
+
+int fossil_sys_time_format_relative(
+    const fossil_sys_time_datetime_t *target,
+    const fossil_sys_time_datetime_t *now,
+    char *buffer,
+    size_t buffer_size
+) {
+    if (!target || !now || !buffer) return -1;
+
+    int64_t diff = fossil_sys_time_diff_seconds(target, now);
+    int64_t adiff = llabs(diff);
+
+    char timebuf[16];
+    format_ampm(target->hour, target->minute, timebuf, sizeof(timebuf));
+
+    /* Immediate past */
+    if (adiff < 5)
+        return snprintf(buffer, buffer_size, "just now");
+
+    if (adiff < 60)
+        return snprintf(buffer, buffer_size,
+            "%lld seconds %s",
+            (long long)adiff,
+            diff < 0 ? "ago" : "from now");
+
+    if (adiff < 3600)
+        return snprintf(buffer, buffer_size,
+            "%lld minutes %s",
+            (long long)(adiff / 60),
+            diff < 0 ? "ago" : "from now");
+
+    /* Same calendar day */
+    if (target->year == now->year &&
+        target->month == now->month &&
+        target->day == now->day) {
+        return snprintf(buffer, buffer_size,
+            "today at %s", timebuf);
+    }
+
+    /* Yesterday / Tomorrow */
+    if (diff < 0 && adiff < 2 * 86400)
+        return snprintf(buffer, buffer_size,
+            "yesterday at %s", timebuf);
+
+    if (diff > 0 && adiff < 2 * 86400)
+        return snprintf(buffer, buffer_size,
+            "tomorrow at %s", timebuf);
+
+    /* Same week-ish */
+    if (adiff < 7 * 86400) {
+        return snprintf(buffer, buffer_size,
+            "%s at %s",
+            weekday_name(target), timebuf);
+    }
+
+    /* Same year */
+    if (target->year == now->year) {
+        return fossil_sys_time_format(
+            target, buffer, buffer_size, "%b %d"
+        );
+    }
+
+    /* Fallback */
+    return fossil_sys_time_format(
+        target, buffer, buffer_size, "date"
+    );
+}
