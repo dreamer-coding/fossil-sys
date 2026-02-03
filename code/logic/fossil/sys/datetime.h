@@ -722,6 +722,22 @@ public:
     }
 };
 
+/**
+ * @brief Gets a high-resolution monotonic timestamp in nanoseconds.
+ * @return Monotonic timestamp in nanoseconds.
+ */
+inline uint64_t monotonic_ns() {
+    return fossil_sys_time_monotonic_ns();
+}
+
+/**
+ * @brief Sleeps for the specified number of nanoseconds.
+ * @param nanoseconds Number of nanoseconds to sleep.
+ */
+inline void sleep_ns(uint64_t nanoseconds) {
+    fossil_sys_time_sleep_ns(nanoseconds);
+}
+
 } // namespace sys
 
 } // namespace fossil
