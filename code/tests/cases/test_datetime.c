@@ -65,7 +65,7 @@ FOSSIL_TEST(c_test_time_now) {
 FOSSIL_TEST(c_test_time_format) {
     fossil_sys_time_datetime_t dt = {2024, 1, 1, 12, 0, 0, 0};
     char buffer[100];
-    int len = fossil_sys_time_format(&dt, buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", "military");
+    int len = fossil_sys_time_format(&dt, buffer, sizeof(buffer), "military");
     ASSUME_ITS_TRUE(len > 0); // Ensure formatting was successful
     ASSUME_ITS_TRUE(strcmp(buffer, "2024-01-01 12:00:00") == 0); // Ensure correct format
 }
