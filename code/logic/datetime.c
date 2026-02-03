@@ -645,3 +645,67 @@ int fossil_sys_time_format_relative(
         target, buffer, buffer_size, "date"
     );
 }
+
+int fossil_sys_time_search(
+    const fossil_sys_time_datetime_t *dt,
+    const fossil_sys_time_datetime_t *now,
+    const char *query
+) {
+    if (!dt || !now || !query) return -1;
+
+    /* Trim whitespace */
+    while (*query == ' ') query++;
+
+    /* Keyword-only queries */
+    if (strcmp(query, "today") == 0) {
+        return dt->year  == now->year &&
+               dt->month == now->month &&
+               dt->day   == now->day;
+    }
+
+    if (strcmp(query, "weekend") == 0) {
+        return fossil_sys_time_is_weekend(dt);
+    }
+
+    if (strcmp(query, "holiday") == 0) {
+        return fossil_sys_time_get_holiday(dt) != FOSSIL_SYS_HOLIDAY_NONE;
+    }
+
+    if (strcmp(query, "weekday") == 0) {
+        return !fossil_sys_time_is_weekend(dt);
+    }
+
+    /* Quarter search: Q1–Q4 */
+    if (query[0] == 'Q' && query[1] >= '1' && query[1] <= '4') {
+        return fossil_sys_time_get_quarter(dt) == (query[1] - '0');
+    }
+
+    /* Comparison queries */
+    char op[3] = {0};
+    const char *value = NULL;
+
+    if (sscanf(query, "%2[<>!=]= %ms", op, (char **)&value) >= 1) {
+        fossil_sys_time_datetime_t parsed = {0};
+
+        /* Try parsing ISO date */
+        if (sscanf(value, "%d-%d-%d",
+            &parsed.year, &parsed.month, &parsed.day) == 3) {
+
+            int64_t a = fossil_sys_time_to_unix(dt);
+            int64_t b = fossil_sys_time_to_unix(&parsed);
+
+            free((void*)value);
+
+            if (strcmp(op, ">") == 0)  return a > b;
+            if (strcmp(op, ">=") == 0) return a >= b;
+            if (strcmp(op, "<") == 0)  return a < b;
+            if (strcmp(op, "<=") == 0) return a <= b;
+            if (strcmp(op, "=") == 0)  return a == b;
+            if (strcmp(op, "!=") == 0) return a != b;
+        }
+
+        free((void*)value);
+    }
+
+    return 0;
+}
