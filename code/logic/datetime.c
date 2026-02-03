@@ -629,6 +629,32 @@ int fossil_sys_time_format_relative(
     );
 }
 
+static const char *skip_ws(const char *s) {
+    while (*s == ' ' || *s == '\t') s++;
+    return s;
+}
+
+static int parse_operator(const char *s, char op[3], const char **out_value) {
+    s = skip_ws(s);
+
+    if ((s[0] == '<' || s[0] == '>' || s[0] == '!' || s[0] == '=') && s[1] == '=') {
+        op[0] = s[0];
+        op[1] = '=';
+        op[2] = '\0';
+        *out_value = skip_ws(s + 2);
+        return 1;
+    }
+
+    if (s[0] == '<' || s[0] == '>') {
+        op[0] = s[0];
+        op[1] = '\0';
+        *out_value = skip_ws(s + 1);
+        return 1;
+    }
+
+    return 0;
+}
+
 int fossil_sys_time_search(
     const fossil_sys_time_datetime_t *dt,
     const fossil_sys_time_datetime_t *now,
@@ -636,58 +662,52 @@ int fossil_sys_time_search(
 ) {
     if (!dt || !now || !query) return -1;
 
-    /* Trim whitespace */
-    while (*query == ' ') query++;
+    query = skip_ws(query);
 
-    /* Keyword-only queries */
+    /* Keyword-only searches */
     if (strcmp(query, "today") == 0) {
         return dt->year  == now->year &&
                dt->month == now->month &&
                dt->day   == now->day;
     }
 
-    if (strcmp(query, "weekend") == 0) {
+    if (strcmp(query, "weekend") == 0)
         return fossil_sys_time_is_weekend(dt);
-    }
 
-    if (strcmp(query, "holiday") == 0) {
-        return fossil_sys_time_get_holiday(dt) != FOSSIL_SYS_HOLIDAY_NONE;
-    }
-
-    if (strcmp(query, "weekday") == 0) {
+    if (strcmp(query, "weekday") == 0)
         return !fossil_sys_time_is_weekend(dt);
-    }
 
-    /* Quarter search: Q1–Q4 */
-    if (query[0] == 'Q' && query[1] >= '1' && query[1] <= '4') {
+    if (strcmp(query, "holiday") == 0)
+        return fossil_sys_time_get_holiday(dt) != FOSSIL_SYS_HOLIDAY_NONE;
+
+    /* Quarter: Q1–Q4 */
+    if (query[0] == 'Q' && query[1] >= '1' && query[1] <= '4' && query[2] == '\0') {
         return fossil_sys_time_get_quarter(dt) == (query[1] - '0');
     }
 
-    /* Comparison queries */
+    /* Comparison parsing */
     char op[3] = {0};
     const char *value = NULL;
 
-    if (sscanf(query, "%2[<>!=]= %ms", op, (char **)&value) >= 1) {
-        fossil_sys_time_datetime_t parsed = {0};
+    if (!parse_operator(query, op, &value))
+        return 0;
 
-        /* Try parsing ISO date */
-        if (sscanf(value, "%d-%d-%d",
-            &parsed.year, &parsed.month, &parsed.day) == 3) {
+    /* Parse ISO date: YYYY-MM-DD */
+    fossil_sys_time_datetime_t parsed = {0};
+    if (sscanf(value, "%d-%d-%d",
+               &parsed.year,
+               &parsed.month,
+               &parsed.day) == 3) {
 
-            int64_t a = fossil_sys_time_to_unix(dt);
-            int64_t b = fossil_sys_time_to_unix(&parsed);
+        int64_t a = fossil_sys_time_to_unix(dt);
+        int64_t b = fossil_sys_time_to_unix(&parsed);
 
-            free((void*)value);
-
-            if (strcmp(op, ">") == 0)  return a > b;
-            if (strcmp(op, ">=") == 0) return a >= b;
-            if (strcmp(op, "<") == 0)  return a < b;
-            if (strcmp(op, "<=") == 0) return a <= b;
-            if (strcmp(op, "=") == 0)  return a == b;
-            if (strcmp(op, "!=") == 0) return a != b;
-        }
-
-        free((void*)value);
+        if (strcmp(op, ">")  == 0) return a >  b;
+        if (strcmp(op, ">=") == 0) return a >= b;
+        if (strcmp(op, "<")  == 0) return a <  b;
+        if (strcmp(op, "<=") == 0) return a <= b;
+        if (strcmp(op, "=")  == 0) return a == b;
+        if (strcmp(op, "!=") == 0) return a != b;
     }
 
     return 0;
