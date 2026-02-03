@@ -429,8 +429,8 @@ namespace fossil
              * @return Formatted date/time string.
              */
             std::string format(const std::string& format, const std::string& format_id = "human") const {
-                char buffer[256];
-                fossil_sys_time_format(&dt, buffer, sizeof(buffer), format.c_str(), format_id.c_str());
+                char buffer[256] = format.c_str();
+                fossil_sys_time_format(&dt, buffer, sizeof(buffer), format_id.c_str());
                 return std::string(buffer);
             }
 
