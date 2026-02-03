@@ -308,6 +308,58 @@ int fossil_sys_time_is_weekend(const fossil_sys_time_datetime_t *dt);
  */
 int fossil_sys_time_get_quarter(const fossil_sys_time_datetime_t *dt);
 
+/**
+ * @brief Format a datetime using human-aware "smart" rules.
+ *
+ * Automatically selects an appropriate display format based on the
+ * relationship between the given datetime and a reference time.
+ *
+ * Examples:
+ *  - Same day:        "3:45 PM"
+ *  - Yesterday:       "Yesterday at 3:45 PM"
+ *  - Same week:       "Tuesday at 3:45 PM"
+ *  - Same year:       "Jan 31"
+ *  - Different year:  "Jan 31, 2026"
+ *
+ * @param dt Pointer to the datetime to format.
+ * @param now Pointer to the reference datetime (typically current time).
+ * @param buffer Output buffer for the formatted string.
+ * @param buffer_size Size of the output buffer in bytes.
+ * @return int Number of characters written (excluding null terminator),
+ *             or -1 on error.
+ */
+int fossil_sys_time_format_smart(
+    const fossil_sys_time_datetime_t *dt,
+    const fossil_sys_time_datetime_t *now,
+    char *buffer,
+    size_t buffer_size
+);
+
+/**
+ * @brief Format a datetime as a human-friendly relative time string.
+ *
+ * Produces natural relative descriptions such as "just now",
+ * "5 minutes ago", "today at 3:45 PM", or "Tuesday at 6:00 PM",
+ * based on the difference between the target datetime and a
+ * reference time.
+ *
+ * This function is deterministic and does not perform locale
+ * or timezone inference.
+ *
+ * @param target Pointer to the datetime being described.
+ * @param now Pointer to the reference datetime (typically current time).
+ * @param buffer Output buffer for the formatted string.
+ * @param buffer_size Size of the output buffer in bytes.
+ * @return int Number of characters written (excluding null terminator),
+ *             or -1 on error.
+ */
+int fossil_sys_time_format_relative(
+    const fossil_sys_time_datetime_t *target,
+    const fossil_sys_time_datetime_t *now,
+    char *buffer,
+    size_t buffer_size
+);
+
 #ifdef __cplusplus
 }
 
