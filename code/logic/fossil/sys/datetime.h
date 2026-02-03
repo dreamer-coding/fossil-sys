@@ -360,6 +360,22 @@ int fossil_sys_time_format_relative(
     size_t buffer_size
 );
 
+/**
+ * @brief Evaluate whether a datetime matches a search expression.
+ *
+ * Supports comparisons, semantic keywords, and named time formats.
+ *
+ * @param dt Pointer to the datetime being tested.
+ * @param now Pointer to reference datetime (typically current time).
+ * @param query Search expression string.
+ * @return int 1 if the datetime matches the query, 0 if not, -1 on error.
+ */
+int fossil_sys_time_search(
+    const fossil_sys_time_datetime_t *dt,
+    const fossil_sys_time_datetime_t *now,
+    const char *query
+);
+
 #ifdef __cplusplus
 }
 
