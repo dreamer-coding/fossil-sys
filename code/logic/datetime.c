@@ -494,7 +494,7 @@ static const char *weekday_name(const fossil_sys_time_datetime_t *dt) {
     int K = y % 100;
     int J = y / 100;
     int f = d + 13*(m + 1)/5 + K + K/4 + J/4 + 5*J;
-    int dow = (f + 6) % 7; // 0 = Sunday
+    int dow = (f + 6) % 7; // 0=Sunday
     return names[dow];
 }
 
@@ -560,23 +560,6 @@ static void format_ampm(
     if (h == 0) h = 12;
     snprintf(out, out_size, "%d:%02d %s",
         h, minute, hour >= 12 ? "PM" : "AM");
-}
-
-static const char *weekday_name(const fossil_sys_time_datetime_t *dt) {
-    static const char *names[] = {
-        "Sunday","Monday","Tuesday","Wednesday",
-        "Thursday","Friday","Saturday"
-    };
-
-    int y = dt->year;
-    int m = dt->month;
-    int d = dt->day;
-    if (m < 3) { m += 12; y--; }
-    int K = y % 100;
-    int J = y / 100;
-    int f = d + 13*(m + 1)/5 + K + K/4 + J/4 + 5*J;
-    int dow = (f + 6) % 7; // 0=Sunday
-    return names[dow];
 }
 
 int fossil_sys_time_format_relative(
