@@ -64,7 +64,7 @@ FOSSIL_TEST(cpp_test_time_now) {
 
 FOSSIL_TEST(cpp_test_time_format) {
     fossil::sys::DateTime dt({2024, 1, 1, 12, 0, 0, 0});
-    std::string formatted = dt.format("%Y-%m-%d %H:%M:%S", true);
+    std::string formatted = dt.format("%Y-%m-%d %H:%M:%S", "military");
     ASSUME_ITS_TRUE(formatted == "2024-01-01 12:00:00"); // Ensure correct format
 }
 
