@@ -39,6 +39,9 @@
 #define FOSSIL_SYS_TIME_MILLISEC 1000000000000000000000ULL
 #define FOSSIL_SYS_TIME_SEC      60000000000000000000000ULL
 #define FOSSIL_SYS_TIME_MIN      3600000000000000000000000ULL
+#define FOSSIL_SYS_TIME_HOUR  (60 * FOSSIL_SYS_TIME_MIN)
+#define FOSSIL_SYS_TIME_DAY   (24 * FOSSIL_SYS_TIME_HOUR)
+#define FOSSIL_SYS_TIME_WEEK  (7 * FOSSIL_SYS_TIME_DAY)
 
 #ifdef __cplusplus
 extern "C" {
@@ -81,17 +84,33 @@ typedef struct {
  */
 void fossil_sys_time_now(fossil_sys_time_datetime_t *dt);
 
+
 /**
- * @brief Format datetime into a string.
+ * @brief Format datetime into a string using a named format.
  * 
- * @param dt Pointer to the fossil_sys_time_datetime_t structure to be formatted.
- * @param buffer Pointer to the buffer where the formatted string will be stored.
- * @param buffer_size Size of the buffer.
- * @param format Format string specifying the desired output format.
- * @param military_time If nonzero, uses 24-hour format; otherwise, uses 12-hour format.
- * @return int Returns the number of characters written to the buffer, excluding the null terminator.
+ * Supported format_id options:
+ *   - "human":     January 31, 2026 03:45 PM
+ *   - "short":     01/31/2026 03:45 PM
+ *   - "date":      01/31/2026
+ *   - "time":      03:45 PM
+ *   - "time-sec":  03:45:12 PM
+ *   - "military":  15:45
+ *   - "iso":       2026-01-31T15:45:12
+ *   - "rfc2822":   Sat, 31 Jan 2026 15:45:12
+ *   - NULL or "human": Uses the default "human" format.
+ *
+ * @param dt Pointer to the fossil_sys_time_datetime_t structure.
+ * @param buffer Output buffer.
+ * @param buffer_size Size of output buffer.
+ * @param format_id String ID of the format (NULL or "human" for default).
+ * @return int Number of characters written, excluding null terminator, or -1 on error.
  */
-int fossil_sys_time_format(const fossil_sys_time_datetime_t *dt, char *buffer, size_t buffer_size, const char *format, int military_time);
+int fossil_sys_time_format(
+    const fossil_sys_time_datetime_t *dt,
+    char *buffer,
+    size_t buffer_size,
+    const char *format_id
+);
 
 /**
  * @brief Determine if a given year is a leap year.
@@ -239,248 +258,518 @@ int64_t fossil_sys_time_span_to_seconds(const fossil_sys_time_span_t *span);
 void fossil_sys_time_add_span(fossil_sys_time_datetime_t *dt,
                               const fossil_sys_time_span_t *span);
 
+typedef enum {
+    FOSSIL_SYS_SEASON_WINTER,
+    FOSSIL_SYS_SEASON_SPRING,
+    FOSSIL_SYS_SEASON_SUMMER,
+    FOSSIL_SYS_SEASON_AUTUMN,
+    FOSSIL_SYS_SEASON_UNKNOWN
+} fossil_sys_season_t;
+
+/**
+ * @brief Get the season for a given datetime.
+ *
+ * @param dt Pointer to a datetime.
+ * @param northern_hemisphere If nonzero, uses Northern Hemisphere seasons; otherwise, Southern Hemisphere.
+ * @return fossil_sys_season_t The season.
+ */
+fossil_sys_season_t fossil_sys_time_get_season(const fossil_sys_time_datetime_t *dt, int northern_hemisphere);
+
+typedef struct {
+    int month;
+    int day;
+    const char *name;
+} fossil_sys_holiday_fixed_t;
+
+typedef enum {
+    FOSSIL_SYS_HOLIDAY_NONE = 0,      // Not a holiday
+    FOSSIL_SYS_HOLIDAY_NEW_YEAR,      // January 1
+    FOSSIL_SYS_HOLIDAY_ML_KING_DAY,   // Third Monday in January
+    FOSSIL_SYS_HOLIDAY_VALENTINES,    // February 14
+    FOSSIL_SYS_HOLIDAY_PRESIDENTS_DAY,// Third Monday in February
+    FOSSIL_SYS_HOLIDAY_ST_PATRICKS,   // March 17
+    FOSSIL_SYS_HOLIDAY_EASTER,        // Variable date
+    FOSSIL_SYS_HOLIDAY_MEMORIAL_DAY,  // Last Monday in May
+    FOSSIL_SYS_HOLIDAY_INDEPENDENCE,  // July 4
+    FOSSIL_SYS_HOLIDAY_LABOR_DAY,     // First Monday in September
+    FOSSIL_SYS_HOLIDAY_HALLOWEEN,     // October 31
+    FOSSIL_SYS_HOLIDAY_VETERANS_DAY,  // November 11
+    FOSSIL_SYS_HOLIDAY_THANKSGIVING,  // Fourth Thursday in November
+    FOSSIL_SYS_HOLIDAY_CHRISTMAS,     // December 25
+    FOSSIL_SYS_HOLIDAY_BLACK_FRIDAY,  // Day after Thanksgiving
+    FOSSIL_SYS_HOLIDAY_SUPER_BOWL,    // First Sunday in February (optional fun)
+    FOSSIL_SYS_HOLIDAY_MOTHERS_DAY,   // Second Sunday in May
+    FOSSIL_SYS_HOLIDAY_FATHERS_DAY,   // Third Sunday in June
+} fossil_sys_holiday_id_t;
+
+/**
+ * @brief Check if a given date is a fixed holiday.
+ *
+ * @param dt Pointer to a datetime.
+ * @return fossil_sys_holiday_id_t ID of holiday, or FOSSIL_SYS_HOLIDAY_NONE if none.
+ */
+fossil_sys_holiday_id_t fossil_sys_time_get_holiday(const fossil_sys_time_datetime_t *dt);
+
+/**
+ * @brief Returns true if the date is a weekend.
+ */
+int fossil_sys_time_is_weekend(const fossil_sys_time_datetime_t *dt);
+
+/**
+ * @brief Returns the quarter (1-4) of the year.
+ */
+int fossil_sys_time_get_quarter(const fossil_sys_time_datetime_t *dt);
+
+/**
+ * @brief Format a datetime using human-aware "smart" rules.
+ *
+ * Automatically selects an appropriate display format based on the
+ * relationship between the given datetime and a reference time.
+ *
+ * Examples:
+ *  - Same day:        "3:45 PM"
+ *  - Yesterday:       "Yesterday at 3:45 PM"
+ *  - Same week:       "Tuesday at 3:45 PM"
+ *  - Same year:       "Jan 31"
+ *  - Different year:  "Jan 31, 2026"
+ *
+ * @param dt Pointer to the datetime to format.
+ * @param now Pointer to the reference datetime (typically current time).
+ * @param buffer Output buffer for the formatted string.
+ * @param buffer_size Size of the output buffer in bytes.
+ * @return int Number of characters written (excluding null terminator),
+ *             or -1 on error.
+ */
+int fossil_sys_time_format_smart(
+    const fossil_sys_time_datetime_t *dt,
+    const fossil_sys_time_datetime_t *now,
+    char *buffer,
+    size_t buffer_size
+);
+
+/**
+ * @brief Format a datetime as a human-friendly relative time string.
+ *
+ * Produces natural relative descriptions such as "just now",
+ * "5 minutes ago", "today at 3:45 PM", or "Tuesday at 6:00 PM",
+ * based on the difference between the target datetime and a
+ * reference time.
+ *
+ * This function is deterministic and does not perform locale
+ * or timezone inference.
+ *
+ * @param target Pointer to the datetime being described.
+ * @param now Pointer to the reference datetime (typically current time).
+ * @param buffer Output buffer for the formatted string.
+ * @param buffer_size Size of the output buffer in bytes.
+ * @return int Number of characters written (excluding null terminator),
+ *             or -1 on error.
+ */
+int fossil_sys_time_format_relative(
+    const fossil_sys_time_datetime_t *target,
+    const fossil_sys_time_datetime_t *now,
+    char *buffer,
+    size_t buffer_size
+);
+
+/**
+ * @brief Evaluate whether a datetime matches a search expression.
+ *
+ * Supports comparisons, semantic keywords, and named time formats.
+ *
+ * Search expressions can be:
+ *   - Keywords:
+ *       - "today"      : Matches if the date is the same as 'now'.
+ *       - "weekend"    : Matches if the date is a Saturday or Sunday.
+ *       - "weekday"    : Matches if the date is a Monday–Friday.
+ *       - "holiday"    : Matches if the date is a recognized holiday.
+ *       - "Q1", "Q2", "Q3", "Q4" : Matches if the date is in the given quarter.
+ *   - Comparison operators with ISO date:
+ *       - "> YYYY-MM-DD"   : True if dt is after the given date.
+ *       - ">= YYYY-MM-DD"  : True if dt is on or after the date.
+ *       - "< YYYY-MM-DD"   : True if dt is before the date.
+ *       - "<= YYYY-MM-DD"  : True if dt is on or before the date.
+ *       - "= YYYY-MM-DD"   : True if dt is exactly the date.
+ *       - "!= YYYY-MM-DD"  : True if dt is not the date.
+ *
+ * Whitespace is ignored at the start of the query.
+ *
+ * @param dt Pointer to the datetime being tested.
+ * @param now Pointer to reference datetime (typically current time).
+ * @param query Search expression string.
+ * @return int 1 if the datetime matches the query, 0 if not, -1 on error.
+ */
+int fossil_sys_time_search(
+    const fossil_sys_time_datetime_t *dt,
+    const fossil_sys_time_datetime_t *now,
+    const char *query
+);
+
 #ifdef __cplusplus
 }
 
 #include <string>
 
+namespace fossil {
+
+namespace sys {
+
 /**
- * Fossil namespace.
+ * @class TimeSpan
+ * @brief Represents a duration of time, providing conversions between
+ *        seconds and structured components (days, hours, minutes, etc.).
+ * 
+ * This class is a thin wrapper over the C struct fossil_sys_time_span_t.
+ * It provides convenience methods for creating, converting, and manipulating
+ * time spans in a C++-friendly way.
  */
-namespace fossil
-{
+class TimeSpan {
+public:
+    /// Underlying C representation of the time span
+    fossil_sys_time_span_t span{};
+
+    /// Default constructor: zero-initialized duration
+    TimeSpan() = default;
+
     /**
-     * @namespace fossil::sys
-     * @brief Contains system-level time and date utilities.
+     * @brief Construct a TimeSpan from a total number of seconds.
+     * 
+     * @param seconds Total number of seconds to represent.
      */
-    namespace sys
-    {
-        /**
-         * @class DateTime
-         * @brief C++ wrapper for fossil_sys_time_datetime_t.
-         *
-         * Provides methods for manipulating and formatting date and time values.
-         * Internally uses fossil_sys_time_datetime_t and related C functions.
-         */
-        class DateTime
-        {
-        public:
-            /**
-             * @brief Constructs a DateTime object initialized to the current system time.
-             */
-            DateTime() {
-                fossil_sys_time_now(&dt);
-            }
-
-            /**
-             * @brief Constructs a DateTime object from an existing fossil_sys_time_datetime_t.
-             * @param datetime The datetime structure to initialize from.
-             */
-            DateTime(const fossil_sys_time_datetime_t& datetime) : dt(datetime) {}
-
-            /**
-             * @brief Updates the DateTime object to the current system time.
-             */
-            void now() {
-                fossil_sys_time_now(&dt);
-            }
-
-            /**
-             * @brief Formats the DateTime as a string.
-             * @param format Format string specifying the output.
-             * @param military_time If true, uses 24-hour format; otherwise, 12-hour format.
-             * @return Formatted date/time string.
-             */
-            std::string format(const std::string& format, bool military_time = true) const {
-                char buffer[256];
-                fossil_sys_time_format(&dt, buffer, sizeof(buffer), format.c_str(), military_time);
-                return std::string(buffer);
-            }
-
-            /**
-             * @brief Gets the underlying fossil_sys_time_datetime_t structure.
-             * @return The datetime structure.
-             */
-            fossil_sys_time_datetime_t get() const {
-                return dt;
-            }
-
-            /**
-             * @brief Adds seconds to the DateTime.
-             * @param seconds Number of seconds to add (can be negative).
-             */
-            void add_seconds(int64_t seconds) {
-                fossil_sys_time_add_seconds(&dt, seconds);
-            }
-
-            /**
-             * @brief Computes the difference in seconds between this and another DateTime.
-             * @param other The other DateTime to compare.
-             * @return Difference in seconds (positive if this > other).
-             */
-            int64_t diff_seconds(const DateTime& other) const {
-                return fossil_sys_time_diff_seconds(&dt, &other.dt);
-            }
-
-            /**
-             * @brief Normalizes the DateTime fields to valid ranges.
-             */
-            void normalize() {
-                fossil_sys_time_normalize(&dt);
-            }
-
-            /**
-             * @brief Validates the DateTime fields.
-             * @return True if valid, false otherwise.
-             */
-            bool validate() const {
-                return fossil_sys_time_validate(&dt) != 0;
-            }
-
-            /**
-             * @brief Converts the DateTime to a Unix timestamp.
-             * @return Unix timestamp (seconds since 1970-01-01 UTC).
-             */
-            int64_t to_unix() const {
-                return fossil_sys_time_to_unix(&dt);
-            }
-
-            /**
-             * @brief Sets the DateTime from a Unix timestamp.
-             * @param timestamp Unix timestamp to set from.
-             */
-            void from_unix(int64_t timestamp) {
-                fossil_sys_time_from_unix(timestamp, &dt);
-            }
-
-            /**
-             * @brief Adds a time span to the DateTime.
-             * @param span The time span to add.
-             */
-            void add_span(const fossil_sys_time_span_t& span) {
-                fossil_sys_time_add_span(&dt, &span);
-            }
-
-        private:
-            fossil_sys_time_datetime_t dt; /**< Internal datetime structure. */
-        };
-
-        /**
-         * @class Calendar
-         * @brief C++ wrapper for fossil_sys_time_calendar_t.
-         *
-         * Provides methods for calendar-related queries such as leap year and days in month.
-         */
-        class Calendar
-        {
-        public:
-            /**
-             * @brief Constructs a Calendar object for the specified date.
-             * @param year Year value.
-             * @param month Month value.
-             * @param day Day value.
-             */
-            Calendar(int year, int month, int day)
-                : cal{year, month, day, fossil_sys_time_is_leap_year(year)} {}
-
-            /**
-             * @brief Checks if the calendar year is a leap year.
-             * @return True if leap year, false otherwise.
-             */
-            bool is_leap_year() const {
-                return cal.is_leap_year;
-            }
-
-            /**
-             * @brief Gets the number of days in the calendar's month.
-             * @return Number of days in the month.
-             */
-            int days_in_month() const {
-                return fossil_sys_time_days_in_month(cal.year, cal.month);
-            }
-
-            /**
-             * @brief Gets the underlying fossil_sys_time_calendar_t structure.
-             * @return The calendar structure.
-             */
-            fossil_sys_time_calendar_t get() const {
-                return cal;
-            }
-
-        private:
-            fossil_sys_time_calendar_t cal; /**< Internal calendar structure. */
-        };
-
-        /**
-         * @class TimeSpan
-         * @brief C++ wrapper for fossil_sys_time_span_t.
-         *
-         * Represents a duration of time and provides conversion utilities.
-         */
-        class TimeSpan
-        {
-        public:
-            /**
-             * @brief Constructs a zero-initialized TimeSpan.
-             */
-            TimeSpan() : span{0, 0, 0, 0, 0} {}
-
-            /**
-             * @brief Constructs a TimeSpan from total seconds.
-             * @param seconds Total seconds for the time span.
-             */
-            explicit TimeSpan(int64_t seconds) {
-                span = fossil_sys_time_span_from_seconds(seconds);
-            }
-
-            /**
-             * @brief Constructs a TimeSpan from explicit fields.
-             * @param days Number of days.
-             * @param hours Number of hours.
-             * @param minutes Number of minutes.
-             * @param seconds Number of seconds.
-             * @param nanoseconds Number of nanoseconds.
-             */
-            TimeSpan(int64_t days, int64_t hours, int64_t minutes, int64_t seconds, int64_t nanoseconds)
-                : span{days, hours, minutes, seconds, nanoseconds} {}
-
-            /**
-             * @brief Converts the TimeSpan to total seconds.
-             * @return Total seconds represented by the span.
-             */
-            int64_t to_seconds() const {
-                return fossil_sys_time_span_to_seconds(&span);
-            }
-
-            /**
-             * @brief Gets the underlying fossil_sys_time_span_t structure.
-             * @return The time span structure.
-             */
-            fossil_sys_time_span_t get() const {
-                return span;
-            }
-
-        private:
-            fossil_sys_time_span_t span; /**< Internal time span structure. */
-        };
-
-        /**
-         * @brief Gets a high-resolution monotonic timestamp in nanoseconds.
-         * @return Monotonic timestamp in nanoseconds.
-         */
-        inline uint64_t monotonic_ns() {
-            return fossil_sys_time_monotonic_ns();
-        }
-
-        /**
-         * @brief Sleeps for the specified number of nanoseconds.
-         * @param nanoseconds Number of nanoseconds to sleep.
-         */
-        inline void sleep_ns(uint64_t nanoseconds) {
-            fossil_sys_time_sleep_ns(nanoseconds);
-        }
+    explicit TimeSpan(int64_t seconds) {
+        span = fossil_sys_time_span_from_seconds(seconds);
     }
+
+    /**
+     * @brief Factory method to create a TimeSpan from seconds.
+     * 
+     * @param seconds Total seconds.
+     * @return TimeSpan instance representing the specified duration.
+     */
+    static TimeSpan from_seconds(int64_t seconds) {
+        return TimeSpan(seconds);
+    }
+
+    /**
+     * @brief Convert the time span to total seconds.
+     * 
+     * @return int64_t Total number of seconds represented by this span.
+     */
+    int64_t to_seconds() const {
+        return fossil_sys_time_span_to_seconds(&span);
+    }
+};
+
+/**
+ * @class DateTime
+ * @brief Represents a specific point in time, including year, month, day, hour, minute, second, and nanosecond.
+ * 
+ * DateTime wraps the fossil_sys_time_datetime_t C struct and exposes
+ * validation, arithmetic, formatting, and semantic operations in a
+ * C++-friendly interface.
+ */
+class DateTime {
+public:
+    /// Underlying C representation of the datetime
+    fossil_sys_time_datetime_t dt{};
+
+    /// Default constructor: uninitialized datetime (all fields zero)
+    DateTime() = default;
+
+    /**
+     * @brief Construct a DateTime from an existing C struct.
+     * 
+     * @param value A fossil_sys_time_datetime_t value to wrap.
+     */
+    explicit DateTime(const fossil_sys_time_datetime_t& value)
+        : dt(value) {}
+
+    /* ---------- factories ---------- */
+
+    /**
+     * @brief Get the current local datetime.
+     * 
+     * @return DateTime representing the current system time.
+     */
+    static DateTime now() {
+        DateTime t;
+        fossil_sys_time_now(&t.dt);
+        return t;
+    }
+
+    /**
+     * @brief Create a DateTime from a Unix timestamp.
+     * 
+     * Converts a timestamp (seconds since 1970-01-01 UTC) into a DateTime.
+     * 
+     * @param timestamp Unix timestamp in seconds.
+     * @return DateTime representing the specified timestamp.
+     */
+    static DateTime from_unix(int64_t timestamp) {
+        DateTime t;
+        fossil_sys_time_from_unix(timestamp, &t.dt);
+        return t;
+    }
+
+    /* ---------- validation ---------- */
+
+    /**
+     * @brief Check whether the datetime represents a valid date and time.
+     * 
+     * @return true if valid, false otherwise (e.g., month=13, day=32)
+     */
+    bool is_valid() const {
+        return fossil_sys_time_validate(&dt) != 0;
+    }
+
+    /**
+     * @brief Determine if the date falls on a weekend.
+     * 
+     * @return true if Saturday or Sunday, false otherwise
+     */
+    bool is_weekend() const {
+        return fossil_sys_time_is_weekend(&dt) != 0;
+    }
+
+    /**
+     * @brief Get the quarter of the year (1-4).
+     * 
+     * @return int Quarter number (1 = Jan-Mar, ..., 4 = Oct-Dec)
+     */
+    int quarter() const {
+        return fossil_sys_time_get_quarter(&dt);
+    }
+
+    /**
+     * @brief Check if the year of this DateTime is a leap year.
+     * 
+     * @return true if leap year, false otherwise
+     */
+    bool is_leap_year() const {
+        return fossil_sys_time_is_leap_year(dt.year) != 0;
+    }
+
+    /* ---------- arithmetic ---------- */
+
+    /**
+     * @brief Add or subtract seconds from the datetime.
+     * 
+     * Automatically normalizes overflow/underflow across minutes, hours, and days.
+     * 
+     * @param seconds Number of seconds to add (can be negative)
+     */
+    void add_seconds(int64_t seconds) {
+        fossil_sys_time_add_seconds(&dt, seconds);
+    }
+
+    /**
+     * @brief Add a TimeSpan to this DateTime.
+     * 
+     * Adds all components of the TimeSpan (days, hours, minutes, seconds, nanoseconds)
+     * and normalizes the result.
+     * 
+     * @param span TimeSpan to add (can contain negative values)
+     */
+    void add_span(const TimeSpan& span) {
+        fossil_sys_time_add_span(&dt, &span.span);
+    }
+
+    /**
+     * @brief Compute the difference in seconds between this DateTime and another.
+     * 
+     * @param other Another DateTime to compare with
+     * @return int64_t Difference in seconds (positive if this > other)
+     */
+    int64_t diff_seconds(const DateTime& other) const {
+        return fossil_sys_time_diff_seconds(&dt, &other.dt);
+    }
+
+    /* ---------- conversion ---------- */
+
+    /**
+     * @brief Convert the datetime to a Unix timestamp.
+     * 
+     * @return int64_t Seconds since 1970-01-01 UTC
+     */
+    int64_t to_unix() const {
+        return fossil_sys_time_to_unix(&dt);
+    }
+
+    /**
+     * @brief Normalize the datetime fields to ensure valid ranges.
+     * 
+     * Example: 13th month becomes January of next year, 61 seconds carry over to minutes, etc.
+     */
+    void normalize() {
+        fossil_sys_time_normalize(&dt);
+    }
+
+    /* ---------- formatting ---------- */
+
+    /**
+     * @brief Format the DateTime as a string using a named format.
+     * 
+     * @param format_id Format identifier (e.g., "human", "iso", "military")
+     * @return std::string Formatted datetime, empty string on error
+     */
+    std::string format(const std::string& format_id = "human") const {
+        char buf[128];
+        int n = fossil_sys_time_format(
+            &dt,
+            buf,
+            sizeof(buf),
+            format_id.empty() ? nullptr : format_id.c_str()
+        );
+        return n >= 0 ? std::string(buf, n) : std::string{};
+    }
+
+    /**
+     * @brief Format the DateTime using human-aware smart rules.
+     * 
+     * Chooses an appropriate display format relative to `now`.
+     * Examples:
+     * - Same day: "3:45 PM"
+     * - Yesterday: "Yesterday at 3:45 PM"
+     * - Same week: "Tuesday at 3:45 PM"
+     * - Same year: "Jan 31"
+     * - Different year: "Jan 31, 2026"
+     * 
+     * @param now Reference DateTime for relative calculations
+     * @return std::string Smart-formatted datetime string
+     */
+    std::string format_smart(const DateTime& now) const {
+        char buf[128];
+        int n = fossil_sys_time_format_smart(
+            &dt,
+            &now.dt,
+            buf,
+            sizeof(buf)
+        );
+        return n >= 0 ? std::string(buf, n) : std::string{};
+    }
+
+    /**
+     * @brief Format the DateTime as a human-friendly relative string.
+     * 
+     * Examples: "just now", "5 minutes ago", "today at 3:45 PM", "Tuesday at 6:00 PM"
+     * 
+     * @param now Reference DateTime
+     * @return std::string Relative time string
+     */
+    std::string format_relative(const DateTime& now) const {
+        char buf[128];
+        int n = fossil_sys_time_format_relative(
+            &dt,
+            &now.dt,
+            buf,
+            sizeof(buf)
+        );
+        return n >= 0 ? std::string(buf, n) : std::string{};
+    }
+
+    /* ---------- semantics ---------- */
+
+    /**
+     * @brief Determine the season of the year.
+     * 
+     * @param northern_hemisphere true to use Northern Hemisphere conventions, false for Southern
+     * @return fossil_sys_season_t Enum representing the season
+     */
+    fossil_sys_season_t season(bool northern_hemisphere = true) const {
+        return fossil_sys_time_get_season(&dt, northern_hemisphere ? 1 : 0);
+    }
+
+    /**
+     * @brief Get the holiday ID for the datetime, if any.
+     * 
+     * @return fossil_sys_holiday_id_t ID of the holiday, or FOSSIL_SYS_HOLIDAY_NONE
+     */
+    fossil_sys_holiday_id_t holiday() const {
+        return fossil_sys_time_get_holiday(&dt);
+    }
+
+    /* ---------- search ---------- */
+
+    /**
+     * @brief Determine if the datetime matches a search query.
+     * 
+     * Supports operators, keywords, and named formats.
+     * 
+     * @param now Reference DateTime for relative evaluations
+     * @param query Search expression string (e.g., "today", "> 2026-01-01")
+     * @return true if the DateTime matches the search query
+     */
+    bool matches(const DateTime& now, const std::string& query) const {
+        int r = fossil_sys_time_search(&dt, &now.dt, query.c_str());
+        return r > 0;
+    }
+};
+
+/**
+ * @class Calendar
+ * @brief Represents calendar-related information for a specific date.
+ * 
+ * Wraps fossil_sys_time_calendar_t, exposing leap year checks and days-in-month queries.
+ */
+class Calendar {
+public:
+    fossil_sys_time_calendar_t cal{};
+
+    /// Default constructor: zero-initialized calendar
+    Calendar() = default;
+
+    /**
+     * @brief Construct a Calendar for a specific date.
+     * 
+     * @param year Year
+     * @param month Month (1-12)
+     * @param day Day (1-31)
+     */
+    Calendar(int year, int month, int day) {
+        cal.year = year;
+        cal.month = month;
+        cal.day = day;
+        cal.is_leap_year = fossil_sys_time_is_leap_year(year);
+    }
+
+    /**
+     * @brief Check if the year is a leap year.
+     * 
+     * @return true if leap year, false otherwise
+     */
+    bool is_leap_year() const {
+        return cal.is_leap_year != 0;
+    }
+
+    /**
+     * @brief Get the number of days in the month of this calendar date.
+     * 
+     * @return int Number of days in the month
+     */
+    int days_in_month() const {
+        return fossil_sys_time_days_in_month(cal.year, cal.month);
+    }
+};
+
+/**
+ * @brief Gets a high-resolution monotonic timestamp in nanoseconds.
+ * @return Monotonic timestamp in nanoseconds.
+ */
+inline uint64_t monotonic_ns() {
+    return fossil_sys_time_monotonic_ns();
 }
+
+/**
+ * @brief Sleeps for the specified number of nanoseconds.
+ * @param nanoseconds Number of nanoseconds to sleep.
+ */
+inline void sleep_ns(uint64_t nanoseconds) {
+    fossil_sys_time_sleep_ns(nanoseconds);
+}
+
+} // namespace sys
+
+} // namespace fossil
 
 #endif
 
