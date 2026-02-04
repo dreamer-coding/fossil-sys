@@ -170,7 +170,7 @@ FOSSIL_TEST(c_test_time_format) {
     for (size_t i = 0; i < sizeof(formats)/sizeof(formats[0]); ++i) {
         int n = fossil_sys_time_format(&dt, buf, sizeof(buf), formats[i]);
         ASSUME_ITS_MORE_THAN_I32(n, 0);
-        ASSUME_ITS_NOT_EQUAL_CHAR(buf[0], '\0');
+        ASSUME_NOT_EQUAL_CHAR(buf[0], '\0');
     }
 }
 
@@ -229,7 +229,7 @@ FOSSIL_TEST(c_test_time_format_smart) {
     char buf[64];
     int n = fossil_sys_time_format_smart(&dt, &now, buf, sizeof(buf));
     ASSUME_ITS_MORE_THAN_I32(n, 0);
-    ASSUME_ITS_NOT_EQUAL_CHAR(buf[0], '\0');
+    ASSUME_NOT_EQUAL_CHAR(buf[0], '\0');
 }
 
 // ** Test fossil_sys_time_format_relative **
@@ -239,12 +239,12 @@ FOSSIL_TEST(c_test_time_format_relative) {
     char buf[64];
     int n = fossil_sys_time_format_relative(&dt, &now, buf, sizeof(buf));
     ASSUME_ITS_MORE_THAN_I32(n, 0);
-    ASSUME_ITS_NOT_EQUAL_CHAR(buf[0], '\0');
+    ASSUME_NOT_EQUAL_CHAR(buf[0], '\0');
     dt.minute -= 5;
     fossil_sys_time_normalize(&dt);
     n = fossil_sys_time_format_relative(&dt, &now, buf, sizeof(buf));
     ASSUME_ITS_MORE_THAN_I32(n, 0);
-    ASSUME_ITS_NOT_EQUAL_CHAR(buf[0], '\0');
+    ASSUME_NOT_EQUAL_CHAR(buf[0], '\0');
 }
 
 // ** Test fossil_sys_time_search **
@@ -265,7 +265,7 @@ FOSSIL_TEST(c_test_time_format_smart_same_day) {
     char buf[64];
     int n = fossil_sys_time_format_smart(&dt, &now, buf, sizeof(buf));
     ASSUME_ITS_MORE_THAN_I32(n, 0);
-    ASSUME_ITS_NOT_EQUAL_CHAR(buf[0], '\0');
+    ASSUME_NOT_EQUAL_CHAR(buf[0], '\0');
     // Should be time-only format (e.g., "09:15 AM")
 }
 
@@ -275,7 +275,7 @@ FOSSIL_TEST(c_test_time_format_smart_yesterday) {
     char buf[64];
     int n = fossil_sys_time_format_smart(&dt, &now, buf, sizeof(buf));
     ASSUME_ITS_MORE_THAN_I32(n, 0);
-    ASSUME_ITS_NOT_EQUAL_CHAR(buf[0], '\0');
+    ASSUME_NOT_EQUAL_CHAR(buf[0], '\0');
     ASSUME_ITS_TRUE(strstr(buf, "Yesterday") != NULL);
 }
 
@@ -285,7 +285,7 @@ FOSSIL_TEST(c_test_time_format_smart_tomorrow) {
     char buf[64];
     int n = fossil_sys_time_format_smart(&dt, &now, buf, sizeof(buf));
     ASSUME_ITS_MORE_THAN_I32(n, 0);
-    ASSUME_ITS_NOT_EQUAL_CHAR(buf[0], '\0');
+    ASSUME_NOT_EQUAL_CHAR(buf[0], '\0');
     ASSUME_ITS_TRUE(strstr(buf, "Tomorrow") != NULL);
 }
 
@@ -295,7 +295,7 @@ FOSSIL_TEST(c_test_time_format_smart_same_week) {
     char buf[64];
     int n = fossil_sys_time_format_smart(&dt, &now, buf, sizeof(buf));
     ASSUME_ITS_MORE_THAN_I32(n, 0);
-    ASSUME_ITS_NOT_EQUAL_CHAR(buf[0], '\0');
+    ASSUME_NOT_EQUAL_CHAR(buf[0], '\0');
     ASSUME_ITS_TRUE(strstr(buf, "Wednesday") != NULL);
 }
 
@@ -305,7 +305,7 @@ FOSSIL_TEST(c_test_time_format_smart_same_year) {
     char buf[64];
     int n = fossil_sys_time_format_smart(&dt, &now, buf, sizeof(buf));
     ASSUME_ITS_MORE_THAN_I32(n, 0);
-    ASSUME_ITS_NOT_EQUAL_CHAR(buf[0], '\0');
+    ASSUME_NOT_EQUAL_CHAR(buf[0], '\0');
     // Should be month and day only (e.g., "Feb 01")
 }
 
@@ -315,7 +315,7 @@ FOSSIL_TEST(c_test_time_format_smart_different_year) {
     char buf[64];
     int n = fossil_sys_time_format_smart(&dt, &now, buf, sizeof(buf));
     ASSUME_ITS_MORE_THAN_I32(n, 0);
-    ASSUME_ITS_NOT_EQUAL_CHAR(buf[0], '\0');
+    ASSUME_NOT_EQUAL_CHAR(buf[0], '\0');
     // Should be full date (e.g., "12/25/2023")
 }
 
