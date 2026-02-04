@@ -84,8 +84,20 @@ typedef struct {
  */
 void fossil_sys_time_now(fossil_sys_time_datetime_t *dt);
 
+
 /**
  * @brief Format datetime into a string using a named format.
+ * 
+ * Supported format_id options:
+ *   - "human":     January 31, 2026 03:45 PM
+ *   - "short":     01/31/2026 03:45 PM
+ *   - "date":      01/31/2026
+ *   - "time":      03:45 PM
+ *   - "time-sec":  03:45:12 PM
+ *   - "military":  15:45
+ *   - "iso":       2026-01-31T15:45:12
+ *   - "rfc2822":   Sat, 31 Jan 2026 15:45:12
+ *   - NULL or "human": Uses the default "human" format.
  *
  * @param dt Pointer to the fossil_sys_time_datetime_t structure.
  * @param buffer Output buffer.
@@ -364,6 +376,23 @@ int fossil_sys_time_format_relative(
  * @brief Evaluate whether a datetime matches a search expression.
  *
  * Supports comparisons, semantic keywords, and named time formats.
+ *
+ * Search expressions can be:
+ *   - Keywords:
+ *       - "today"      : Matches if the date is the same as 'now'.
+ *       - "weekend"    : Matches if the date is a Saturday or Sunday.
+ *       - "weekday"    : Matches if the date is a Monday–Friday.
+ *       - "holiday"    : Matches if the date is a recognized holiday.
+ *       - "Q1", "Q2", "Q3", "Q4" : Matches if the date is in the given quarter.
+ *   - Comparison operators with ISO date:
+ *       - "> YYYY-MM-DD"   : True if dt is after the given date.
+ *       - ">= YYYY-MM-DD"  : True if dt is on or after the date.
+ *       - "< YYYY-MM-DD"   : True if dt is before the date.
+ *       - "<= YYYY-MM-DD"  : True if dt is on or before the date.
+ *       - "= YYYY-MM-DD"   : True if dt is exactly the date.
+ *       - "!= YYYY-MM-DD"  : True if dt is not the date.
+ *
+ * Whitespace is ignored at the start of the query.
  *
  * @param dt Pointer to the datetime being tested.
  * @param now Pointer to reference datetime (typically current time).

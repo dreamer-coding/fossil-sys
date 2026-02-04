@@ -39,6 +39,10 @@
 #include <unistd.h>  // for nanosleep, POSIX sleep functions
 #endif
 
+#ifndef CLOCK_REALTIME
+#define CLOCK_REALTIME 0
+#endif
+
 static const int DAYS_IN_MONTH[12] = {
     31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
 };
