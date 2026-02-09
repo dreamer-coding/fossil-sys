@@ -103,35 +103,35 @@ FOSSIL_TEST(c_test_type_max_i64) {
 }
 
 FOSSIL_TEST(c_test_type_alignof_i8) {
-    ASSUME_ITS_TRUE(FOSSIL_SYS_TYPE_ALIGNOF_I8 == __alignof(i8));
+    ASSUME_ITS_TRUE(FOSSIL_SYS_TYPE_ALIGNOF(i8) == alignof(i8));
 }
 
 FOSSIL_TEST(c_test_type_alignof_i16) {
-    ASSUME_ITS_TRUE(FOSSIL_SYS_TYPE_ALIGNOF_I16 == __alignof(i16));
+    ASSUME_ITS_TRUE(FOSSIL_SYS_TYPE_ALIGNOF(i16) == alignof(i16));
 }
 
 FOSSIL_TEST(c_test_type_alignof_i32) {
-    ASSUME_ITS_TRUE(FOSSIL_SYS_TYPE_ALIGNOF_I32 == __alignof(i32));
+    ASSUME_ITS_TRUE(FOSSIL_SYS_TYPE_ALIGNOF(i32) == alignof(i32));
 }
 
 FOSSIL_TEST(c_test_type_alignof_i64) {
-    ASSUME_ITS_TRUE(FOSSIL_SYS_TYPE_ALIGNOF_I64 == __alignof(i64));
+    ASSUME_ITS_TRUE(FOSSIL_SYS_TYPE_ALIGNOF(i64) == alignof(i64));
 }
 
 FOSSIL_TEST(c_test_type_alignof_u8) {
-    ASSUME_ITS_TRUE(FOSSIL_SYS_TYPE_ALIGNOF_U8 == __alignof(u8));
+    ASSUME_ITS_TRUE(FOSSIL_SYS_TYPE_ALIGNOF(u8) == alignof(u8));
 }
 
 FOSSIL_TEST(c_test_type_alignof_u16) {
-    ASSUME_ITS_TRUE(FOSSIL_SYS_TYPE_ALIGNOF_U16 == __alignof(u16));
+    ASSUME_ITS_TRUE(FOSSIL_SYS_TYPE_ALIGNOF(u16) == alignof(u16));
 }
 
 FOSSIL_TEST(c_test_type_alignof_u32) {
-    ASSUME_ITS_TRUE(FOSSIL_SYS_TYPE_ALIGNOF_U32 == __alignof(u32));
+    ASSUME_ITS_TRUE(FOSSIL_SYS_TYPE_ALIGNOF(u32) == alignof(u32));
 }
 
 FOSSIL_TEST(c_test_type_alignof_u64) {
-    ASSUME_ITS_TRUE(FOSSIL_SYS_TYPE_ALIGNOF_U64 == __alignof(u64));
+    ASSUME_ITS_TRUE(FOSSIL_SYS_TYPE_ALIGNOF(u64) == alignof(u64));
 }
 
 FOSSIL_TEST(c_test_type_cast_to_i32) {
