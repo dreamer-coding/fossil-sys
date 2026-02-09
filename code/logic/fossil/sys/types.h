@@ -29,472 +29,191 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <time.h>
+#include <limits.h>
 
-/* Ieger constants */
-#define FOSSIL_SYS_TYPE_MAX_U8   0xFF
-#define FOSSIL_SYS_TYPE_MIN_I8   (-128)
-#define FOSSIL_SYS_TYPE_MAX_I8   127
-#define FOSSIL_SYS_TYPE_MAX_U16  0xFFFF
-#define FOSSIL_SYS_TYPE_MIN_I16  (-32768)
-#define FOSSIL_SYS_TYPE_MAX_I16  32767
-#define FOSSIL_SYS_TYPE_MAX_U32  0xFFFFFFFF
-#define FOSSIL_SYS_TYPE_MIN_I32  (-2147483648)
-#define FOSSIL_SYS_TYPE_MAX_I32  2147483647
-#define FOSSIL_SYS_TYPE_MAX_U64  0xFFFFFFFFFFFFFFFF
-#define FOSSIL_SYS_TYPE_MIN_I64  (-9223372036854775807LL)
-#define FOSSIL_SYS_TYPE_MAX_I64  9223372036854775807LL
+/* ======================================================
+ * Core integer limits (portable, no UB)
+ * ====================================================== */
+#define FOSSIL_SYS_TYPE_MIN_I8    INT8_MIN
+#define FOSSIL_SYS_TYPE_MAX_I8    INT8_MAX
+#define FOSSIL_SYS_TYPE_MAX_U8    UINT8_MAX
 
-/* Type alignments (platform-specific) */
-#define FOSSIL_SYS_TYPE_ALIGNOF_I8   __alignof(i8)
-#define FOSSIL_SYS_TYPE_ALIGNOF_I16  __alignof(i16)
-#define FOSSIL_SYS_TYPE_ALIGNOF_I32  __alignof(i32)
-#define FOSSIL_SYS_TYPE_ALIGNOF_I64  __alignof(i64)
-#define FOSSIL_SYS_TYPE_ALIGNOF_U8   __alignof(u8)
-#define FOSSIL_SYS_TYPE_ALIGNOF_U16  __alignof(u16)
-#define FOSSIL_SYS_TYPE_ALIGNOF_U32  __alignof(u32)
-#define FOSSIL_SYS_TYPE_ALIGNOF_U64  __alignof(u64)
+#define FOSSIL_SYS_TYPE_MIN_I16   INT16_MIN
+#define FOSSIL_SYS_TYPE_MAX_I16   INT16_MAX
+#define FOSSIL_SYS_TYPE_MAX_U16   UINT16_MAX
 
-/* Type-Safe Macros */
-#define FOSSIL_SYS_TYPE_CAST_TO_I8(value)  ((i8)(value))
-#define FOSSIL_SYS_TYPE_CAST_TO_U8(value)  ((u8)(value))
-#define FOSSIL_SYS_TYPE_CAST_TO_I16(value) ((i16)(value))
-#define FOSSIL_SYS_TYPE_CAST_TO_U16(value) ((u16)(value))
-#define FOSSIL_SYS_TYPE_CAST_TO_I32(value) ((i32)(value))
-#define FOSSIL_SYS_TYPE_CAST_TO_U32(value) ((u32)(value))
-#define FOSSIL_SYS_TYPE_CAST_TO_I64(value) ((i64)(value))
-#define FOSSIL_SYS_TYPE_CAST_TO_U64(value) ((u64)(value))
-#define FOSSIL_SYS_TYPE_CAST_TO_F32(value) ((f32)(value))
-#define FOSSIL_SYS_TYPE_CAST_TO_F64(value) ((f64)(value))
-#define FOSSIL_SYS_TYPE_IS_NEGATIVE(value) ((value) < 0)
-#define FOSSIL_SYS_TYPE_IS_POSITIVE(value) ((value) > 0)
-#define FOSSIL_SYS_TYPE_IS_ZERO(value)     ((value) == 0)
-#define FOSSIL_SYS_TYPE_IS_NONZERO(value)  ((value) != 0)
+#define FOSSIL_SYS_TYPE_MIN_I32   INT32_MIN
+#define FOSSIL_SYS_TYPE_MAX_I32   INT32_MAX
+#define FOSSIL_SYS_TYPE_MAX_U32   UINT32_MAX
+
+#define FOSSIL_SYS_TYPE_MIN_I64   INT64_MIN
+#define FOSSIL_SYS_TYPE_MAX_I64   INT64_MAX
+#define FOSSIL_SYS_TYPE_MAX_U64   UINT64_MAX
+
+/* ======================================================
+ * Alignment helpers
+ * ====================================================== */
+#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
+    #define FOSSIL_SYS_TYPE_ALIGNOF(type) _Alignof(type)
+#elif defined(__GNUC__) || defined(__clang__)
+    #define FOSSIL_SYS_TYPE_ALIGNOF(type) __alignof__(type)
+#elif defined(_MSC_VER)
+    #define FOSSIL_SYS_TYPE_ALIGNOF(type) __alignof(type)
+#else
+    #define FOSSIL_SYS_TYPE_ALIGNOF(type) sizeof(type)
+#endif
+
+/* ======================================================
+ * Type-safe cast & value helpers
+ * ====================================================== */
+#define FOSSIL_SYS_TYPE_CAST_TO_I8(v)   ((i8)(v))
+#define FOSSIL_SYS_TYPE_CAST_TO_U8(v)   ((u8)(v))
+#define FOSSIL_SYS_TYPE_CAST_TO_I16(v)  ((i16)(v))
+#define FOSSIL_SYS_TYPE_CAST_TO_U16(v)  ((u16)(v))
+#define FOSSIL_SYS_TYPE_CAST_TO_I32(v)  ((i32)(v))
+#define FOSSIL_SYS_TYPE_CAST_TO_U32(v)  ((u32)(v))
+#define FOSSIL_SYS_TYPE_CAST_TO_I64(v)  ((i64)(v))
+#define FOSSIL_SYS_TYPE_CAST_TO_U64(v)  ((u64)(v))
+#define FOSSIL_SYS_TYPE_CAST_TO_F32(v)  ((f32)(v))
+#define FOSSIL_SYS_TYPE_CAST_TO_F64(v)  ((f64)(v))
+
+#define FOSSIL_SYS_TYPE_IS_NEGATIVE(v) ((v) < 0)
+#define FOSSIL_SYS_TYPE_IS_POSITIVE(v) ((v) > 0)
+#define FOSSIL_SYS_TYPE_IS_ZERO(v)     ((v) == 0)
+#define FOSSIL_SYS_TYPE_IS_NONZERO(v)  ((v) != 0)
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/* =======================
-   Signed and unsigned integer types
-   ======================= */
+/* ======================================================
+ * Fixed-width integer types
+ * ====================================================== */
 #ifdef _MSC_VER
-    typedef __int8  i8;   /* 8-bit signed integer */
-    typedef __int16 i16;  /* 16-bit signed integer */
-    typedef __int32 i32;  /* 32-bit signed integer */
-    typedef __int64 i64;  /* 64-bit signed integer */
+    typedef __int8   i8;
+    typedef __int16  i16;
+    typedef __int32  i32;
+    typedef __int64  i64;
 
-    typedef unsigned __int8  u8;   /* 8-bit unsigned integer */
-    typedef unsigned __int16 u16;  /* 16-bit unsigned integer */
-    typedef unsigned __int32 u32;  /* 32-bit unsigned integer */
-    typedef unsigned __int64 u64;  /* 64-bit unsigned integer */
+    typedef unsigned __int8   u8;
+    typedef unsigned __int16  u16;
+    typedef unsigned __int32  u32;
+    typedef unsigned __int64  u64;
 #else
-    typedef int8_t  i8;   /* 8-bit signed integer */
-    typedef int16_t i16;  /* 16-bit signed integer */
-    typedef int32_t i32;  /* 32-bit signed integer */
-    typedef int64_t i64;  /* 64-bit signed integer */
+    typedef int8_t   i8;
+    typedef int16_t  i16;
+    typedef int32_t  i32;
+    typedef int64_t  i64;
 
-    typedef uint8_t  u8;   /* 8-bit unsigned integer */
-    typedef uint16_t u16;  /* 16-bit unsigned integer */
-    typedef uint32_t u32;  /* 32-bit unsigned integer */
-    typedef uint64_t u64;  /* 64-bit unsigned integer */
+    typedef uint8_t  u8;
+    typedef uint16_t u16;
+    typedef uint32_t u32;
+    typedef uint64_t u64;
 #endif
 
-/* =======================
-   Hex, Binary, Octal integer types
-   ======================= */
-/* Unsigned hex types (h8, h16, h32, h64) */
+/* ======================================================
+ * Pointer-sized & size types
+ * ====================================================== */
+typedef size_t    usize;
+typedef ptrdiff_t isize;
+typedef uintptr_t uptr;
+typedef intptr_t  iptr;
+
+/* ======================================================
+ * Byte / bit helpers
+ * ====================================================== */
+typedef u8 byte;
+
+#define FOSSIL_SYS_TYPE_BITS_PER_BYTE 8
+#define FOSSIL_SYS_TYPE_BITS(type) (sizeof(type) * FOSSIL_SYS_TYPE_BITS_PER_BYTE)
+
+/* ======================================================
+ * Numeric representation aliases
+ * ====================================================== */
 typedef u8  h8;
 typedef u16 h16;
 typedef u32 h32;
 typedef u64 h64;
 
-/* Unsigned binary types (b8, b16, b32, b64) */
 typedef u8  b8;
 typedef u16 b16;
 typedef u32 b32;
 typedef u64 b64;
 
-/* Unsigned octal types (o8, o16, o32, o64) */
 typedef u8  o8;
 typedef u16 o16;
 typedef u32 o32;
 typedef u64 o64;
 
-/* =======================
-   Floating point types
-   ======================= */
-typedef float  f32;   /* 32-bit float */
-typedef double f64;   /* 64-bit double */
+/* ======================================================
+ * Floating-point types
+ * ====================================================== */
+typedef float  f32;
+typedef double f64;
+
+/* ======================================================
+ * Endianness detection
+ * ====================================================== */
+#define FOSSIL_LITTLE_ENDIAN 1234
+#define FOSSIL_BIG_ENDIAN    4321
+
+#if defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
+    #define FOSSIL_SYS_ENDIAN FOSSIL_BIG_ENDIAN
+#else
+    #define FOSSIL_SYS_ENDIAN FOSSIL_LITTLE_ENDIAN
+#endif
+
+/* ======================================================
+ * Static assertions (ABI sanity)
+ * ====================================================== */
+#define FOSSIL_STATIC_ASSERT(cond, name) \
+    typedef char fossil_static_assert_##name[(cond) ? 1 : -1]
+
+FOSSIL_STATIC_ASSERT(sizeof(i8)  == 1, i8_size);
+FOSSIL_STATIC_ASSERT(sizeof(i16) == 2, i16_size);
+FOSSIL_STATIC_ASSERT(sizeof(i32) == 4, i32_size);
+FOSSIL_STATIC_ASSERT(sizeof(i64) == 8, i64_size);
 
 #ifdef __cplusplus
 }
 
-#include <string>
-#include <vector>
-
-/**
- * C++ wrapper for the process management API.
- */
 namespace fossil {
 
-    /**
-     * Process management utilities.
-     */
     namespace sys {
-        /**
-         * Class representing an 8-bit signed integer.
-         */
-        class I8 {
+    
+        /* Generic numeric wrapper (reduces duplication) */
+        template<typename T>
+        class Num {
         public:
-            i8 value;
-
-            I8(i8 val = 0) : value(val) {}
-
-            // Operator overloading
-            I8 operator+(const I8& other) const {
-                return I8(value + other.value);
-            }
-
-            I8 operator-(const I8& other) const {
-                return I8(value - other.value);
-            }
-
-            I8 operator*(const I8& other) const {
-                return I8(value * other.value);
-            }
-
-            I8 operator/(const I8& other) const {
-                return I8(value / other.value);
-            }
-
-            bool operator==(const I8& other) const {
-                return value == other.value;
-            }
-
-            bool operator!=(const I8& other) const {
-                return value != other.value;
-            }
+            T value;
+        
+            constexpr Num(T v = 0) noexcept : value(v) {}
+            constexpr operator T() const noexcept { return value; }
+        
+            constexpr Num operator+(Num o) const noexcept { return value + o.value; }
+            constexpr Num operator-(Num o) const noexcept { return value - o.value; }
+            constexpr Num operator*(Num o) const noexcept { return value * o.value; }
+            constexpr Num operator/(Num o) const noexcept { return value / o.value; }
+        
+            constexpr bool operator==(Num o) const noexcept { return value == o.value; }
+            constexpr bool operator!=(Num o) const noexcept { return value != o.value; }
         };
-
-        /**
-         * Class representing an 8-bit unsigned integer.
-         */
-        class U8 {
-        public:
-            u8 value;
-
-            U8(u8 val = 0) : value(val) {}
-
-            // Operator overloading
-            U8 operator+(const U8& other) const {
-                return U8(value + other.value);
-            }
-
-            U8 operator-(const U8& other) const {
-                return U8(value - other.value);
-            }
-
-            U8 operator*(const U8& other) const {
-                return U8(value * other.value);
-            }
-
-            U8 operator/(const U8& other) const {
-                return U8(value / other.value);
-            }
-
-            bool operator==(const U8& other) const {
-                return value == other.value;
-            }
-
-            bool operator!=(const U8& other) const {
-                return value != other.value;
-            }
-        };
-
-        /**
-         * Class representing a 16-bit signed integer.
-         */
-        class I16 {
-        public:
-            i16 value;
-
-            I16(i16 val = 0) : value(val) {}
-
-            // Operator overloading
-            I16 operator+(const I16& other) const {
-                return I16(value + other.value);
-            }
-
-            I16 operator-(const I16& other) const {
-                return I16(value - other.value);
-            }
-
-            I16 operator*(const I16& other) const {
-                return I16(value * other.value);
-            }
-
-            I16 operator/(const I16& other) const {
-                return I16(value / other.value);
-            }
-
-            bool operator==(const I16& other) const {
-                return value == other.value;
-            }
-
-            bool operator!=(const I16& other) const {
-                return value != other.value;
-            }
-        };
-
-        /**
-         * Class representing a 16-bit unsigned integer.
-         */
-        class U16 {
-        public:
-            u16 value;
-
-            U16(u16 val = 0) : value(val) {}
-
-            // Operator overloading
-            U16 operator+(const U16& other) const {
-                return U16(value + other.value);
-            }
-
-            U16 operator-(const U16& other) const {
-                return U16(value - other.value);
-            }
-
-            U16 operator*(const U16& other) const {
-                return U16(value * other.value);
-            }
-
-            U16 operator/(const U16& other) const {
-                return U16(value / other.value);
-            }
-
-            bool operator==(const U16& other) const {
-                return value == other.value;
-            }
-
-            bool operator!=(const U16& other) const {
-                return value != other.value;
-            }
-        };
-
-        /**
-         * Class representing a 32-bit signed integer.
-         */
-        class I32 {
-        public:
-            i32 value;
-
-            I32(i32 val = 0) : value(val) {}
-
-            // Operator overloading
-            I32 operator+(const I32& other) const {
-                return I32(value + other.value);
-            }
-
-            I32 operator-(const I32& other) const {
-                return I32(value - other.value);
-            }
-
-            I32 operator*(const I32& other) const {
-                return I32(value * other.value);
-            }
-
-            I32 operator/(const I32& other) const {
-                return I32(value / other.value);
-            }
-
-            bool operator==(const I32& other) const {
-                return value == other.value;
-            }
-
-            bool operator!=(const I32& other) const {
-                return value != other.value;
-            }
-        };
-
-        /**
-         * Class representing a 32-bit unsigned integer.
-         */
-        class U32 {
-        public:
-            u32 value;
-
-            U32(u32 val = 0) : value(val) {}
-
-            // Operator overloading
-            U32 operator+(const U32& other) const {
-                return U32(value + other.value);
-            }
-
-            U32 operator-(const U32& other) const {
-                return U32(value - other.value);
-            }
-
-            U32 operator*(const U32& other) const {
-                return U32(value * other.value);
-            }
-
-            U32 operator/(const U32& other) const {
-                return U32(value / other.value);
-            }
-
-            bool operator==(const U32& other) const {
-                return value == other.value;
-            }
-
-            bool operator!=(const U32& other) const {
-                return value != other.value;
-            }
-        };
-
-        /**
-         * Class representing a 64-bit signed integer.
-         */
-        class I64 {
-        public:
-            i64 value;
-
-            I64(i64 val = 0) : value(val) {}
-
-            // Operator overloading
-            I64 operator+(const I64& other) const {
-                return I64(value + other.value);
-            }
-
-            I64 operator-(const I64& other) const {
-                return I64(value - other.value);
-            }
-
-            I64 operator*(const I64& other) const {
-                return I64(value * other.value);
-            }
-
-            I64 operator/(const I64& other) const {
-                return I64(value / other.value);
-            }
-
-            bool operator==(const I64& other) const {
-                return value == other.value;
-            }
-
-            bool operator!=(const I64& other) const {
-                return value != other.value;
-            }
-        };
-
-        /**
-         * Class representing a 64-bit unsigned integer.
-         */
-        class U64 {
-        public:
-            u64 value;
-
-            U64(u64 val = 0) : value(val) {}
-
-            // Operator overloading
-            U64 operator+(const U64& other) const {
-                return U64(value + other.value);
-            }
-
-            U64 operator-(const U64& other) const {
-                return U64(value - other.value);
-            }
-
-            U64 operator*(const U64& other) const {
-                return U64(value * other.value);
-            }
-
-            U64 operator/(const U64& other) const {
-                return U64(value / other.value);
-            }
-
-            bool operator==(const U64& other) const {
-                return value == other.value;
-            }
-
-            bool operator!=(const U64& other) const {
-                return value != other.value;
-            }
-        };
-
-        /**
-         * Class representing a 32-bit floating point.
-         */
-        class F32 {
-        public:
-            f32 value;
-
-            F32(f32 val = 0.0f) : value(val) {}
-
-            // Operator overloading
-            F32 operator+(const F32& other) const {
-                return F32(value + other.value);
-            }
-
-            F32 operator-(const F32& other) const {
-                return F32(value - other.value);
-            }
-
-            F32 operator*(const F32& other) const {
-                return F32(value * other.value);
-            }
-
-            F32 operator/(const F32& other) const {
-                return F32(value / other.value);
-            }
-
-            bool operator==(const F32& other) const {
-                return value == other.value;
-            }
-
-            bool operator!=(const F32& other) const {
-                return value != other.value;
-            }
-        };
-
-        /**
-         * Class representing a 64-bit floating point.
-         */
-        class F64 {
-        public:
-            f64 value;
-
-            F64(f64 val = 0.0) : value(val) {}
-
-            // Operator overloading
-            F64 operator+(const F64& other) const {
-                return F64(value + other.value);
-            }
-
-            F64 operator-(const F64& other) const {
-                return F64(value - other.value);
-            }
-
-            F64 operator*(const F64& other) const {
-                return F64(value * other.value);
-            }
-
-            F64 operator/(const F64& other) const {
-                return F64(value / other.value);
-            }
-
-            bool operator==(const F64& other) const {
-                return value == other.value;
-            }
-
-            bool operator!=(const F64& other) const {
-                return value != other.value;
-            }
-        };
-
-    } // namespace sys
-
-} // namespace fossil
+        
+        using I8  = Num<i8>;
+        using U8  = Num<u8>;
+        using I16 = Num<i16>;
+        using U16 = Num<u16>;
+        using I32 = Num<i32>;
+        using U32 = Num<u32>;
+        using I64 = Num<i64>;
+        using U64 = Num<u64>;
+        using F32 = Num<f32>;
+        using F64 = Num<f64>;
+    
+    } /* namespace sys */
+
+} /* namespace fossil */
 
 #endif
 
-#endif /* FOSSIL_SYS_PROCESS_H */
+#endif /* FOSSIL_SYS_TYPE_H */
