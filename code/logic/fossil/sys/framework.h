@@ -26,7 +26,6 @@
 #define FOSSIL_SYS_FRAMEWORK_H
 
 #include "cnullptr.h"
-#include "datetime.h"
 #include "hostinfo.h"
 #include "syscall.h"
 #include "bitwise.h"
