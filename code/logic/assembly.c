@@ -29,19 +29,6 @@
 #include <stdio.h>
 #include <ctype.h>
 
-#if !defined(_WIN32)
-    /* Enable mmap extensions on strict POSIX builds */
-    #if defined(__APPLE__)
-        #ifndef _DARWIN_C_SOURCE
-        #define _DARWIN_C_SOURCE
-        #endif
-    #elif defined(__linux__)
-        #ifndef _GNU_SOURCE
-        #define _GNU_SOURCE
-        #endif
-    #endif
-#endif
-
 #if defined(_WIN32)
     #include <windows.h>
 #else
