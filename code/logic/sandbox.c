@@ -36,6 +36,7 @@
 
 #include <unistd.h>
 #include <signal.h>
+#include <psapi.h>
 #include <sys/resource.h>
 #include <sys/wait.h>
 #include <time.h>
