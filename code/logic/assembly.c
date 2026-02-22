@@ -28,17 +28,28 @@
 #include <string.h>
 #include <stdio.h>
 
+/* ------------------------------------------------------
+ * Executable memory allocation macros
+ * ----------------------------------------------------- */
 #if defined(_WIN32) || defined(_WIN64)
+
 #include <windows.h>
 #define FOSSIL_EXEC_ALLOC(sz) VirtualAlloc(NULL, sz, MEM_COMMIT|MEM_RESERVE, PAGE_EXECUTE_READWRITE)
 #define FOSSIL_EXEC_FREE(p,sz) VirtualFree(p, 0, MEM_RELEASE)
+
 #else
+
 #include <sys/mman.h>
 #include <unistd.h>
-#define FOSSIL_EXEC_ALLOC(sz) mmap(NULL, sz, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_PRIVATE|MAP_ANON, -1, 0)
-#define FOSSIL_EXEC_FREE(p,sz) munmap(p, sz)
+
+#if !defined(MAP_ANON) && defined(MAP_ANONYMOUS)
+#define MAP_ANON MAP_ANONYMOUS
 #endif
 
+#define FOSSIL_EXEC_ALLOC(sz) mmap(NULL, sz, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_PRIVATE|MAP_ANON, -1, 0)
+#define FOSSIL_EXEC_FREE(p,sz) munmap(p, sz)
+
+#endif
 
 /* ------------------------------------------------------
  * Internal helper: write temp file
