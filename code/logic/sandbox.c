@@ -31,12 +31,12 @@
 #if defined(_WIN32) || defined(_WIN64)
 
 #include <windows.h>
+#include <psapi.h>
 
 #else
 
 #include <unistd.h>
 #include <signal.h>
-#include <psapi.h>
 #include <sys/resource.h>
 #include <sys/wait.h>
 #include <time.h>
