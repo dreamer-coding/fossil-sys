@@ -43,6 +43,14 @@
 #else
     #include <sys/mman.h>
     #include <unistd.h>
+
+    /* ------------------------------------------------------
+     * MAP_ANONYMOUS portability
+     * macOS / BSD use MAP_ANON instead
+     * ----------------------------------------------------- */
+    #ifndef MAP_ANONYMOUS
+    #define MAP_ANONYMOUS MAP_ANON
+    #endif
 #endif
 
 /* ======================================================
