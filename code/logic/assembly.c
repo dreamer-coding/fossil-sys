@@ -42,8 +42,13 @@
 #include <sys/mman.h>
 #include <unistd.h>
 
-#if !defined(MAP_ANON) && defined(MAP_ANONYMOUS)
-#define MAP_ANON MAP_ANONYMOUS
+/* POSIX portable: define MAP_ANON if missing */
+#if !defined(MAP_ANON)
+  #if defined(MAP_ANONYMOUS)
+    #define MAP_ANON MAP_ANONYMOUS
+  #else
+    #error "Neither MAP_ANON nor MAP_ANONYMOUS defined for mmap executable allocation"
+  #endif
 #endif
 
 #define FOSSIL_EXEC_ALLOC(sz) mmap(NULL, sz, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_PRIVATE|MAP_ANON, -1, 0)
