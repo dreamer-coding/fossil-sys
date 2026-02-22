@@ -27,53 +27,140 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <ctype.h>
 
-/* ------------------------------------------------------
- * Executable memory allocation macros
- * ----------------------------------------------------- */
-#if defined(_WIN32) || defined(_WIN64)
-
-#include <windows.h>
-#define FOSSIL_EXEC_ALLOC(sz) VirtualAlloc(NULL, sz, MEM_COMMIT|MEM_RESERVE, PAGE_EXECUTE_READWRITE)
-#define FOSSIL_EXEC_FREE(p,sz) VirtualFree(p, 0, MEM_RELEASE)
-
+#if defined(_WIN32)
+    #include <windows.h>
 #else
-
-#include <sys/mman.h>
-#include <unistd.h>
-
-/* POSIX portable: define MAP_ANON if missing */
-#if !defined(MAP_ANON)
-  #if defined(MAP_ANONYMOUS)
-    #define MAP_ANON MAP_ANONYMOUS
-  #else
-    #error "Neither MAP_ANON nor MAP_ANONYMOUS defined for mmap executable allocation"
-  #endif
+    #include <sys/mman.h>
+    #include <unistd.h>
 #endif
 
-#define FOSSIL_EXEC_ALLOC(sz) mmap(NULL, sz, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_PRIVATE|MAP_ANON, -1, 0)
-#define FOSSIL_EXEC_FREE(p,sz) munmap(p, sz)
+/* ======================================================
+ * Config
+ * ====================================================== */
 
-#endif
+#define FOSSIL_ASM_MAX_SIZE (1024 * 1024) /* 1 MB safety cap */
 
-/* ------------------------------------------------------
- * Internal helper: write temp file
- * ----------------------------------------------------- */
-static bool fossil_write_file(const char* path, const void* data, size_t size) {
-    FILE* f = fopen(path, "wb");
-    if (!f) return false;
-    fwrite(data, 1, size, f);
-    fclose(f);
-    return true;
+/* ======================================================
+ * Hash (FNV-1a for audit metadata)
+ * ====================================================== */
+
+static uint64_t fossil_hash_block(const uint8_t* data, size_t len) {
+    uint64_t hash = 1469598103934665603ULL;
+    for (size_t i = 0; i < len; ++i) {
+        hash ^= data[i];
+        hash *= 1099511628211ULL;
+    }
+    return hash;
 }
 
-/* ------------------------------------------------------
- * Assemble text using system assembler
- * Strategy:
- * 1. Write source to temp file
- * 2. Invoke assembler (nasm/clang/gcc)
- * 3. Read resulting object/raw binary
- * ----------------------------------------------------- */
+/* ======================================================
+ * Executable memory handling (W^X)
+ * ====================================================== */
+
+static void* fossil_exec_alloc_rw(size_t size) {
+#if defined(_WIN32)
+    return VirtualAlloc(NULL, size, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+#else
+    void* ptr = mmap(NULL, size,
+                     PROT_READ | PROT_WRITE,
+                     MAP_PRIVATE | MAP_ANONYMOUS,
+                     -1, 0);
+    return (ptr == MAP_FAILED) ? NULL : ptr;
+#endif
+}
+
+static void fossil_exec_make_rx(void* ptr, size_t size) {
+#if defined(_WIN32)
+    DWORD old;
+    VirtualProtect(ptr, size, PAGE_EXECUTE_READ, &old);
+#else
+    mprotect(ptr, size, PROT_READ | PROT_EXEC);
+#endif
+}
+
+static void fossil_exec_free(void* ptr, size_t size) {
+#if defined(_WIN32)
+    (void)size;
+    VirtualFree(ptr, 0, MEM_RELEASE);
+#else
+    munmap(ptr, size);
+#endif
+}
+
+/* Flush instruction cache when needed */
+static void fossil_exec_flush(void* ptr, size_t size) {
+#if defined(__GNUC__) || defined(__clang__)
+    __builtin___clear_cache((char*)ptr, (char*)ptr + size);
+#elif defined(_WIN32)
+    FlushInstructionCache(GetCurrentProcess(), ptr, size);
+#else
+    (void)ptr;
+    (void)size;
+#endif
+}
+
+/* ======================================================
+ * Hex parser
+ * Accepts:
+ *   B8 01 00 00 00 C3
+ *   0xB8,0x01,0xC3
+ *   newline separated
+ * ====================================================== */
+
+static int fossil_parse_hex(const char* src, uint8_t** out_buf, size_t* out_size) {
+    size_t cap = strlen(src) + 1;
+    if (cap > FOSSIL_ASM_MAX_SIZE) return 0;
+
+    uint8_t* buf = malloc(cap);
+    if (!buf) return 0;
+
+    size_t count = 0;
+    const char* p = src;
+
+    while (*p) {
+        while (*p && !isxdigit(*p)) p++;
+        if (!*p) break;
+
+        unsigned int byte;
+        if (sscanf(p, "%2x", &byte) != 1) {
+            free(buf);
+            return 0;
+        }
+
+        buf[count++] = (uint8_t)byte;
+
+        while (isxdigit(*p)) p++;
+    }
+
+    *out_buf = buf;
+    *out_size = count;
+    return 1;
+}
+
+/* ======================================================
+ * Host architecture detection
+ * ====================================================== */
+
+static fossil_sys_asm_arch_t fossil_host_arch(void) {
+#if defined(__x86_64__) || defined(_M_X64)
+    return FOSSIL_ASM_TYPE_X64;
+#elif defined(__i386__) || defined(_M_IX86)
+    return FOSSIL_ASM_TYPE_X86;
+#elif defined(__aarch64__)
+    return FOSSIL_ASM_TYPE_ARM64;
+#elif defined(__arm__)
+    return FOSSIL_ASM_TYPE_ARM;
+#else
+    return FOSSIL_ASM_TYPE_NONE;
+#endif
+}
+
+/* ======================================================
+ * Assemble
+ * ====================================================== */
+
 bool fossil_sys_asm_assemble(
     fossil_sys_asm_arch_t arch,
     const char* source,
@@ -81,116 +168,94 @@ bool fossil_sys_asm_assemble(
 {
     if (!source || !out_block) return false;
 
-    const char* src_path = "fossil_tmp.asm";
-    const char* bin_path = "fossil_tmp.bin";
-
-    if (!fossil_write_file(src_path, source, strlen(source)))
-        return false;
-
-    char cmd[512] = {0};
-
-#if defined(_WIN32) || defined(_WIN64)
-    /* Windows: assume NASM available */
-    snprintf(cmd, sizeof(cmd),
-        "nasm -f bin %s -o %s", src_path, bin_path);
-#else
-    /* POSIX: try NASM first, fallback to clang inline assembly */
-    snprintf(cmd, sizeof(cmd),
-        "nasm -f bin %s -o %s 2>/dev/null || "
-        "clang -x assembler %s -o %s",
-        src_path, bin_path, src_path, bin_path);
-#endif
-
-    if (system(cmd) != 0)
-        return false;
-
-    /* read binary */
-    FILE* f = fopen(bin_path, "rb");
-    if (!f) return false;
-
-    fseek(f, 0, SEEK_END);
-    size_t size = ftell(f);
-    fseek(f, 0, SEEK_SET);
-
-    uint8_t* exec_mem = (uint8_t*)FOSSIL_EXEC_ALLOC(size);
-    if (!exec_mem) {
-        fclose(f);
+    /* reject incompatible arch for now */
+    fossil_sys_asm_arch_t host = fossil_host_arch();
+    if (arch != host) {
+        /* future: allow cross-arch blobs for serialization */
         return false;
     }
 
-    fread(exec_mem, 1, size, f);
-    fclose(f);
+    uint8_t* parsed = NULL;
+    size_t parsed_size = 0;
 
-    out_block->id   = source;
+    if (!fossil_parse_hex(source, &parsed, &parsed_size))
+        return false;
+
+    if (parsed_size == 0 || parsed_size > FOSSIL_ASM_MAX_SIZE) {
+        free(parsed);
+        return false;
+    }
+
+    void* exec = fossil_exec_alloc_rw(parsed_size);
+    if (!exec) {
+        free(parsed);
+        return false;
+    }
+
+    memcpy(exec, parsed, parsed_size);
+    free(parsed);
+
+    fossil_exec_make_rx(exec, parsed_size);
+    fossil_exec_flush(exec, parsed_size);
+
+    out_block->id   = "assembled";
     out_block->arch = arch;
-    out_block->code = exec_mem;
-    out_block->size = size;
+    out_block->code = exec;
+    out_block->size = parsed_size;
 
     return true;
 }
 
-/* ------------------------------------------------------
- * Free executable block
- * ----------------------------------------------------- */
+/* ======================================================
+ * Free
+ * ====================================================== */
+
 void fossil_sys_asm_free(fossil_sys_asm_block_t* block) {
     if (!block || !block->code) return;
-    FOSSIL_EXEC_FREE(block->code, block->size);
+    fossil_exec_free(block->code, block->size);
     block->code = NULL;
     block->size = 0;
 }
 
-/* ------------------------------------------------------
- * Execute block
- * Convention:
- * code must be a function:
- * int func(int argc, char** argv)
- * ----------------------------------------------------- */
-int fossil_sys_asm_execute(
-    const fossil_sys_asm_block_t* block,
-    int argc,
-    char** argv)
-{
-    if (!block || !block->code || block->size == 0)
-        return -1;
+/* ======================================================
+ * Execute
+ * ====================================================== */
 
-    /* Ensure instruction cache is coherent after writing code */
-#if defined(__GNUC__) || defined(__clang__)
-    __builtin___clear_cache(
-        (char*)block->code,
-        (char*)block->code + block->size);
-#elif defined(_MSC_VER)
-    /* Microslop has no direct builtin; rely on OS APIs if needed */
-    /* FlushInstructionCache(GetCurrentProcess(), block->code, block->size); */
-#endif
+typedef int (*fossil_entry_fn)(int, char**);
 
-    /* Function pointer cast isolated for clarity */
-    typedef int (*fossil_entry_fn)(int, char**);
+int fossil_sys_asm_execute(const fossil_sys_asm_block_t* block, int argc, char** argv) {
+    if (!block || !block->code) return -1;
 
-    fossil_entry_fn fn;
-    memcpy(&fn, &block->code, sizeof(fn));
-
-    if (!fn)
-        return -2;
-
+    fossil_entry_fn fn = (fossil_entry_fn)block->code;
     return fn(argc, argv);
 }
 
-/* ------------------------------------------------------
- * Dump code to hex string
- * Caller must free returned string
- * ----------------------------------------------------- */
+/* ======================================================
+ * Dump hex
+ * ====================================================== */
+
 char* fossil_sys_asm_dump_hex(const fossil_sys_asm_block_t* block) {
     if (!block || !block->code || block->size == 0) return NULL;
 
-    const char* hex = "0123456789ABCDEF";
-    size_t out_sz = block->size * 2 + 1;
-    char* out = (char*)malloc(out_sz);
+    size_t out_len = block->size * 3 + 1;
+    char* out = malloc(out_len);
     if (!out) return NULL;
 
+    char* p = out;
     for (size_t i = 0; i < block->size; ++i) {
-        out[i*2]   = hex[(block->code[i] >> 4) & 0xF];
-        out[i*2+1] = hex[block->code[i] & 0xF];
+        sprintf(p, "%02X ", block->code[i]);
+        p += 3;
     }
-    out[out_sz-1] = '\0';
+
+    *p = '\0';
     return out;
+}
+
+/* ======================================================
+ * Optional: expose block hash for auditing
+ * ====================================================== */
+
+uint64_t fossil_sys_asm_hash(const fossil_sys_asm_block_t* block) {
+    if (!block || !block->code) return 0;
+    return fossil_hash_block(block->code, block->size);
 }
