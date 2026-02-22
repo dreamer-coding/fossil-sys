@@ -134,15 +134,27 @@ int fossil_sys_asm_execute(
     int argc,
     char** argv)
 {
-    if (!block || !block->code) return -1;
+    if (!block || !block->code || block->size == 0)
+        return -1;
 
-    typedef int (*fossil_entry_fn)(int,char**);
-    fossil_entry_fn fn = (fossil_entry_fn)(block->code);
-
+    /* Ensure instruction cache is coherent after writing code */
 #if defined(__GNUC__) || defined(__clang__)
-    __builtin___clear_cache((char*)block->code,
-                            (char*)block->code + block->size);
+    __builtin___clear_cache(
+        (char*)block->code,
+        (char*)block->code + block->size);
+#elif defined(_MSC_VER)
+    /* Microslop has no direct builtin; rely on OS APIs if needed */
+    /* FlushInstructionCache(GetCurrentProcess(), block->code, block->size); */
 #endif
+
+    /* Function pointer cast isolated for clarity */
+    typedef int (*fossil_entry_fn)(int, char**);
+
+    fossil_entry_fn fn;
+    memcpy(&fn, &block->code, sizeof(fn));
+
+    if (!fn)
+        return -2;
 
     return fn(argc, argv);
 }
