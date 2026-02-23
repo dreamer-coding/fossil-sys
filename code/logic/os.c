@@ -28,6 +28,12 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#if defined(__APPLE__)
+#ifndef _DARWIN_C_SOURCE
+#define _DARWIN_C_SOURCE
+#endif
+#endif
+
 #if defined(_WIN32) || defined(_WIN64)
 
 #include <windows.h>
@@ -45,6 +51,8 @@
 
 #if defined(__APPLE__)
 #include <sys/sysctl.h>
+#include <sys/types.h>
+#include <sys/socket.h>
 #include <libproc.h>
 #endif
 
