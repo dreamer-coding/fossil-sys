@@ -328,6 +328,7 @@ uint64_t fossil_sys_sandbox_memory(const fossil_sys_sandbox_t* box) {
  * CPU time consumed
  * ----------------------------------------------------- */
 uint64_t fossil_sys_sandbox_cpu_time(const fossil_sys_sandbox_t* box) {
+    if (!box || box->pid == 0) return 0;
 
 #if defined(_WIN32) || defined(_WIN64)
 
