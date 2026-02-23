@@ -26,7 +26,7 @@
 #define FOSSIL_SYS_FRAMEWORK_H
 
 #include "cnullptr.h"
-#include "assembly.h"
+#include "dynamic.h"
 #include "hostinfo.h"
 #include "syscall.h"
 #include "bitwise.h"

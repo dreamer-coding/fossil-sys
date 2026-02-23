@@ -5,13 +5,11 @@ add_project_arguments('-D_POSIX_C_SOURCE=200112L', language: 'cpp')
 fossil_sys_lib = library('fossil_sys',
     files(
         'memory.c',
-        'assembly.c',
         'hostinfo.c',
         'syscall.c',
         'dynamic.c',
         'process.c',
         'bitwise.c',
-        'sandbox.c',
         'os.c'),
     install: true,
     dependencies: [dependency('threads')],
