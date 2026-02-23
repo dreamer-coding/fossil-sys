@@ -49,7 +49,11 @@
      * macOS / BSD use MAP_ANON instead
      * ----------------------------------------------------- */
     #ifndef MAP_ANONYMOUS
-    #define MAP_ANONYMOUS MAP_ANON
+        #ifdef MAP_ANON
+        #define MAP_ANONYMOUS MAP_ANON
+        #else
+        #define MAP_ANONYMOUS 0x1000
+        #endif
     #endif
 #endif
 

@@ -39,7 +39,15 @@
 #include <signal.h>
 #include <sys/resource.h>
 #include <sys/wait.h>
+#include <sys/mman.h>
 #include <time.h>
+
+/* Handle MAP_ANON vs MAP_ANONYMOUS portability */
+#ifdef MAP_ANONYMOUS
+#define MAP_ANON MAP_ANONYMOUS
+#elif !defined(MAP_ANON)
+#define MAP_ANON 0
+#endif
 
 #endif
 
