@@ -170,10 +170,19 @@ static size_t fossil_query_memory(uint32_t pid) {
     if (!f) return 0;
 
     long pages = 0;
-    fscanf(f, "%ld", &pages);
+
+    /* Ensure fscanf actually read a value */
+    if (fscanf(f, "%ld", &pages) != 1 || pages <= 0) {
+        fclose(f);
+        return 0;
+    }
+
     fclose(f);
 
-    return (size_t)pages * (size_t)sysconf(_SC_PAGESIZE);
+    long page_size = sysconf(_SC_PAGESIZE);
+    if (page_size <= 0) return 0;
+
+    return (size_t)pages * (size_t)page_size;
 
 #elif defined(__APPLE__)
 
@@ -188,7 +197,6 @@ static size_t fossil_query_memory(uint32_t pid) {
     return 0;
 #endif
 }
-
 
 /* ------------------------------------------------------
  * List running processes
