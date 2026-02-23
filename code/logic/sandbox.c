@@ -51,19 +51,6 @@
 
 #endif
 
-
-/* ------------------------------------------------------
- * Internal helpers
- * ----------------------------------------------------- */
-
-static char* fossil_strdup(const char* s) {
-    if (!s) return NULL;
-    size_t n = strlen(s) + 1;
-    char* d = (char*)malloc(n);
-    if (d) memcpy(d, s, n);
-    return d;
-}
-
 /* ------------------------------------------------------
  * Create sandbox
  * ----------------------------------------------------- */
