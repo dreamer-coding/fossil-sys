@@ -37,7 +37,6 @@
 #else
 
 #include <unistd.h>
-#include <sys/types.h>
 #include <signal.h>
 #include <time.h>
 #include <dirent.h>
@@ -46,7 +45,6 @@
 
 #if defined(__APPLE__)
 #include <sys/sysctl.h>
-#include <sys/types.h>
 #include <libproc.h>
 #endif
 
