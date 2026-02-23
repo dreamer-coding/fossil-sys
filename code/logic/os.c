@@ -42,6 +42,7 @@
 #include <time.h>
 #include <dirent.h>
 #include <errno.h>
+#include <sched.h>
 
 #if defined(__APPLE__)
 #include <sys/sysctl.h>
