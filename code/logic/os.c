@@ -46,6 +46,7 @@
 
 #if defined(__APPLE__)
 #include <sys/sysctl.h>
+#include <sys/types.h>
 #include <libproc.h>
 #endif
 
