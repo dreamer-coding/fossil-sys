@@ -22,17 +22,26 @@
  * Copyright (C) 2014-2025 Fossil Logic. All rights reserved.
  * -----------------------------------------------------------------------------
  */
+/* ======================================================
+ * Fossil OS implementation
+ * Feature macros MUST come before any include
+ * ====================================================== */
+
+#if defined(__APPLE__)
+#ifndef _DARWIN_C_SOURCE
+#define _DARWIN_C_SOURCE 1
+#endif
+#endif
+
+#ifndef _POSIX_C_SOURCE
+#define _POSIX_C_SOURCE 200112L
+#endif
+
 #include "fossil/sys/os.h"
 
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
-
-#if defined(__APPLE__)
-#ifndef _DARWIN_C_SOURCE
-#define _DARWIN_C_SOURCE
-#endif
-#endif
 
 #if defined(_WIN32) || defined(_WIN64)
 
@@ -42,6 +51,8 @@
 
 #else
 
+#include <sys/types.h>     /* must come early on macOS */
+#include <sys/socket.h>    /* defines many BSD types */
 #include <unistd.h>
 #include <signal.h>
 #include <time.h>
@@ -50,12 +61,11 @@
 #include <sched.h>
 
 #if defined(__APPLE__)
-#include <sys/sysctl.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <libproc.h>
-#endif
 
+#include <sys/sysctl.h>
+#include <libproc.h>
+
+#endif
 #endif
 
 
