@@ -32,6 +32,7 @@
 #include "bitwise.h"
 #include "process.h"
 #include "memory.h"
+#include "event.h"
 #include "os.h"
 
 #endif /* FOSSIL_SYS_FRAMEWORK_H */
