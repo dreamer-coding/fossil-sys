@@ -26,10 +26,15 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <stdint.h>
 
 #if defined(_WIN32)
     #include <windows.h>
     #include <intrin.h>
+#elif defined(__APPLE__)
+    #include <unistd.h>
+    #include <sys/types.h>
+    #include <sys/sysctl.h>
 #else
     #include <unistd.h>
     #include <sys/sysinfo.h>
@@ -43,7 +48,7 @@ static fossil_sys_device_info_t g_devices[FOSSIL_SYS_MAX_DEVICES];
 static size_t g_device_count = 0;
 
 /* ------------------------------------------------------
- * Helpers
+ * Internal helper to add a device
  * ----------------------------------------------------- */
 static void fossil_sys_device_add(const char* id, fossil_sys_device_type_t type,
                                   const char* name, uint64_t memory_bytes, uint32_t cores) {
@@ -60,34 +65,54 @@ static void fossil_sys_device_add(const char* id, fossil_sys_device_type_t type,
  * Public API
  * ----------------------------------------------------- */
 
+// Initialize the device subsystem and detect CPU/memory
 int fossil_sys_device_init(void) {
     g_device_count = 0;
 
-    // CPU detection
+    uint32_t cores = 0;
+    uint64_t mem_bytes = 0;
+
 #if defined(_WIN32)
     SYSTEM_INFO sysinfo;
     GetSystemInfo(&sysinfo);
-    fossil_sys_device_add("cpu_0", FOSSIL_DEVICE_CPU, "CPU", 0, sysinfo.dwNumberOfProcessors);
-#else
-    long nprocs = sysconf(_SC_NPROCESSORS_ONLN);
-    fossil_sys_device_add("cpu_0", FOSSIL_DEVICE_CPU, "CPU", 0, (uint32_t)nprocs);
-#endif
+    cores = sysinfo.dwNumberOfProcessors;
 
-    // Memory info
-#if defined(_WIN32)
     MEMORYSTATUSEX mem;
     mem.dwLength = sizeof(mem);
     if (GlobalMemoryStatusEx(&mem)) {
-        g_devices[0].memory_bytes = mem.ullTotalPhys;
+        mem_bytes = mem.ullTotalPhys;
     }
-#else
+
+#elif defined(__APPLE__)
+    int nm[2];
+    int count = 0;
+    size_t len = sizeof(count);
+
+    // CPU cores
+    nm[0] = CTL_HW;
+    nm[1] = HW_NCPU;
+    sysctl(nm, 2, &count, &len, NULL, 0);
+    cores = (uint32_t)count;
+
+    // Total memory
+    int64_t mem64 = 0;
+    len = sizeof(mem64);
+    nm[1] = HW_MEMSIZE;
+    sysctl(nm, 2, &mem64, &len, NULL, 0);
+    mem_bytes = (uint64_t)mem64;
+
+#else // Linux/other POSIX
+    cores = (uint32_t)sysconf(_SC_NPROCESSORS_ONLN);
     struct sysinfo info;
     if (sysinfo(&info) == 0) {
-        g_devices[0].memory_bytes = (uint64_t)info.totalram * info.mem_unit;
+        mem_bytes = (uint64_t)info.totalram * info.mem_unit;
     }
 #endif
 
-    // TODO: Add GPU, Disk, Network, Sensors here
+    // Add CPU as first device
+    fossil_sys_device_add("cpu_0", FOSSIL_DEVICE_CPU, "CPU", mem_bytes, cores);
+
+    // Add stub devices for GPU, Disk, Network, Sensor
     fossil_sys_device_add("gpu_0", FOSSIL_DEVICE_GPU, "GPU", 0, 0);
     fossil_sys_device_add("disk_0", FOSSIL_DEVICE_DISK, "Disk", 0, 0);
     fossil_sys_device_add("net_0", FOSSIL_DEVICE_NETWORK, "Network", 0, 0);
@@ -96,7 +121,9 @@ int fossil_sys_device_init(void) {
     return 0;
 }
 
+// Enumerate all detected devices
 int fossil_sys_device_enumerate(fossil_sys_device_info_t* devices, size_t max_devices) {
+    if (!devices) return -1;
     size_t count = (max_devices < g_device_count) ? max_devices : g_device_count;
     for (size_t i = 0; i < count; i++) {
         devices[i] = g_devices[i];
@@ -104,6 +131,7 @@ int fossil_sys_device_enumerate(fossil_sys_device_info_t* devices, size_t max_de
     return (int)count;
 }
 
+// Query a single device by string ID
 int fossil_sys_device_query(const char* id, fossil_sys_device_info_t* out_device) {
     if (!id || !out_device) return -1;
     for (size_t i = 0; i < g_device_count; i++) {
@@ -115,6 +143,7 @@ int fossil_sys_device_query(const char* id, fossil_sys_device_info_t* out_device
     return -1; // not found
 }
 
+// Shutdown device subsystem
 void fossil_sys_device_shutdown(void) {
     g_device_count = 0;
 }
