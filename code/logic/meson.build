@@ -2,6 +2,9 @@ dir = include_directories('.')
 add_project_arguments('-D_POSIX_C_SOURCE=200112L', language: 'c')
 add_project_arguments('-D_POSIX_C_SOURCE=200112L', language: 'cpp')
 
+libdl = cc.find_library('dl', required : false)
+
+
 fossil_sys_lib = library('fossil_sys',
     files(
         'memory.c',
@@ -13,7 +16,7 @@ fossil_sys_lib = library('fossil_sys',
         'event.c',
         'os.c'),
     install: true,
-    dependencies: [dependency('threads')],
+    dependencies: [libdl, dependency('threads')],
     include_directories: dir)
 
 fossil_sys_dep = declare_dependency(
