@@ -1,6 +1,7 @@
 dir = include_directories('.')
 add_project_arguments('-D_POSIX_C_SOURCE=200112L', language: 'c')
 add_project_arguments('-D_POSIX_C_SOURCE=200112L', language: 'cpp')
+cc = meson.get_compiler('c')
 
 libdl = cc.find_library('dl', required : false)
 
