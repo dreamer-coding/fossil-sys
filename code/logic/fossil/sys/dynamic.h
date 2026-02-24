@@ -60,12 +60,30 @@ typedef struct {
  * Lifecycle
  * ----------------------------------------------------- */
 
-/* Load dynamic library */
+/**
+ * @brief Load a dynamic library from the specified path.
+ *
+ * Attempts to load a shared library (.so, .dll, .dylib) and initializes
+ * the fossil_sys_dynamic_lib_t structure with the library handle.
+ * Sets the status field to indicate success or failure.
+ *
+ * @param path      Path to the dynamic library file.
+ * @param out_lib   Pointer to library descriptor (will be populated).
+ * @return          true if library loaded successfully, false otherwise.
+ */
 bool fossil_sys_dynamic_load(
     const char* path,
     fossil_sys_dynamic_lib_t* out_lib);
 
-/* Unload dynamic library */
+/**
+ * @brief Unload a previously loaded dynamic library.
+ *
+ * Releases the library handle and associated resources. Sets the handle
+ * to NULL and updates the status field. Safe to call on unloaded libraries.
+ *
+ * @param lib       Pointer to library descriptor to unload.
+ * @return          true if unload succeeded, false on error.
+ */
 bool fossil_sys_dynamic_unload(
     fossil_sys_dynamic_lib_t* lib);
 
@@ -74,7 +92,17 @@ bool fossil_sys_dynamic_unload(
  * Symbol resolution
  * ----------------------------------------------------- */
 
-/* Get symbol pointer from library */
+/**
+ * @brief Retrieve a function or symbol pointer from the loaded library.
+ *
+ * Looks up a symbol by name and returns its address. The caller must
+ * cast the returned pointer to the appropriate function signature.
+ * Returns NULL if the symbol is not found or library is not loaded.
+ *
+ * @param lib           Pointer to loaded library descriptor.
+ * @param symbol_name   Name of the symbol to resolve.
+ * @return              Pointer to the symbol, or NULL on failure.
+ */
 void* fossil_sys_dynamic_symbol(
     fossil_sys_dynamic_lib_t* lib,
     const char* symbol_name);
@@ -84,16 +112,111 @@ void* fossil_sys_dynamic_symbol(
  * Introspection / diagnostics
  * ----------------------------------------------------- */
 
-/* Check if library is loaded */
+/**
+ * @brief Check whether a library is currently loaded.
+ *
+ * Inspects the library descriptor to determine if the handle is valid
+ * and the library is active in memory.
+ *
+ * @param lib   Pointer to library descriptor.
+ * @return      true if library is loaded, false otherwise.
+ */
 bool fossil_sys_dynamic_is_loaded(
     const fossil_sys_dynamic_lib_t* lib);
 
-/* Get last dynamic loading error message */
+/**
+ * @brief Retrieve the last error message from dynamic library operations.
+ *
+ * Returns a platform-specific error string describing the most recent
+ * load, unload, or symbol resolution failure. Message is valid until
+ * the next dynamic library operation.
+ *
+ * @return  Error message string, or empty string if no error occurred.
+ */
 const char* fossil_sys_dynamic_error(void);
 
 
 #ifdef __cplusplus
 }
+
+namespace fossil::sys {
+
+    class Dynamic {
+    public:
+
+    /**
+     * @brief Load a dynamic library from the specified path.
+     *
+     * Attempts to load a shared library (.so, .dll, .dylib) and initializes
+     * the library descriptor with the handle. Sets the status field to indicate
+     * success or failure.
+     *
+     * @param path      Path to the dynamic library file.
+     * @param out_lib   Pointer to library descriptor (will be populated).
+     * @return          true if library loaded successfully, false otherwise.
+     */
+    static bool load(const char* path, fossil_sys_dynamic_lib_t* out_lib) {
+        return fossil_sys_dynamic_load(path, out_lib);
+    }
+
+    /**
+     * @brief Unload a previously loaded dynamic library.
+     *
+     * Releases the library handle and associated resources. Sets the handle
+     * to NULL and updates the status field. Safe to call on unloaded libraries.
+     *
+     * @param lib       Pointer to library descriptor to unload.
+     * @return          true if unload succeeded, false on error.
+     */
+    static bool unload(fossil_sys_dynamic_lib_t* lib) {
+        return fossil_sys_dynamic_unload(lib);
+    }
+
+    /**
+     * @brief Retrieve a function or symbol pointer from the loaded library.
+     *
+     * Looks up a symbol by name and returns its address. The caller must
+     * cast the returned pointer to the appropriate function signature.
+     * Returns NULL if the symbol is not found or library is not loaded.
+     *
+     * @param lib           Pointer to loaded library descriptor.
+     * @param symbol_name   Name of the symbol to resolve.
+     * @return              Pointer to the symbol, or NULL on failure.
+     */
+    static void* symbol(fossil_sys_dynamic_lib_t* lib, const char* symbol_name) {
+        return fossil_sys_dynamic_symbol(lib, symbol_name);
+    }
+
+    /**
+     * @brief Check whether a library is currently loaded.
+     *
+     * Inspects the library descriptor to determine if the handle is valid
+     * and the library is active in memory.
+     *
+     * @param lib   Pointer to library descriptor.
+     * @return      true if library is loaded, false otherwise.
+     */
+    static bool is_loaded(const fossil_sys_dynamic_lib_t* lib) {
+        return fossil_sys_dynamic_is_loaded(lib);
+    }
+
+    /**
+     * @brief Retrieve the last error message from dynamic library operations.
+     *
+     * Returns a platform-specific error string describing the most recent
+     * load, unload, or symbol resolution failure. Message is valid until
+     * the next dynamic library operation.
+     *
+     * @return  Error message string, or empty string if no error occurred.
+     */
+    static const char* error(void) {
+        return fossil_sys_dynamic_error();
+    }
+
+};
+
+}
+
 #endif
 
 #endif /* FOSSIL_SYS_DYNAMIC_H */

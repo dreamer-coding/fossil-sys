@@ -48,23 +48,104 @@ typedef struct {
  * Functions
  * ----------------------------------------------------- */
 
-/* Spawn a new process */
+/**
+ * Spawn a new process with the given command string.
+ * 
+ * @param command The command string to execute (e.g., "ls -la")
+ * @param out_process Pointer to process structure to populate with spawn info
+ * @return true if process spawned successfully, false otherwise
+ */
 bool fossil_sys_os_spawn(const char* command, fossil_sys_os_process_t* out_process);
 
-/* Terminate a process by PID */
+/**
+ * Terminate a running process by its process ID.
+ * 
+ * @param pid The process ID to terminate
+ * @return true if process was terminated successfully, false otherwise
+ */
 bool fossil_sys_os_kill(uint32_t pid);
 
-/* List all running processes */
+/**
+ * Retrieve a list of all currently running processes on the system.
+ * 
+ * @param buffer Pointer to array of process structures to populate
+ * @param max_count Maximum number of processes to retrieve
+ * @return Number of processes actually retrieved and populated in buffer
+ */
 size_t fossil_sys_os_list(fossil_sys_os_process_t* buffer, size_t max_count);
 
-/* Get system uptime in seconds */
+/**
+ * Get the total system uptime since last boot.
+ * 
+ * @return System uptime in seconds
+ */
 uint64_t fossil_sys_os_uptime(void);
 
-/* Yield current thread */
+/**
+ * Yield the current thread's execution time to the scheduler.
+ * Allows other threads to run without blocking.
+ */
 void fossil_sys_os_yield(void);
 
 #ifdef __cplusplus
 }
+
+namespace fossil::sys {
+    
+class Os {
+public:
+    /** 
+     * Spawn a new process with the given command string.
+     * 
+     * @param command The command string to execute (e.g., "ls -la")
+     * @param out_process Pointer to process structure to populate with spawn info
+     * @return true if process spawned successfully, false otherwise
+     */
+    static bool spawn(const char* command, fossil_sys_os_process_t* out_process) {
+        return fossil_sys_os_spawn(command, out_process);
+    }
+
+    /** 
+     * Terminate a running process by its process ID.
+     * 
+     * @param pid The process ID to terminate
+     * @return true if process was terminated successfully, false otherwise
+     */
+    static bool kill(uint32_t pid) {
+        return fossil_sys_os_kill(pid);
+    }
+
+    /** 
+     * Retrieve a list of all currently running processes on the system.
+     * 
+     * @param buffer Pointer to array of process structures to populate
+     * @param max_count Maximum number of processes to retrieve
+     * @return Number of processes actually retrieved and populated in buffer
+     */
+    static size_t list(fossil_sys_os_process_t* buffer, size_t max_count) {
+        return fossil_sys_os_list(buffer, max_count);
+    }
+
+    /** 
+     * Get the total system uptime since last boot.
+     * 
+     * @return System uptime in seconds
+     */
+    static uint64_t uptime() {
+        return fossil_sys_os_uptime();
+    }
+
+    /** 
+     * Yield the current thread's execution time to the scheduler.
+     * Allows other threads to run without blocking.
+     */
+    static void yield() {
+        fossil_sys_os_yield();
+    }
+};
+
+} // namespace fossil::sys
+
 #endif
 
 #endif /* FOSSIL_SYS_OS_H */
