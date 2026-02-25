@@ -92,7 +92,7 @@ FOSSIL_TEST(cpp_test_dynamic_move_ctor) {
     Dynamic b(std::move(a));
 
     ASSUME_ITS_FALSE(a.is_loaded());
-    ASSUME_EQUAL(before, b.is_loaded());
+    ASSUME_ITS_EQUAL_I32(before, b.is_loaded());
 }
 
 FOSSIL_TEST(cpp_test_dynamic_move_assign) {
@@ -104,7 +104,7 @@ FOSSIL_TEST(cpp_test_dynamic_move_assign) {
     b = std::move(a);
 
     ASSUME_ITS_FALSE(a.is_loaded());
-    ASSUME_EQUAL(before, b.is_loaded());
+    ASSUME_ITS_EQUAL_I32(before, b.is_loaded());
 }
 
 FOSSIL_TEST(cpp_test_dynamic_error) {
