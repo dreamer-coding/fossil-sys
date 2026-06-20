@@ -208,15 +208,15 @@ FOSSIL_TEST(cpp_test_class_bitwise_format_string)
 // * * * * * * * * * * * * * * * * * * * * * * * *
 FOSSIL_TEST_GROUP(cpp_bitwise_tests)
 {
-    FOSSIL_TEST_ADD(cpp_bitwise_suite, cpp_test_class_bitwise_parse);
-    FOSSIL_TEST_ADD(cpp_bitwise_suite, cpp_test_class_bitwise_format);
-    FOSSIL_TEST_ADD(cpp_bitwise_suite, cpp_test_class_bitwise_lookup);
-    FOSSIL_TEST_ADD(cpp_bitwise_suite, cpp_test_class_bitwise_all);
-    FOSSIL_TEST_ADD(cpp_bitwise_suite, cpp_test_class_bitwise_validate);
-    FOSSIL_TEST_ADD(cpp_bitwise_suite, cpp_test_class_bitwise_name);
-    FOSSIL_TEST_ADD(cpp_bitwise_suite, cpp_test_class_bitwise_count);
-    FOSSIL_TEST_ADD(cpp_bitwise_suite, cpp_test_class_bitwise_has);
-    FOSSIL_TEST_ADD(cpp_bitwise_suite, cpp_test_class_bitwise_format_string);
+    FOSSIL_ADD_TEST(cpp_bitwise_suite, cpp_test_class_bitwise_parse);
+    FOSSIL_ADD_TEST(cpp_bitwise_suite, cpp_test_class_bitwise_format);
+    FOSSIL_ADD_TEST(cpp_bitwise_suite, cpp_test_class_bitwise_lookup);
+    FOSSIL_ADD_TEST(cpp_bitwise_suite, cpp_test_class_bitwise_all);
+    FOSSIL_ADD_TEST(cpp_bitwise_suite, cpp_test_class_bitwise_validate);
+    FOSSIL_ADD_TEST(cpp_bitwise_suite, cpp_test_class_bitwise_name);
+    FOSSIL_ADD_TEST(cpp_bitwise_suite, cpp_test_class_bitwise_count);
+    FOSSIL_ADD_TEST(cpp_bitwise_suite, cpp_test_class_bitwise_has);
+    FOSSIL_ADD_TEST(cpp_bitwise_suite, cpp_test_class_bitwise_format_string);
 
-    FOSSIL_TEST_REGISTER(cpp_bitwise_suite);
+    FOSSIL_ADD_SUITE(cpp_bitwise_suite);
 }

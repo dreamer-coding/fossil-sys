@@ -162,16 +162,16 @@ FOSSIL_TEST(c_test_sys_call_execute_capture)
 
 FOSSIL_TEST_GROUP(c_syscall_tests)
 {
-    FOSSIL_TEST_ADD(c_syscall_suite, c_test_sys_call_execute);
-    FOSSIL_TEST_ADD(c_syscall_suite, c_test_sys_call_getpid);
-    FOSSIL_TEST_ADD(c_syscall_suite, c_test_sys_call_create_file);
-    FOSSIL_TEST_ADD(c_syscall_suite, c_test_sys_call_delete_file);
-    FOSSIL_TEST_ADD(c_syscall_suite, c_test_sys_call_file_exists);
-    FOSSIL_TEST_ADD(c_syscall_suite, c_test_sys_call_create_directory);
-    FOSSIL_TEST_ADD(c_syscall_suite, c_test_sys_call_delete_directory_non_recursive);
-    FOSSIL_TEST_ADD(c_syscall_suite, c_test_sys_call_delete_directory_recursive);
-    FOSSIL_TEST_ADD(c_syscall_suite, c_test_sys_call_getcwd_and_chdir);
-    FOSSIL_TEST_ADD(c_syscall_suite, c_test_sys_call_execute_capture);
+    FOSSIL_ADD_TEST(c_syscall_suite, c_test_sys_call_execute);
+    FOSSIL_ADD_TEST(c_syscall_suite, c_test_sys_call_getpid);
+    FOSSIL_ADD_TEST(c_syscall_suite, c_test_sys_call_create_file);
+    FOSSIL_ADD_TEST(c_syscall_suite, c_test_sys_call_delete_file);
+    FOSSIL_ADD_TEST(c_syscall_suite, c_test_sys_call_file_exists);
+    FOSSIL_ADD_TEST(c_syscall_suite, c_test_sys_call_create_directory);
+    FOSSIL_ADD_TEST(c_syscall_suite, c_test_sys_call_delete_directory_non_recursive);
+    FOSSIL_ADD_TEST(c_syscall_suite, c_test_sys_call_delete_directory_recursive);
+    FOSSIL_ADD_TEST(c_syscall_suite, c_test_sys_call_getcwd_and_chdir);
+    FOSSIL_ADD_TEST(c_syscall_suite, c_test_sys_call_execute_capture);
 
-    FOSSIL_TEST_REGISTER(c_syscall_suite);
+    FOSSIL_ADD_SUITE(c_syscall_suite);
 }

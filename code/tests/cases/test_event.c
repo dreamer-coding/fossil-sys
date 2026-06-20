@@ -120,10 +120,10 @@ FOSSIL_TEST(c_test_event_shutdown)
 // * * * * * * * * * * * * * * * * * * * * * * * *
 FOSSIL_TEST_GROUP(c_event_tests)
 {
-    FOSSIL_TEST_ADD(c_event_suite, c_test_event_poll);
-    FOSSIL_TEST_ADD(c_event_suite, c_test_event_post);
-    FOSSIL_TEST_ADD(c_event_suite, c_test_event_wait);
-    FOSSIL_TEST_ADD(c_event_suite, c_test_event_shutdown);
+    FOSSIL_ADD_TEST(c_event_suite, c_test_event_poll);
+    FOSSIL_ADD_TEST(c_event_suite, c_test_event_post);
+    FOSSIL_ADD_TEST(c_event_suite, c_test_event_wait);
+    FOSSIL_ADD_TEST(c_event_suite, c_test_event_shutdown);
 
-    FOSSIL_TEST_REGISTER(c_event_suite);
+    FOSSIL_ADD_SUITE(c_event_suite);
 }

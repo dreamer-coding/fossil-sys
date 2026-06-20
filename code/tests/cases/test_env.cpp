@@ -118,10 +118,10 @@ FOSSIL_TEST(cpp_test_env_cpp_wrapper_foreach)
 // * * * * * * * * * * * * * * * * * * * * * * * *
 FOSSIL_TEST_GROUP(cpp_env_tests)
 {
-    FOSSIL_TEST_ADD(cpp_env_suite, cpp_test_env_cpp_wrapper_get_set);
-    FOSSIL_TEST_ADD(cpp_env_suite, cpp_test_env_cpp_wrapper_get_int);
-    FOSSIL_TEST_ADD(cpp_env_suite, cpp_test_env_cpp_wrapper_get_bool);
-    FOSSIL_TEST_ADD(cpp_env_suite, cpp_test_env_cpp_wrapper_foreach);
+    FOSSIL_ADD_TEST(cpp_env_suite, cpp_test_env_cpp_wrapper_get_set);
+    FOSSIL_ADD_TEST(cpp_env_suite, cpp_test_env_cpp_wrapper_get_int);
+    FOSSIL_ADD_TEST(cpp_env_suite, cpp_test_env_cpp_wrapper_get_bool);
+    FOSSIL_ADD_TEST(cpp_env_suite, cpp_test_env_cpp_wrapper_foreach);
 
-    FOSSIL_TEST_REGISTER(cpp_env_suite);
+    FOSSIL_ADD_SUITE(cpp_env_suite);
 }

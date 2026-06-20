@@ -157,18 +157,18 @@ FOSSIL_TEST(cpp_test_sys_call_execute_capture)
 
 FOSSIL_TEST_GROUP(cpp_syscall_tests)
 {
-    FOSSIL_TEST_ADD(cpp_syscall_suite, cpp_test_sys_call_execute);
-    FOSSIL_TEST_ADD(cpp_syscall_suite, cpp_test_sys_call_getpid);
-    FOSSIL_TEST_ADD(cpp_syscall_suite, cpp_test_sys_call_create_file);
-    FOSSIL_TEST_ADD(cpp_syscall_suite, cpp_test_sys_call_execute_string);
-    FOSSIL_TEST_ADD(cpp_syscall_suite, cpp_test_sys_call_getpid_class);
-    FOSSIL_TEST_ADD(cpp_syscall_suite, cpp_test_sys_call_create_file_class);
-    FOSSIL_TEST_ADD(cpp_syscall_suite, cpp_test_sys_call_create_file_cstr_class);
-    FOSSIL_TEST_ADD(cpp_syscall_suite, cpp_test_sys_call_delete_file);
-    FOSSIL_TEST_ADD(cpp_syscall_suite, cpp_test_sys_call_file_exists);
-    FOSSIL_TEST_ADD(cpp_syscall_suite, cpp_test_sys_call_create_directory);
-    FOSSIL_TEST_ADD(cpp_syscall_suite, cpp_test_sys_call_delete_directory);
-    FOSSIL_TEST_ADD(cpp_syscall_suite, cpp_test_sys_call_execute_capture);
+    FOSSIL_ADD_TEST(cpp_syscall_suite, cpp_test_sys_call_execute);
+    FOSSIL_ADD_TEST(cpp_syscall_suite, cpp_test_sys_call_getpid);
+    FOSSIL_ADD_TEST(cpp_syscall_suite, cpp_test_sys_call_create_file);
+    FOSSIL_ADD_TEST(cpp_syscall_suite, cpp_test_sys_call_execute_string);
+    FOSSIL_ADD_TEST(cpp_syscall_suite, cpp_test_sys_call_getpid_class);
+    FOSSIL_ADD_TEST(cpp_syscall_suite, cpp_test_sys_call_create_file_class);
+    FOSSIL_ADD_TEST(cpp_syscall_suite, cpp_test_sys_call_create_file_cstr_class);
+    FOSSIL_ADD_TEST(cpp_syscall_suite, cpp_test_sys_call_delete_file);
+    FOSSIL_ADD_TEST(cpp_syscall_suite, cpp_test_sys_call_file_exists);
+    FOSSIL_ADD_TEST(cpp_syscall_suite, cpp_test_sys_call_create_directory);
+    FOSSIL_ADD_TEST(cpp_syscall_suite, cpp_test_sys_call_delete_directory);
+    FOSSIL_ADD_TEST(cpp_syscall_suite, cpp_test_sys_call_execute_capture);
 
-    FOSSIL_TEST_REGISTER(cpp_syscall_suite);
+    FOSSIL_ADD_SUITE(cpp_syscall_suite);
 }

@@ -175,13 +175,13 @@ FOSSIL_TEST(c_test_env_foreach)
 // * * * * * * * * * * * * * * * * * * * * * * * *
 FOSSIL_TEST_GROUP(c_env_tests)
 {
-    FOSSIL_TEST_ADD(c_env_suite, c_test_env_get_set);
-    FOSSIL_TEST_ADD(c_env_suite, c_test_env_exists);
-    FOSSIL_TEST_ADD(c_env_suite, c_test_env_get_or);
-    FOSSIL_TEST_ADD(c_env_suite, c_test_env_get_int);
-    FOSSIL_TEST_ADD(c_env_suite, c_test_env_get_bool);
-    FOSSIL_TEST_ADD(c_env_suite, c_test_env_canonical_keys);
-    FOSSIL_TEST_ADD(c_env_suite, c_test_env_foreach);
+    FOSSIL_ADD_TEST(c_env_suite, c_test_env_get_set);
+    FOSSIL_ADD_TEST(c_env_suite, c_test_env_exists);
+    FOSSIL_ADD_TEST(c_env_suite, c_test_env_get_or);
+    FOSSIL_ADD_TEST(c_env_suite, c_test_env_get_int);
+    FOSSIL_ADD_TEST(c_env_suite, c_test_env_get_bool);
+    FOSSIL_ADD_TEST(c_env_suite, c_test_env_canonical_keys);
+    FOSSIL_ADD_TEST(c_env_suite, c_test_env_foreach);
 
-    FOSSIL_TEST_REGISTER(c_env_suite);
+    FOSSIL_ADD_SUITE(c_env_suite);
 }
